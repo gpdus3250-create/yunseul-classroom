@@ -9,7 +9,6 @@ on:
     paths:
       - "scripts/sync_weekly.py"
       - "scripts/recommend_lessons.py"
-      - "scripts/inspect_public_week.py"
       - "requirements.txt"
       - ".github/workflows/weekly-sync.yml"
 permissions:
@@ -41,16 +40,28 @@ jobs:
         run: python scripts/sync_weekly.py
       - name: Recommend activities based on original weekly PDFs
         run: python scripts/recommend_lessons.py
-      - name: Inspect original integrated textbook timetable
-        run: python scripts/inspect_public_week.py
       - name: Save verified documents and status
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add weekly-data
           if ! git diff --cached --quiet; then
-            git commit -m "Refresh weekly notice status and publicly available documents"
-            git push
+            git commit -m "Refresh weekly notice status and lesson recommendations"
+            uploaded=0
+            for attempt in 1 2 3 4 5; do
+              # Other classroom tasks may update main during a sync.
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                uploaded=1
+                break
+              fi
+              sleep $((attempt * 2))
+            done
+            if [ "$uploaded" -ne 1 ]; then
+              echo "::error::The public weekly-data update could not be pushed after retries."
+              exit 1
+            fi
           fi
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
