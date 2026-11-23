@@ -7,6 +7,7 @@ on:
       - '.github/workflows/generate-melo-voice.yml'
 permissions:
   contents: write
+  actions: write
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -27,9 +28,24 @@ jobs:
           python -m unidic download
       - name: Generate original 140 sentences and prompts
         run: python dictation/tools/generate_melo.py
-      - name: Commit actual MP3 files only when generation succeeds
+      - name: Confirm 172 audio files before website activation
+        run: |
+          python dictation/tools/activate_new_voice.py MELO
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+          node scripts/dictation_voice_s1.cjs
+          node scripts/dictation_smoke.cjs
+      - name: Commit actual MP3 files and updated voice selector only after validation
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dictation/voice/MELO/*.mp3
-          git diff --cached --quiet || (git commit -m "Add generated MeloTTS Korean MP3 recordings" && git push)
+          git add dictation/voice/MELO/*.mp3 dictation/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish verified MeloTTS Korean voice with website selector"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Trigger GitHub Pages deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --ref main
