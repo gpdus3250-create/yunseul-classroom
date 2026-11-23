@@ -185,6 +185,29 @@ assert.ok(vm.runInContext('renderWorksheet()',wsContext).includes('ws-pattern-wi
 for(const action of ["worksheet-reroll","worksheet-edit","worksheet-save-one","worksheet-remove","worksheet-add","worksheet-preview-page"]){
  assert.ok(html.includes("case'"+action+"'"),"Worksheet action not wired: "+action);
 }
+
+wsObj.kind='writing';wsObj.writingPaper='manuscript';wsObj.pageMode='one';
+wsObj.items=[
+ {text:'오늘 가장 즐거웠던 일을 써 보세요.',answer:'자유 응답'},
+ {text:'친구에게 고마웠던 일을 써 보세요.',answer:'자유 응답'},
+ {text:'내가 좋아하는 장소를 소개해 보세요.',answer:'자유 응답'}
+];
+const manuscriptPages=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
+assert.equal(manuscriptPages.length,2,'Wide 1st-grade manuscript grids should span 2 pages for 3 prompts');
+const manuscript=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(manuscript.includes('worksheet-writing-paper'),'Writing paper selector missing');
+assert.ok(manuscript.includes('ws-manuscript-grid'),'Real manuscript square grid missing');
+assert.ok(manuscript.includes('ws-indent-cell'),'First-cell indentation guide missing');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(wsContext.lastPrinted.body.includes('ws-manuscript-grid'),'Manuscript paper must also print');
+assert.ok(!/class="ws-sheet ws-cute ws-kind-writing [^"]*ws-answers/.test(wsContext.lastPrinted.body),
+ 'Manuscript worksheets must not show an answer page');
+wsObj.kind='pattern';wsObj.writingPaper='lines';
+wsObj.items=[{text:'규칙을 찾아 빈칸에 알맞은 수를 쓰세요.  2 → 4 → □ → 8',answer:'6'}];
+const patternBlank=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(patternBlank.includes('ws-pattern-blank'),'Pattern questions should use a real square answer box');
+console.log('✓ Manuscript paper, first-cell indentation, ruled writing and square pattern blanks verified');
+
 console.log('✓ Worksheet studio: themes, ratio, math validation, purpose, A4, per-question edits and print validated');
 
 const publicSheets=[
