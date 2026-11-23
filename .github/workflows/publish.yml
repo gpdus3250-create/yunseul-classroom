@@ -22,6 +22,7 @@ jobs:
         run: |
           node scripts/site_smoke.cjs
           node scripts/dictation_smoke.cjs
+          node scripts/dictation_voice_lock.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
