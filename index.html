@@ -59,6 +59,45 @@
 .meaning-choices button:disabled{opacity:.7}
 @media(max-width:720px){.lesson-cards{grid-template-columns:1fr}.meaning-choices{grid-template-columns:1fr}.lesson-panel{padding:17px}}
 
+
+/* 1학년 수업 아이디어 연구소 - 노란/보라 산뜻한 카드와 교과별 탭 */
+.lesson-upgraded{background:linear-gradient(145deg,#fff,#faf7ff 70%,#f4fcfa);padding:26px;border-radius:25px}
+.lesson-upgraded .lesson-panel-head{margin-bottom:20px}
+.lesson-upgraded .lesson-panel-head h2{font-size:21px}
+.lesson-toolbar{margin:5px 0 18px}
+.lesson-counts{font-size:12px;color:#827394;margin-bottom:13px}
+.lesson-counts strong{font-size:16px;color:#7959c3}
+.lesson-filters{display:flex;gap:8px;overflow:auto;padding:2px 0 9px;scrollbar-width:thin}
+.lesson-filter{flex-shrink:0;display:flex;align-items:center;gap:6px;border:1px solid #e4daf7;border-radius:13px;background:#fff;color:#76648e;padding:10px 13px;font-weight:800;font-size:12px}
+.lesson-filter.on{background:#7e65cd;color:#fff;border-color:#7e65cd;box-shadow:0 5px 13px #7e65cd33}
+.lesson-filter b{opacity:.85;font-size:11px}
+.lesson-card-upgraded{border:1px solid #eae2fa;box-shadow:0 4px 16px #8d6bbc0e;padding:19px}
+.lesson-card-upgraded h3{font-size:17px;color:#513777}
+.lesson-card-icon{font-size:27px}
+.lesson-card-time{font-size:11px;color:#887a9b;background:#faf5ff;border-radius:11px;padding:5px 9px;margin-left:auto;white-space:nowrap}
+.lesson-card-topic{font-size:11px;color:#887a9b;margin-bottom:10px}
+.lesson-card-hook{font-size:13px!important;color:#4e4262!important;font-weight:700;line-height:1.65}
+.lesson-card-upgraded .lesson-evidence{background:#fbf9ff;border:1px solid #efebf7;color:#857a91}
+.lesson-integrated{display:inline-block;color:#7f66ad;background:#f4eeff;border-radius:11px;padding:4px 9px;font-size:10px;font-weight:800;margin:0 0 10px}
+.lesson-teacher-guide{border:1px dashed #d9c7ee;border-radius:13px;margin:13px 0;background:#fcfaff}
+.lesson-teacher-guide summary{cursor:pointer;font-size:12px;font-weight:900;color:#7053a6;padding:12px 13px;list-style-position:inside}
+.lesson-guide-content{padding:2px 12px 14px}
+.lesson-material{font-size:11px!important;color:#80718d!important;margin:6px 0 14px}
+.lesson-steps{padding:0;margin:0;list-style:none;display:grid;gap:12px}
+.lesson-steps li{display:flex;gap:11px;align-items:flex-start}
+.lesson-steps li p{margin-top:3px;font-size:12px;color:#736a80}
+.lesson-steps li b{font-size:12px;color:#574471}
+.lesson-step-time{flex-shrink:0;color:#6f56a8;font-size:11px;font-weight:900;background:#efe8fc;border-radius:10px;padding:7px}
+.lesson-guide-notice{background:#f6f2ff;border-radius:13px;padding:12px;margin-top:14px}
+.lesson-guide-notice b{font-size:11px;color:#694d98}
+.lesson-guide-notice p{font-size:12px!important;margin:3px 0 8px}
+.lesson-spark-result{border-radius:12px;background:#fff4d8;padding:12px;font-weight:750;font-size:13px;margin-top:10px;color:#70541a}
+.lesson-upgraded .lesson-buttons{margin-top:14px}
+.lesson-upgraded .lesson-buttons button{font-size:12px;border-radius:12px;padding:11px 12px}
+.lesson-upgraded .lesson-buttons .lesson-secondary-action{color:#6d53a2;background:#f0e8fd;border:1px solid #dfd0f7}
+.lesson-more{text-align:center;margin:16px 0 5px}
+@media(max-width:710px){.lesson-upgraded{padding:17px}.lesson-filters{flex-wrap:nowrap}.lesson-card-upgraded{padding:15px}.lesson-panel-head h2{font-size:18px}.lesson-guide-content{padding:4px 9px 12px}}
+
 /* 주간학습안내 - 학교 사이트 밖으로 이동하지 않고 PDF/이미지 미리보기 */
 .weekly-panel{margin-top:18px;border:1px solid #e6dbfa;border-radius:23px;background:#fff;box-shadow:var(--shadow);padding:22px 23px}
 .weekly-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
@@ -226,7 +265,7 @@ function personalShortcutsPanel(){
 }
 
 // 실제 학교 PDF의 확인 가능한 표현만 연결합니다. 불확실하면 추천을 보여주지 않습니다.
-const lessonState={status:'loading',weeks:{},generated:null,message:''};
+const lessonState={status:'loading',weeks:{},generated:null,message:'',filter:'all',expanded:false,sparks:{},sparkIndices:{}};
 async function lessonsLoad(){
  if(location.protocol==='file:'){lessonState.status='unavailable';return;}
  try{
@@ -248,21 +287,65 @@ async function lessonsLoad(){
 function lessonRecommendationsPanel(homeMode){
  const week=weeklySelected(!!homeMode);
  const record=lessonState.weeks[week];
+ const all=Array.isArray(record?.recommendations)?record.recommendations:[];
+ const labels=[['all','✨ 전체'],['상상','🎨 상상 1-2'],['이야기','📚 이야기 1-2'],['국어','🔤 국어'],['수학','🔢 수학']];
+ const count=type=>type==='all'?all.length:all.filter(x=>x.subject===type).length;
+ const active=lessonState.filter;
+ const showing=all.filter(x=>active==='all'||x.subject===active);
+ const selected=lessonState.expanded?showing:showing.slice(0,6);
  let contents='';
- if(lessonState.status==='loading')contents='<div class="lesson-status">학교 PDF에서 수업 내용을 확인하고 있어요…</div>';
- else if(lessonState.status!=='ok')contents='<div class="lesson-status">자동 수업 추천 자료를 아직 확인할 수 없어요. 주간학습안내 PDF는 위에서 볼 수 있어요.</div>';
- else if(!record)contents='<div class="lesson-status">선택한 주의 PDF 분석 자료가 아직 없어요. 수업 진도는 임의로 만들지 않을게요.</div>';
- else if(record.status!=='ok')contents='<div class="lesson-status">'+safe(record.message||'PDF의 글자를 읽지 못했어요. 원본을 확인해 주세요.')+'</div>';
- else if(!record.recommendations?.length)contents='<div class="lesson-status">이번 주 PDF에서 기존 도구와 직접 연결할 수 있는 수업 내용을 찾지 못했어요.</div>';
- else contents='<div class="lesson-cards">'+record.recommendations.map(function(item){
-  const proof=(item.evidence||[]).slice(0,2).map(safe).join(' · ');
-  const actions=(item.actions||[]).filter(a=>/^[a-z-]+$/.test(a.id||'')).map(function(a){
-   return '<button type="button" data-act="lesson-launch" data-id="'+safe(a.id)+'">'+safe(a.label)+'</button>';
+ if(lessonState.status==='loading')contents='<div class="lesson-status">이번 주 주간학습안내를 읽고 수업 자료를 준비하고 있어요…</div>';
+ else if(lessonState.status!=='ok')contents='<div class="lesson-status">추천 자료를 불러오지 못했어요. 학교 주간학습안내 PDF는 위에서 확인할 수 있어요.</div>';
+ else if(!record)contents='<div class="lesson-status">선택한 주의 PDF 분석 자료가 아직 없어요. 수업 주제를 임의로 만들지 않아요.</div>';
+ else if(record.status!=='ok')contents='<div class="lesson-status">'+safe(record.message||'PDF에서 수업 주제를 확인하지 못했어요.')+'</div>';
+ else if(!all.length)contents='<div class="lesson-status">이번 주 PDF에서 직접 연결할 수 있는 수업 내용을 찾지 못했어요. 원본을 확인해 주세요.</div>';
+ else{
+  const tabs=labels.map(([key,label])=>'<button type="button" class="lesson-filter'+(active===key?' on':'')+'" data-act="lesson-filter" data-id="'+key+'">'+label+' <b>'+count(key)+'</b></button>').join('');
+  const cards=selected.map(item=>{
+   const integrated=item.subject==='상상'||item.subject==='이야기';
+   const proof=(item.evidence||[]).slice(0,2).map(safe).join(' · ');
+   const strand=item.strand?' · ('+safe(item.strand)+')':'';
+   const badge=(item.book?safe(item.book)+strand:safe(item.subject));
+   const caption=safe(item.headline||item.topic);
+   const materials=(item.materials||[]).map(safe).join(' · ');
+   const steps=(item.steps||[]).map(step=>'<li><span class="lesson-step-time">'+safe(step[0])+'</span><div><b>'+safe(step[1])+'</b><p>'+safe(step[2])+'</p></div></li>').join('');
+   const guide=steps?'<details class="lesson-teacher-guide"><summary>🪄 수업 흐름과 교사용 팁 보기</summary><div class="lesson-guide-content"><p class="lesson-material">🎒 준비물: '+(materials||'교사 준비에 따라')+'</p><ol class="lesson-steps">'+steps+'</ol><div class="lesson-guide-notice"><b>💜 운영 팁</b><p>'+safe(item.teacher_tip||'학급 상황에 맞게 조정해 주세요.')+'</p><b>🌱 도움이 필요한 친구에게</b><p>'+safe(item.support||'그림이나 말로 참여할 수 있어요.')+'</p></div></div></details>':'';
+   const actions=(item.actions||[]).filter(a=>/^[a-z-]+$/.test(a.id||'')).map(a=>
+    '<button type="button" data-act="'+(a.id==='lesson-print'?'lesson-print':'lesson-launch')+'" data-id="'+safe(a.id==='lesson-print'?item.id:a.id)+'">'+safe(a.label)+'</button>'
+   ).join('');
+   const spark=(item.spark||[]).length?'<button type="button" class="lesson-secondary-action" data-act="lesson-spark" data-id="'+safe(item.id)+'">🎲 아이디어 뽑기</button>':'';
+   const sparkText=lessonState.sparks[item.id]||'';
+   return '<article class="lesson-card lesson-card-upgraded"><div class="lesson-card-head"><span class="lesson-card-icon">'+safe(item.icon||'📚')+'</span><span class="lesson-card-subject">'+badge+'</span>'+(item.minutes?'<span class="lesson-card-time">'+safe(item.minutes)+'분</span>':'')+'</div><h3>'+caption+'</h3><div class="lesson-card-topic">📖 '+safe(item.topic)+'</div><p class="lesson-card-hook">'+safe(item.hook||item.why||'관련 연습 활동을 해 보세요.')+'</p><div class="lesson-evidence">✓ 학교 학습안내 '+safe(item.source_page||1)+'쪽 확인: '+proof+'</div>'+(integrated?'<span class="lesson-integrated">🌼 바·슬·즐 통합교과 활동</span>':'')+guide+(sparkText?'<div class="lesson-spark-result">💡 '+safe(sparkText)+'</div>':'')+'<div class="lesson-buttons">'+actions+spark+'</div></article>';
   }).join('');
-  return '<article class="lesson-card"><div class="lesson-card-head"><span>'+safe(item.icon||'📚')+'</span><span class="lesson-card-subject">'+safe(item.subject)+'</span></div><h3>'+safe(item.topic)+'</h3><p>'+safe(item.why)+'</p><div class="lesson-evidence">📄 학습안내 '+safe(item.source_page||1)+'쪽 확인: '+proof+'</div><div class="lesson-buttons">'+actions+'</div></article>';
- }).join('')+'</div>';
- return '<section class="lesson-panel" aria-label="이번 주 수업 맞춤 추천"><div class="lesson-panel-head"><div><h2>✨ 이번 주 수업 맞춤 추천</h2><p>학습안내에 나온 활동을 확인하고 수업 준비 도구로 연결했어요.</p></div><span class="weekly-tag">'+safe(week.replace(/-/g,'.'))+' 주간</span></div>'+contents+'<p class="lesson-disclaimer">📌 학교 PDF 1쪽의 표현에 일치하는 경우에만 추천해요. 학습지·퀴즈는 별도로 만든 연습 자료이며, 교과서 본문이나 2022 개정 교육과정 원문을 그대로 재현하지 않아요. 사용 전 선생님이 확인해 주세요.</p></section>';
+  const more=showing.length>6?'<div class="lesson-more"><button class="btn outline" type="button" data-act="lesson-expand">'+(lessonState.expanded?'접어서 보기 ↑':'🌷 나머지 추천 '+(showing.length-6)+'개 더 보기 ↓')+'</button></div>':'';
+  contents='<div class="lesson-toolbar"><div class="lesson-counts">🪄 실제 학습안내 기반 추천 <strong>'+all.length+'개</strong> · 상상 '+count('상상')+'개 · 이야기 '+count('이야기')+'개</div><div class="lesson-filters">'+tabs+'</div></div>'+(selected.length?'<div class="lesson-cards">'+cards+'</div>':'<div class="lesson-status">이번 주 해당 교과서의 추천 활동이 없어요.</div>')+more;
+ }
+ return '<section class="lesson-panel lesson-upgraded" aria-label="이번 주 수업 맞춤 추천"><div class="lesson-panel-head"><div><h2>✨ 이번 주 수업 아이디어 연구소</h2><p>국어·수학뿐 아니라 「상상 1-2」·「이야기 1-2」 통합교과 활동까지!</p></div><span class="weekly-tag">'+safe(week.replace(/-/g,'.'))+' 주간</span></div>'+contents+'<p class="lesson-disclaimer">📌 실제 학교 PDF의 확인된 주제만 추천해요. 놀이나 활동지는 새로 만든 예시이며 교과서 내용·성취기준 원문을 복제하거나 확정적으로 제시하지 않습니다. 학급 상황에 맞게 선생님이 검토해 주세요.</p></section>';
 }
+function lessonFindById(id){
+ const week=weeklySelected(ui.view==='home');
+ return lessonState.weeks[week]?.recommendations?.find(x=>x.id===id) || null;
+}
+function lessonSparkPrompt(id){
+ const item=lessonFindById(id);
+ if(!item||!Array.isArray(item.spark)||!item.spark.length)return;
+ const current=lessonState.sparkIndices[id]||0;
+ lessonState.sparks[id]=item.spark[current % item.spark.length];
+ lessonState.sparkIndices[id]=current+1;
+ render();
+}
+function lessonPrintSheet(id){
+ const item=lessonFindById(id);
+ if(!item||!item.sheet?.prompt){toast('선택한 활동의 출력물을 찾지 못했어요.');return;}
+ const q=item.sheet;
+ const meta='<div class="meta"><span>'+safe(db.settings.school||'우리 학교')+' · '+safe(db.settings.grade)+'학년 '+safe(db.settings.room)+'반</span><span>번호 (　　) 이름 (　　　　　　)</span></div>';
+ const drawSize=q.type==='draw'||q.type==='path'?440:265;
+ const mainBox='<div style="border:2px solid #b6a0e1;border-radius:15px;background:#fff;min-height:'+drawSize+'px;margin:19px 0;padding:14px"><span style="font-size:13px;color:#8e7daa">✎ 그림으로 자유롭게 표현해 보세요.</span></div>';
+ const lines=(q.lines||[]).map(x=>'<div style="margin:19px 4px;font-size:15px"><b>'+safe(x)+'</b><div style="border-bottom:1.5px solid #b9b2c4;height:34px;margin-top:4px"></div></div>').join('');
+ const paper='<div style="padding:4px 9px"><h1 style="color:#7055ad;font-size:23px">🌷 '+safe(q.title||item.headline)+'</h1>'+meta+'<div style="font-size:16px;background:#f4efff;padding:13px 15px;margin-top:18px;border-radius:12px"><b>오늘의 미션:</b> '+safe(q.prompt)+'</div>'+mainBox+lines+'<p style="font-size:11px;color:#7c748d">우리 반 수업 아이디어 연구소 · 선생님이 만든 확장 활동지</p></div>';
+ printHTML((q.title||item.headline)+' 활동지',paper);
+}
+
 function lessonOpenAction(id){
  const kind={'worksheet-pattern':'pattern','worksheet-math':'math'}[id];
  if(kind){
@@ -524,6 +607,10 @@ async function startMediaRecording(){
 }
 function endSpeed(){clearInterval(speedTimer);speedTimer=null;ui.games.speedOn=false}
 function action(name,id){switch(name){
+case'lesson-filter':if(['all','상상','이야기','국어','수학'].includes(id)){lessonState.filter=id;lessonState.expanded=false;render()}break;
+case'lesson-expand':lessonState.expanded=!lessonState.expanded;render();break;
+case'lesson-spark':lessonSparkPrompt(id);break;
+case'lesson-print':lessonPrintSheet(id);break;
 case'lesson-launch':lessonOpenAction(id);break;
 case'lesson-meaning-answer':{if(lessonMeaning.result!==null)break;const answer=Number(id),q=lessonMeaningBank[lessonMeaning.index%lessonMeaningBank.length];if(answer<0||answer>2||!Number.isInteger(answer))break;lessonMeaning.result=answer;if(answer===q.correct)lessonMeaning.score++;render();break}
 case'lesson-meaning-next':lessonMeaning.index=(lessonMeaning.index+1)%lessonMeaningBank.length;lessonMeaning.result=null;render();break;
