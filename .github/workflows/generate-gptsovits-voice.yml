@@ -32,7 +32,7 @@ jobs:
           sudo apt-get install -y ffmpeg libsndfile1
           git clone --depth 1 https://github.com/RVC-Boss/GPT-SoVITS.git _gptsovits
           python -m pip install --upgrade pip
-          python -m pip install torch==2.5.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           grep -Ev '^(torch==|torchaudio==|torchvision==|deepspeed==|onnxruntime-gpu|tensorrt|flash-attn|triton)' _gptsovits/requirements.txt > /tmp/gptsovits-cpu-requirements.txt
           python -m pip install -r /tmp/gptsovits-cpu-requirements.txt
           python -m pip install huggingface_hub soundfile
