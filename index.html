@@ -60,6 +60,22 @@
 @media(max-width:720px){.lesson-cards{grid-template-columns:1fr}.meaning-choices{grid-template-columns:1fr}.lesson-panel{padding:17px}}
 
 
+
+/* 상상·이야기 게임랜드: 선생님 설명 대신 클릭 즉시 게임 */
+.quick-play{margin:20px 0;border:1px solid #dfd3f7;border-radius:24px;background:linear-gradient(125deg,#fbf8ff,#fff8e8);padding:22px 23px;box-shadow:var(--shadow)}
+.quick-play h2{font-size:20px;color:#6750a2;letter-spacing:-.7px}
+.quick-play p{font-size:12px;color:#87769c;margin:4px 0 17px}
+.quick-play-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.quick-play-card{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:16px;border:1px solid #e8dff7;background:white;border-radius:17px;text-decoration:none;color:#6b539c;transition:transform .15s}
+.quick-play-card:hover{transform:translateY(-2px);background:#f8f3ff;border-color:#cebff4}
+.quick-play-card .game-icon{font-size:30px}
+.quick-play-card strong{font-size:14px;color:#5c448b}
+.quick-play-card small{font-size:11px;line-height:1.4;color:#9583a6}
+.lesson-upgraded .lesson-buttons a.play-now{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:#7550c6;border:0;border-radius:12px;padding:11px 13px;color:white;font-size:13px;font-weight:900}
+.lesson-upgraded .lesson-buttons a.play-now:hover{background:#6240b6}
+@media(max-width:850px){.quick-play-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:390px){.quick-play-grid{grid-template-columns:1fr}}
+
 /* 1학년 수업 아이디어 연구소 - 노란/보라 산뜻한 카드와 교과별 탭 */
 .lesson-upgraded{background:linear-gradient(145deg,#fff,#faf7ff 70%,#f4fcfa);padding:26px;border-radius:25px}
 .lesson-upgraded .lesson-panel-head{margin-bottom:20px}
@@ -284,6 +300,21 @@ async function lessonsLoad(){
  }
  if(ui.view==='home'||ui.view==='weekly')render();
 }
+function lessonPlayMode(topic){
+ const names={
+  '안전 수업 만들기':'safety',
+  '우리들의 놀이터를 만든다면':'builder',
+  '놀이 수업 만들기':'roulette',
+  '주제 수업 만들기':'roulette',
+  '질문으로 수업을 만들어요':'roulette',
+  '지금 여기 나의 이야기':'story',
+  '지금 여기 우리 이야기':'story',
+  '선 따라 걷기':'path',
+  '기차놀이':'train'
+ };
+ return names[topic]||'';
+}
+
 function lessonRecommendationsPanel(homeMode){
  const week=weeklySelected(!!homeMode);
  const record=lessonState.weeks[week];
@@ -321,12 +352,14 @@ function lessonRecommendationsPanel(homeMode){
    ).join('');
    const spark=(item.spark||[]).length?'<button type="button" class="lesson-secondary-action" data-act="lesson-spark" data-id="'+safe(item.id)+'">🎲 아이디어 뽑기</button>':'';
    const sparkText=lessonState.sparks[item.id]||'';
-   return '<article class="lesson-card lesson-card-upgraded"><div class="lesson-card-head"><span class="lesson-card-icon">'+safe(item.icon||'📚')+'</span><span class="lesson-card-subject">'+badge+'</span>'+(item.minutes?'<span class="lesson-card-time">'+safe(item.minutes)+'분</span>':'')+'</div><h3>'+caption+'</h3><div class="lesson-card-topic">📖 '+safe(item.topic)+'</div><p class="lesson-card-hook">'+safe(item.hook||item.why||'관련 연습 활동을 해 보세요.')+'</p><div class="lesson-evidence">✓ 학교 학습안내 '+safe(item.source_page||1)+'쪽 확인: '+proof+'</div>'+(integrated?'<span class="lesson-integrated">🌼 바·슬·즐 통합교과 활동</span>':'')+guide+(sparkText?'<div class="lesson-spark-result">💡 '+safe(sparkText)+'</div>':'')+'<div class="lesson-buttons">'+actions+spark+'</div></article>';
+   const playMode=integrated?lessonPlayMode(item.topic):'';
+   const gameLink=playMode?'<a class="play-now" href="./playlab.html#'+playMode+'">🎮 지금 바로 게임 시작 ↗</a>':'';
+   return '<article class="lesson-card lesson-card-upgraded"><div class="lesson-card-head"><span class="lesson-card-icon">'+safe(item.icon||'📚')+'</span><span class="lesson-card-subject">'+badge+'</span>'+(item.minutes?'<span class="lesson-card-time">'+safe(item.minutes)+'분</span>':'')+'</div><h3>'+caption+'</h3><div class="lesson-card-topic">📖 '+safe(item.topic)+'</div><p class="lesson-card-hook">'+safe(item.hook||item.why||'관련 연습 활동을 해 보세요.')+'</p><div class="lesson-evidence">✓ 학교 학습안내 '+safe(item.source_page||1)+'쪽 확인: '+proof+'</div>'+(integrated?'<span class="lesson-integrated">🌼 바·슬·즐 통합교과 활동</span>':'')+(sparkText?'<div class="lesson-spark-result">💡 '+safe(sparkText)+'</div>':'')+'<div class="lesson-buttons">'+gameLink+actions+spark+'</div></article>';
   }).join('');
   const more=showing.length>6?'<div class="lesson-more"><button class="btn outline" type="button" data-act="lesson-expand">'+(lessonState.expanded?'접어서 보기 ↑':'🌷 나머지 추천 '+(showing.length-6)+'개 더 보기 ↓')+'</button></div>':'';
   contents='<div class="lesson-toolbar"><div class="lesson-counts">🪄 실제 학습안내 기반 추천 <strong>'+all.length+'개</strong> · 상상 '+count('상상')+'개 · 이야기 '+count('이야기')+'개</div><div class="lesson-filters">'+tabs+'</div></div>'+(selected.length?'<div class="lesson-cards">'+cards+'</div>':'<div class="lesson-status">이번 주 해당 교과서의 추천 활동이 없어요.</div>')+more;
  }
- return '<section class="lesson-panel lesson-upgraded" aria-label="이번 주 수업 맞춤 추천"><div class="lesson-panel-head"><div><h2>✨ 이번 주 수업 아이디어 연구소</h2><p>국어·수학뿐 아니라 「상상 1-2」·「이야기 1-2」 통합교과 활동까지!</p></div><span class="weekly-tag">'+safe(week.replace(/-/g,'.'))+' 주간</span></div>'+contents+'<p class="lesson-disclaimer">📌 실제 학교 PDF의 확인된 주제만 추천해요. 놀이나 활동지는 새로 만든 예시이며 교과서 내용·성취기준 원문을 복제하거나 확정적으로 제시하지 않습니다. 학급 상황에 맞게 선생님이 검토해 주세요.</p></section>';
+ return '<section class="lesson-panel lesson-upgraded" aria-label="이번 주 수업 맞춤 추천"><div class="lesson-panel-head"><div><h2>✨ 이번 주 바로 쓰는 게임 추천</h2><p>읽을 지도안 대신, 학생들이 바로 누르고 참여하는 활동을 골랐어요.</p></div><span class="weekly-tag">'+safe(week.replace(/-/g,'.'))+' 주간</span></div>'+contents+'<p class="lesson-disclaimer">📌 실제 학교 PDF의 확인된 주제만 추천해요. 놀이나 활동지는 새로 만든 예시이며 교과서 내용·성취기준 원문을 복제하거나 확정적으로 제시하지 않습니다. 학급 상황에 맞게 선생님이 검토해 주세요.</p></section>';
 }
 function lessonFindById(id){
  const week=weeklySelected(ui.view==='home');
@@ -393,6 +426,7 @@ function lessonComprehensionPanel(){
 function home(){return `<div class="hero"><div><div class="eyebrow">HELLO, TEACHER ♡</div><h1>오늘도 우리 반은<br><span style="color:#886ad7">반짝반짝 성장 중! ✨</span></h1><p>학습지부터 게임, 기록 관리까지. 수업을 위한 열 가지 도구를 한곳에 모았어요.</p><div class="btn-group" style="margin-top:20px"><button class="btn" data-view="worksheet">학습지 만들기 ✍️</button><button class="btn outline" data-view="games">게임 시작하기 🎲</button></div></div><div class="hero-spark" aria-hidden="true">🐰🌷</div></div>
 ${personalShortcutsPanel()}
 ${weeklyPanel(true)}
+<section class="quick-play" aria-label="상상 이야기 즉시 시작 게임"><h2>🎪 설명 없이 바로! 상상·이야기 게임랜드</h2><p>수학 탐정처럼 학생이 직접 누르고 참여하는 수업 놀이 6가지</p><div class="quick-play-grid"><a class="quick-play-card" href="./playlab.html#safety"><span class="game-icon">🕵️</span><strong>안전 탐정 ↗</strong><small>선택형 안전 게임 · 별 모으기</small></a><a class="quick-play-card" href="./playlab.html#builder"><span class="game-icon">🛝</span><strong>놀이터 꾸미기 ↗</strong><small>터치해서 놀이터 건설</small></a><a class="quick-play-card" href="./playlab.html#roulette"><span class="game-icon">🎲</span><strong>놀이 발명기 ↗</strong><small>미션 룰렛 · 놀잇감 없이 시작</small></a><a class="quick-play-card" href="./playlab.html#story"><span class="game-icon">📖</span><strong>이야기 만들기 ↗</strong><small>선택 카드로 우리 반 이야기</small></a><a class="quick-play-card" href="./playlab.html#path"><span class="game-icon">✍️</span><strong>선 따라 그리기 ↗</strong><small>손가락·전자칠판 펜으로</small></a><a class="quick-play-card" href="./playlab.html#train"><span class="game-icon">🚂</span><strong>협동 기차 ↗</strong><small>랜덤 정거장 몸놀이</small></a></div></section>
 ${lessonRecommendationsPanel(true)}
 <section class="school-panel" aria-label="인천윤슬초등학교 바로가기"><div class="school-panel-head"><div><h2>🏫 우리 학교 바로가기</h2><p>인천윤슬초등학교 공식 홈페이지와 1학년 자료를 바로 열 수 있어요.</p></div><span class="tag">1학년 6반 ✨</span></div><div class="school-links"><a class="school-link" href="https://yunseul.icees.kr/" target="_blank" rel="noopener noreferrer"><span>🏫</span>학교 홈페이지 ↗</a><a class="school-link" href="https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&amp;m=020901&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>📅</span>1학년 주간학습안내 ↗</a><a class="school-link" href="https://yunseul.icees.kr/foodWlist.do?m=020401&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🍱</span>학교 급식 ↗</a><a class="school-link" href="https://yunseul.icees.kr/schdList.do?m=0206&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🎈</span>학교 일정 ↗</a></div><p class="school-status">💡 위 바로가기는 공식 확인용이에요. 이 페이지 안의 PDF·이미지 미리보기는 위 ‘이번 주 주간학습안내’ 영역에서 볼 수 있어요.</p></section>
 <div class="section-heading"><div><h2>어떤 수업을 준비할까요?</h2><small>카드를 눌러 바로 시작해 보세요.</small></div><span class="tag">총 10개의 도구</span></div><div class="tool-grid">${TOOLS.map(t=>`<button class="tool-card" data-view="${t.id}"><span class="tool-emoji">${t.icon}</span><strong>${t.name}</strong><small>${t.desc}</small><span class="tool-arrow">↗</span></button>`).join('')}</div><div class="notice">🔒 학생 기록은 이 브라우저 안에만 저장됩니다. 같은 데이터를 다른 기기에서 쓰려면 <button class="btn tiny outline" data-view="settings">백업·복원</button>을 이용하세요. 공용 PC에서는 실명 대신 학생 번호 사용을 권장해요.</div>`}
