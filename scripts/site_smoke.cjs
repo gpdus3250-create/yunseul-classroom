@@ -29,10 +29,20 @@ for(const [week,record] of Object.entries(data.weeks)){
     }
   }
 }
-for(const id of ['1BS2-5MUB_RP-GV8TgYscY70aNrxyRyiAaDSMd0H1Gv8','1m6bmPL1oXSJQG2EPk0X2rLs2bPAzdZnw6ThTCVARj2s','1ENaxKLSD59mleEZoyQP7V-O6k0y0TymNlHvjL9nt-po']){
-  assert.ok(!html.includes(id),'Private shortcut leaked into public HTML');
+const publicSheets=[
+  '1BS2-5MUB_RP-GV8TgYscY70aNrxyRyiAaDSMd0H1Gv8',
+  '11veDOcjX0EB-M2qmv46SZ2x-Yle1MKx32H54ySWenlc',
+  '1m6bmPL1oXSJQG2EPk0X2rLs2bPAzdZnw6ThTCVARj2s',
+  '1gERSanAtJyXjvVaClyKokEKHDFbYTISckBaO_iq6s8A',
+  '1z1SIGY0po5oZNPqbqylxw_3QjB2jh8y4arhDR0MW6MI',
+  '1ENaxKLSD59mleEZoyQP7V-O6k0y0TymNlHvjL9nt-po'
+];
+for(const id of publicSheets){
+  assert.ok(html.includes(id),'Requested public school shortcut missing: '+id);
 }
+assert.ok(html.includes('personalShortcutsPanel()'),'Google Sheets shortcut panel missing');
+assert.ok(html.includes('학생 명단과 교사 계정 시트는 반드시 접근 권한을 점검'),'Public sharing warning missing');
 console.log('✓ HTML JavaScript syntax valid');
 console.log('✓ Weekly recommendations grounded in PDF evidence');
 console.log('✓ Lesson action handlers present');
-console.log('✓ Private spreadsheet shortcuts absent from published code');
+console.log('✓ Six requested Google Sheets links published with access warning');
