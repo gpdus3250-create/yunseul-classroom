@@ -924,7 +924,7 @@ function worksheetNormalize(w){
  if(!['any','none','yes'].includes(w.carry))w.carry='any';
  w.wordRatio=Math.max(0,Math.min(10,Math.round(Number(w.wordRatio)||0)));
  if(!['lines','manuscript'].includes(w.writingPaper))w.writingPaper='lines';
- w.spacing=Math.max(0,Math.min(10,Math.round(Number(w.spacing)??2)));
+ w.spacing=Number.isFinite(Number(w.spacing))?Math.max(0,Math.min(10,Math.round(Number(w.spacing)))):2;
  if(!Number.isInteger(w.previewPage))w.previewPage=0;
 }
 
