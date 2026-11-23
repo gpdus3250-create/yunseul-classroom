@@ -695,12 +695,12 @@ function renderWorksheet(){
  const pages=Math.ceil(w.items.length/pageSize);
  const answerPages=w.kind==='writing'?0:Math.ceil(w.items.length/30);
  return heading('📝','학습지 자동 제작소','같은 문제도 원하는 디자인으로 바꾸고 미리 본 뒤 인쇄해요.')+
+ shell('🎨 디자인 먼저 선택','<p class="small-hint" style="margin-bottom:10px">🐰 귀여운 연보라 / ▤ 심플 — 아래에서 바로 바꿔 보세요.</p>'+worksheetThemeChooser(w))+
  shell('학습지 설정','<div class="form-row">'+
  hField('종류','<select name="worksheet-kind">'+selectOptions([['math','덧셈·뺄셈'],['pattern','규칙 찾기'],['korean','국어 띄어쓰기'],['writing','문장 쓰기']],w.kind)+'</select>')+
  hField('난이도','<select name="worksheet-difficulty">'+selectOptions([['easy','쉬움'],['normal','보통'],['hard','도전']],w.difficulty)+'</select>')+
  hField('문제 수','<select name="worksheet-count">'+selectOptions([[10,'10문제'],[20,'20문제'],[30,'30문제'],[40,'40문제']],w.n)+'</select>')+
  '<button class="btn" data-act="worksheet-generate">✨ 새 학습지 만들기</button></div>'+
- '<div style="margin-top:15px"><strong>🎨 인쇄 디자인 선택</strong>'+worksheetThemeChooser(w)+'</div>'+
  '<p class="small-hint">디자인을 바꿔도 이미 생성한 문제는 그대로 유지돼요. 실제 인쇄/PDF에도 선택한 디자인이 적용돼요.</p>')+
  shell('A4 인쇄 미리보기',w.items.length?
  '<div class="ws-preview-caption"><span>1쪽 미리보기 · '+w.items.length+'문제</span><span>학습지 '+pages+'쪽'+(answerPages?' + 정답표 '+answerPages+'쪽':'')+'</span></div>'+
@@ -935,6 +935,8 @@ document.addEventListener('dragover',e=>{if(e.target.closest('#weekly-dropzone')
 document.addEventListener('drop',e=>{if(e.target.closest('#weekly-dropzone')){e.preventDefault();weeklyHandleFile(e.dataTransfer?.files?.[0])}});
 if('speechSynthesis' in window){window.speechSynthesis.onvoiceschanged=()=>{ /* voices available as browser loads */ }}
 personalImportFromHash();
+// Deep link directly to the worksheet screen; query cache busting helps embedded browsers.
+if(new URLSearchParams(location.search).get('tool')==='worksheet')ui.view='worksheet';
 render();
 weeklyLoad().then(weeklyRefreshRemote);
 setInterval(weeklyRefreshRemote,30*60*1000);
