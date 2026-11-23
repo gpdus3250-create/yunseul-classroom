@@ -669,7 +669,8 @@ body.multi-active .ad-arena.is-reveal .ad-topstatus{font-weight:950}
  <optgroup label="39.0 새로운 음성 엔진 · 한국어 자연 음성">
   <option value="S1">🌼 소희 선생님 · 따뜻한 한국어 낭독 (NEW)</option>
  </optgroup>
- <optgroup label="새 자연스러운 한국어 목소리"><option value="MELO">MeloTTS · 한국어 낭독</option></optgroup></select></div>
+ <optgroup label="새 자연스러운 한국어 목소리"><option value="MELO">MeloTTS · 한국어 낭독</option></optgroup>
+ <optgroup label="새 자연스러운 한국어 목소리"><option value="COSY3">CosyVoice 3 · 자연스러운 선생님</option></optgroup></select></div>
     <div id="recordedVoiceInfo" class="voice-note" aria-live="polite">AI 음성 파일 연결 상태를 확인해 주세요.</div>
 </div>
   <div id="localSettings" style="display:none"><div class="voice-field"><label for="localVoice">한국어 목소리</label><select id="localVoice" onchange="setLocalVoice(this.value)"></select></div>
@@ -867,7 +868,7 @@ try{const saved=JSON.parse(localStorage.getItem('dictation-voice-prefs-v1')||'nu
  if(saved&&typeof saved==='object'){
    if(typeof saved.voiceName==='string')audioConfig.voiceName=saved.voiceName;
    if(saved.mode==='recorded'||saved.mode==='local')audioConfig.mode=saved.mode;
-   if(['F1','M1','F2','M2','S1','MELO'].includes(saved.recordedVoice))audioConfig.recordedVoice=saved.recordedVoice;
+   if(['F1','M1','F2','M2','S1','MELO','COSY3'].includes(saved.recordedVoice))audioConfig.recordedVoice=saved.recordedVoice;
    if(Number.isFinite(saved.rate)&&saved.rate>=.5&&saved.rate<=1.5)audioConfig.rate=saved.rate;
  }}catch(e){}
 function saveVoicePreferences(){try{localStorage.setItem('dictation-voice-prefs-v1',JSON.stringify({voiceName:audioConfig.voiceName,rate:audioConfig.rate,mode:audioConfig.mode==='gemini'?'recorded':audioConfig.mode,recordedVoice:audioConfig.recordedVoice}))}catch(e){}}
@@ -967,7 +968,7 @@ function primeRecordedPlayer(){
   const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.muted=false}).catch(()=>{a.muted=false});
  }catch(e){}
 }
-function setRecordedVoice(name){if(!['F1','M1','F2','M2','S1','MELO'].includes(name))return;audioConfig.recordedVoice=name;saveVoicePreferences();stopVoice();checkRecordedAudio()}
+function setRecordedVoice(name){if(!['F1','M1','F2','M2','S1','MELO','COSY3'].includes(name))return;audioConfig.recordedVoice=name;saveVoicePreferences();stopVoice();checkRecordedAudio()}
 async function checkRecordedAudio(){
  const el=$('recordedVoiceInfo');if(!el)return;
  el.textContent='🎧 AI 음성 파일 연결을 확인하고 있어요…';
