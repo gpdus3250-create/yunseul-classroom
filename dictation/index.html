@@ -1107,7 +1107,7 @@ function wrongOptions(q){
 }
 function makeOptions(q){const wrong=wrongOptions(q);const choices=[q,...wrong];if(new Set(choices).size!==3){throw new Error('보기 생성 오류: '+q)}return shuffle(choices)}
 function optButtons(q,selectedValue=null,click='choiceOne'){return `<div class="options">${choiceOptions.map((t,i)=>`<button class="opt ${selectedValue!==null?(t===q?'correct':t===selectedValue?'wrong':''):''}" ${selectedValue!==null?'disabled':''} onclick='${click}(${JSON.stringify(t)})'><span class="option-number">${i+1}</span><span>${esc(t)}</span></button>`).join('')}</div>`}
-function originalHome(){if(view==='teacher'){teacherHome();return}let text=view==='practice'?'🐰 연습 게임':view==='board'?'📺 다 함께 받아쓰기':'🎪 받아쓰기 팀 대항 운동회';$('app').innerHTML=`<section class="panel"><h1 class="title">${text}</h1><p class="muted">${view==='multi'?'우리 반 이름을 섞어 랜덤 팀을 만들고, 서로 다른 문제로 공정하게 대결해요!':view==='board'?'다 같이 듣고 쓰거나, 2~6명이 3지선다 문제로 함께 연습해요.':'틀린 문장은 이번 판 끝에 다시 등장해요.'}</p>${grades()}${view==='multi'?`<h2>👫 팀 수 선택 (한 팀씩 화면 한 칸)</h2><div class="row">${[2,3,4,5,6].map(n=>`<button class="btn ${number===n?'':'sub'}" onclick="saveRosterDraft();setNumber(${n})">${n}팀</button>`).join('')}</div>${teamsMarkup()}<h2>🎲 어떤 모험을 떠날까요?</h2><div class="gamecards">${Object.entries(gameMeta).map(([k,m])=>`<button class="gamecard ${kind===k?'selected':''}" onclick="saveRosterDraft();setKind('${k}')"><span class="bigemoji">${m[0]}</span><b>${m[1]}</b><small>${m[2]}</small></button>`).join('')}</div><h2>🎯 한 학생이 나와서 몇 문제를 연속으로 풀까요?</h2><div class="row">${[3,5,7,10].map(n=>`<button class="btn ${questionsPerStudent===n?'':'sub'}" onclick="setQuestionsPerStudent(${n})">${n}문제</button>`).join('')}</div><p class="note">각 팀에서 나온 학생은 <b>${questionsPerStudent}문제</b>를 끝까지 풀고 내려갑니다. 문제가 끝나면 선수 교체 화면이 나오고, 다음 학생들이 준비완료를 누르면 새 세트가 시작돼요.</p><h2>🙋 학생마다 몇 세트씩 참여할까요?</h2><div class="row">${[1,2,3].map(n=>`<button class="btn ${turnsPerChild===n?'':'sub'}" onclick="saveRosterDraft();setRounds(${n})">모든 학생 ${n}세트 이상</button>`).join('')}</div><p class="note">각 팀에서 한 명씩 나와 ${questionsPerStudent}문제를 연속으로 풀어요. 해당 세트가 끝난 뒤에만 다른 팀원이 나옵니다! 모든 학생에게 차례가 돌아가고, 팀원 수가 적은 팀은 일부 학생이 한 번 더 참여할 수 있어요. 먼저 누른 학생의 정답은 전원 선택까지 비밀이에요.</p>`:''}<div class="row ${view==='board'?'board-activity-actions':''}" style="margin-top:24px">${view==='practice'?`<button class="btn" onclick="start('practice')">🔊 듣고 쓰기 시작</button><button class="btn sub" onclick="start('choice')">🧩 틀린 글자 찾기</button>`:view==='board'?`<div class="board-choice-grid"><div class="board-choice-card"><span class="board-choice-icon">📺</span><h3>다 함께 받아쓰기</h3><p>문장을 듣고 공책에 쓴 뒤 정답을 함께 확인해요.</p><button class="btn" onclick="start('board')">✍️ 함께 받아쓰기 시작</button></div><div class="board-choice-card"><span class="board-choice-icon">🧩</span><h3>3지선다 받아쓰기 테스트</h3><p>2~6명이 각자 다른 문장을 풀고, 모두 제출하면 정답을 공개해요.</p><button class="btn board-choice-secondary" onclick="openTogetherGame()">🎮 3지선다 테스트 시작</button></div></div>`:`<button class="btn" onclick="start('multi')">${gameMeta[kind][0]} ${gameMeta[kind][1]} · 경기장 입장! (팀 자동 편성)</button>`}</div></section>`}
+function originalHome(){if(view==='teacher'){teacherHome();return}let text=view==='practice'?'🐰 연습 게임':view==='board'?'📺 다 함께 받아쓰기':'🎪 받아쓰기 팀 대항 운동회';$('app').innerHTML=`<section class="panel"><h1 class="title">${text}</h1><p class="muted">${view==='multi'?'우리 반 이름을 섞어 랜덤 팀을 만들고, 서로 다른 문제로 공정하게 대결해요!':view==='board'?'다 같이 듣고 쓰거나, 2~6명이 3지선다 문제로 함께 연습해요.':'틀린 문장은 이번 판 끝에 다시 등장해요.'}</p>${grades()}${view==='multi'?`<h2>👫 팀 수 선택 (한 팀씩 화면 한 칸)</h2><div class="row">${[2,3,4,5,6].map(n=>`<button class="btn ${number===n?'':'sub'}" onclick="saveRosterDraft();setNumber(${n})">${n}팀</button>`).join('')}</div>${teamsMarkup()}<h2>🎲 어떤 모험을 떠날까요?</h2><div class="gamecards">${Object.entries(gameMeta).map(([k,m])=>`<button class="gamecard ${kind===k?'selected':''}" onclick="saveRosterDraft();setKind('${k}')"><span class="bigemoji">${m[0]}</span><b>${m[1]}</b><small>${m[2]}</small></button>`).join('')}</div><h2>🎯 한 학생이 나와서 몇 문제를 연속으로 풀까요?</h2><div class="row">${[3,5,7,10].map(n=>`<button class="btn ${questionsPerStudent===n?'':'sub'}" onclick="setQuestionsPerStudent(${n})">${n}문제</button>`).join('')}</div><p class="note">각 팀에서 나온 학생은 <b>${questionsPerStudent}문제</b>를 끝까지 풀고 내려갑니다. 문제가 끝나면 선수 교체 화면이 나오고, 다음 학생들이 준비완료를 누르면 새 세트가 시작돼요.</p><h2>🙋 학생마다 몇 세트씩 참여할까요?</h2><div class="row">${[1,2,3].map(n=>`<button class="btn ${turnsPerChild===n?'':'sub'}" onclick="saveRosterDraft();setRounds(${n})">모든 학생 ${n}세트 이상</button>`).join('')}</div><p class="note">각 팀에서 한 명씩 나와 ${questionsPerStudent}문제를 연속으로 풀어요. 해당 세트가 끝난 뒤에만 다른 팀원이 나옵니다! 모든 학생에게 차례가 돌아가고, 팀원 수가 적은 팀은 일부 학생이 한 번 더 참여할 수 있어요. 먼저 누른 학생의 정답은 전원 선택까지 비밀이에요.</p>`:''}<div class="row ${view==='board'?'board-activity-actions':''}" style="margin-top:24px">${view==='practice'?`<button class="btn" onclick="start('practice')">🔊 듣고 쓰기 시작</button><button class="btn sub" onclick="start('choice')">🧩 틀린 글자 찾기</button>`:view==='board'?`<div class="board-choice-grid"><div class="board-choice-card"><span class="board-choice-icon">📺</span><h3>다 함께 받아쓰기</h3><p>문장을 듣고 공책에 쓴 뒤 정답을 함께 확인해요.</p><button class="btn" onclick="start('board')">✍️ 함께 받아쓰기 시작</button></div><div class="board-choice-card"><span class="board-choice-icon">🧩</span><h3>3지선다 받아쓰기 테스트</h3><p>2~6명이 같은 문장을 듣고 올바르게 쓴 문장을 각자 골라요.</p><button class="btn board-choice-secondary" onclick="openTogetherGame()">🎮 3지선다 테스트 시작</button></div></div>`:`<button class="btn" onclick="start('multi')">${gameMeta[kind][0]} ${gameMeta[kind][1]} · 경기장 입장! (팀 자동 편성)</button>`}</div></section>`}
 function originalGame(){if(phase==='done'){endScreen();return}let q=current();if(!q){phase='done';endScreen();return}if(view==='multi'){multiGame();return}const hasAnswer=view==='board'?revealFlag: (view==='practice'?revealFlag:feedbackChoice!==null);const head=`<div class="row" style="justify-content:space-between"><span class="pill">${q.grade}급 · ${q.index+1}번</span><strong style="font-size:24px">${round+1} / ${deck.length}</strong><button class="pill" onclick="quit()">✕ 나가기</button></div><div class="progress"><div style="width:${100*round/deck.length}%"></div></div>`;let body='';if(view==='board'||view==='practice')body=`<div class="question" style="margin:18px 0"><div style="font-size:65px">${view==='board'?'📺✍️':'🐰🎧'}</div><div class="prompt">${hasAnswer?'정답은 바로 이것!':'선생님 말씀을 듣고 써 보세요!'}</div>${hasAnswer?`<div class="answer">${esc(q.text)}</div>`:''}<div class="row" style="justify-content:center;margin:22px 0 0"><button class="btn sub" onclick="playSound()">🔊 문장 듣기</button><button class="btn sub" onclick="showVoiceSettings()">🎙️ 목소리 설정</button></div></div><div class="row" style="justify-content:center">${!revealFlag?`<button class="btn" onclick="revealFlag=true;render()">👀 정답 공개</button>`:view==='board'?`<button class="btn" onclick="nextRound()">➡️ 다음 문제</button>`:`<button class="btn green" onclick="practiceMark(true)">⭐ 맞혔어요</button><button class="btn orange" onclick="practiceMark(false)">🔁 다시 연습</button>`}</div>`;
 else body=`<div class="question" style="margin:18px 0"><div style="font-size:60px">🧩</div><div class="prompt">${feedbackChoice===null?'올바르게 쓴 문장을 골라요!':feedbackChoice==='correct'?'정답! 참 잘했어요! 🎉':'아쉽지만 다시 기억해 봐요! 💜'}</div>${feedbackChoice!==null?`<div class="answer">${esc(q.text)}</div>`:''}</div>${feedbackChoice!==null?`<div class="row"><button class="btn" onclick="completeChoice()">➡️ 다음 문제</button></div>`:''}${optButtons(q,chosenText)}`;
 $('app').innerHTML=`<section class="panel">${head}${body}</section>`}
@@ -1627,87 +1627,107 @@ function nextReadingSingle(delta){const i=readingSingleIndex+delta;if(i<0||i>=re
 function hearReadingSingle(){const text=readItems()[readingSingleIndex];if(text)readText(text,{once:true})}
 
 
-// v28.0 — 함께 받아쓰기: 개인별 다른 문항, 모두 고른 후 일괄 정답 공개.
-let togetherState={stage:'lobby',count:4,total:5,round:0,names:[],answers:[],questions:[],choices:[],scores:[],ready:[]};
+// 함께 받아쓰기: 한 라운드는 모든 학생에게 같은 문장과 같은 3지선다 보기를 제시합니다.
+let togetherState={stage:'lobby',count:4,total:5,round:0,names:[],answers:[],question:null,choices:[],bank:[],scores:[],ready:[]};
 let togetherNameDraft='',togetherTimer=0,togetherGeneration=0;
-function openTogetherGame(){clearTimeout(togetherTimer);togetherGeneration++;togetherState={stage:'lobby',count:number,total:5,round:0,names:[],answers:[],questions:[],choices:[],scores:[],ready:[]};setView('together')}
+function openTogetherGame(){clearTimeout(togetherTimer);togetherGeneration++;togetherState={stage:'lobby',count:number,total:5,round:0,names:[],answers:[],question:null,choices:[],bank:[],scores:[],ready:[]};setView('together')}
 function togetherSetCount(n){togetherState.count=Math.min(6,Math.max(2,Number(n)||4));renderTogether()}
 function togetherSetTotal(n){togetherState.total=Math.min(10,Math.max(3,Number(n)||5));renderTogether()}
 function togetherDraft(v){togetherNameDraft=v}
 function togetherRandomNames(){let names=presentNames();if(!names.length){alert('선생님 관리에서 학급 명단을 저장하면 랜덤으로 뽑을 수 있어요.');return}togetherNameDraft=shuffle([...names]).slice(0,togetherState.count).join('\n');renderTogether()}
 function togetherMakeQuestions(){
-  const pool=[...selected].sort((a,b)=>a-b).flatMap(g=>(levels[g]||[]).map((text,index)=>({grade:g,index,text})));
-  if(pool.length<togetherState.count)throw new Error('선택한 급수에 문제가 충분하지 않아요.');
-  let chosen=shuffle(pool).slice(0,togetherState.count);
-  togetherState.questions=chosen;
-  togetherState.choices=chosen.map(q=>makeOptions(q.text));
-  togetherState.answers=Array(togetherState.count).fill(null);
+ const st=togetherState;
+ const pool=allQuestions();
+ if(!pool.length)throw new Error('선택한 급수에 문제가 없어요.');
+ // 모든 학생은 하나의 문장과 똑같은 3개 보기를 공유합니다.
+ // 같은 문장이 연속으로 나오지 않도록 문제은행을 순환합니다.
+ if(!st.bank.length){
+   st.bank=shuffle(pool);
+   if(st.question && st.bank.length>1 && st.bank[st.bank.length-1].id===st.question.id){
+     const last=st.bank.length-1;
+     [st.bank[last],st.bank[0]]=[st.bank[0],st.bank[last]];
+   }
+ }
+ st.question=st.bank.pop();
+ st.choices=makeOptions(st.question.text);
+ st.answers=Array(st.count).fill(null);
 }
 function togetherStart(){
   if(selected.size===0){alert('먼저 연습할 급수를 하나 이상 선택해 주세요.');return}
   const st=togetherState;
   st.names=Array.from({length:st.count},(_,i)=>togetherNameDraft.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean)[i]||`${i+1}번`);
-  st.scores=Array(st.count).fill(0);st.ready=Array(st.count).fill(false);st.round=0;st.stage='ready';
+  st.scores=Array(st.count).fill(0);st.ready=Array(st.count).fill(false);st.round=0;st.question=null;st.bank=[];st.stage='ready';
   togetherGeneration++;renderTogether();
 }
-function togetherReady(i){const st=togetherState;if(view!=='together'||st.stage!=='ready'||i<0||i>=st.count)return;
- st.ready[i]=!st.ready[i];if(st.ready.every(Boolean)){try{togetherMakeQuestions();st.stage='play'}catch(e){alert(e.message);st.stage='lobby'}}renderTogether()}
-function togetherHear(i){
+function togetherReady(i){
  const st=togetherState;
- if(view!=='together'||st.stage!=='play'||!st.questions[i])return;
- // 전자칠판 스피커는 한 개이므로 누른 학생 문장만 한 번씩 읽습니다.
- readText(st.questions[i].text,{once:true});
+ if(view!=='together'||st.stage!=='ready'||i<0||i>=st.count)return;
+ st.ready[i]=!st.ready[i];
+ let justStarted=false;
+ if(st.ready.every(Boolean)){
+   try{togetherMakeQuestions();st.stage='play';justStarted=true}
+   catch(e){alert(e.message);st.stage='lobby'}
+ }
+ renderTogether();
+ // 마지막 학생의 준비완료 클릭으로 교실 전체에 단 한 번 읽습니다.
+ if(justStarted)togetherHear();
 }
-async function togetherHearAll(){
+function togetherHear(){
  const st=togetherState;
- if(view!=='together'||st.stage!=='play'||!st.questions.length)return;
- stopVoice();const token=audioToken,generation=togetherGeneration;
- try{
-  if(audioConfig.mode==='gemini'&&!audioConfig.key)throw Error('AI 음성 키가 없어요. 목소리 설정에서 기본 음성으로 바꿔 주세요.');
-  for(let i=0;i<st.questions.length;i++){
-   if(token!==audioToken||generation!==togetherGeneration||st.stage!=='play'||view!=='together')return;
-   voiceStatus(`🔊 ${i+1}번 학생 문장 읽는 중…`);
-   const phrase=`${i+1}번 학생 문제. ${st.questions[i].text}`;
-   if(audioConfig.mode==='gemini'){
-    const url=await getAIAudio(phrase);
-    if(token!==audioToken)return;
-    await playAudioURL(url,token);
-   }else await speakLocal(phrase,token);
-   if(token!==audioToken)return;
-   await pauseMs(450);
-  }
-  if(token===audioToken)voiceStatus('✅ 전체 문장 듣기가 끝났어요.');
- }catch(e){if(token!==audioToken)return;voiceStatus('⚠️ '+e.message);alert('음성을 재생하지 못했어요.\n'+e.message)}
+ if(view!=='together'||st.stage!=='play'||!st.question)return;
+ // 녹음 음성(MELO 등)을 포함해 현재 선택된 음성으로 단 하나의 문장을 재생합니다.
+ readText(st.question.text,{once:true});
 }
-function togetherAnswer(i,j){const st=togetherState;if(view!=='together'||st.stage!=='play'||st.answers[i]!==null)return;
- if(j<0||j>=3)return;st.answers[i]=j;
+function togetherHearAll(){togetherHear()}
+function togetherAnswer(i,j){
+ const st=togetherState;
+ if(view!=='together'||st.stage!=='play'||i<0||i>=st.count||st.answers[i]!==null)return;
+ if(j<0||j>=3)return;
+ st.answers[i]=j;
  if(st.answers.every(a=>a!==null)){
-   st.stage='reveal';st.answers.forEach((ans,n)=>{if(st.choices[n][ans]===st.questions[n].text)st.scores[n]++});
-   const generation=++togetherGeneration;renderTogether();
-   clearTimeout(togetherTimer);togetherTimer=setTimeout(()=>{if(view==='together'&&st.stage==='reveal'&&generation===togetherGeneration)togetherAdvance()},3200);
+   stopVoice();
+   st.stage='reveal';
+   st.answers.forEach((ans,n)=>{if(st.choices[ans]===st.question.text)st.scores[n]++});
+   const generation=++togetherGeneration;
+   renderTogether();
+   clearTimeout(togetherTimer);
+   togetherTimer=setTimeout(()=>{
+     if(view==='together'&&st.stage==='reveal'&&generation===togetherGeneration)togetherAdvance();
+   },3200);
  }else renderTogether();
 }
-function togetherAdvance(){const st=togetherState;if(view!=='together'||st.stage!=='reveal')return;stopVoice();st.round++;
- if(st.round>=st.total){st.stage='done'}else{try{togetherMakeQuestions();st.stage='play'}catch(e){alert(e.message);st.stage='done'}}renderTogether()}
-function togetherExit(){clearTimeout(togetherTimer);togetherGeneration++;setView('board')}
-function togetherRenderLane(i){const st=togetherState,stage=st.stage;
- const name=esc(st.names[i]);
+function togetherAdvance(){
+ const st=togetherState;
+ if(view!=='together'||st.stage!=='reveal')return;
+ stopVoice();st.round++;
+ if(st.round>=st.total)st.stage='done';
+ else{
+   try{togetherMakeQuestions();st.stage='play'}
+   catch(e){alert(e.message);st.stage='done'}
+ }
+ renderTogether();
+ if(st.stage==='play')togetherHear();
+}
+function togetherExit(){clearTimeout(togetherTimer);togetherGeneration++;stopVoice();setView('board')}
+function togetherRenderLane(i){
+ const st=togetherState,stage=st.stage,name=esc(st.names[i]);
  if(stage==='ready')return `<article class="tg-lane" style="--lane:${COLORS[i%COLORS.length]}"><div class="tg-name">${name}</div><div class="tg-ready-icon">${st.ready[i]?'✨':'🙋'}</div><p class="tg-hint">${st.ready[i]?'준비 완료!':'자기 칸 아래 버튼을 눌러요'}</p><div class="tg-bottom"><button class="tg-ready-btn ${st.ready[i]?'on':''}" onclick="togetherReady(${i})">${st.ready[i]?'✅ 준비했어요':'✋ 준비완료'}</button></div></article>`;
- const q=st.questions[i],opts=st.choices[i],a=st.answers[i],done=a!==null,show=stage==='reveal';
- return `<article class="tg-lane" style="--lane:${COLORS[i%COLORS.length]}"><div class="tg-name">${name} <span>⭐ ${st.scores[i]}</span></div><div class="tg-tag">${q.grade}급 · ${q.index+1}번</div><div class="tg-note">${show?((opts[a]===q.text)?'🌟 정답!':'💪 다음엔 성공!'):done?'🔒 제출 완료':'올바른 문장을 고르세요'}</div><div class="tg-bottom"><button type="button" class="tg-hear" onclick="togetherHear(${i})" ${done||show?'disabled':''}>🔊 내 문장 듣기</button><span class="tg-hear-note">${done||show?'정답 확인 시간':'누르면 이 학생의 문장을 한 번 읽어요'}</span>${opts.map((opt,j)=>`<button class="tg-option ${show?(opt===q.text?'is-correct':j===a?'is-wrong':''):done&&j===a?'is-picked':''}" onclick="togetherAnswer(${i},${j})" ${done?'disabled':''}><span class="tg-num">${j+1}</span>${esc(opt)}</button>`).join('')}</div></article>`}
+ const q=st.question,opts=st.choices,a=st.answers[i],done=a!==null,show=stage==='reveal';
+ return `<article class="tg-lane" style="--lane:${COLORS[i%COLORS.length]}"><div class="tg-name">${name} <span>⭐ ${st.scores[i]}</span></div><div class="tg-tag">모두 같은 문제 · ${q.grade}급 ${q.index+1}번</div><div class="tg-note">${show?((opts[a]===q.text)?'🌟 정답!':'💪 다음엔 성공!'):done?'🔒 제출 완료':'맞춤법과 띄어쓰기가 바른 문장을 고르세요'}</div><div class="tg-bottom"><span class="tg-hear-note">🔊 위쪽의 문장 듣기 버튼으로 함께 들어요.</span>${opts.map((opt,j)=>`<button class="tg-option ${show?(opt===q.text?'is-correct':j===a?'is-wrong':''):done&&j===a?'is-picked':''}" onclick="togetherAnswer(${i},${j})" ${done?'disabled':''}><span class="tg-num">${j+1}</span>${esc(opt)}</button>`).join('')}</div></article>`;
+}
 function renderTogether(){const st=togetherState;
  if(st.stage==='lobby'){
-  $('app').innerHTML=`<section class="panel"><div class="row" style="justify-content:space-between"><div><h1 class="title">🧩 3지선다 받아쓰기 테스트</h1><p class="muted">2~6명이 각자의 문장을 듣고 정답을 골라요. 모두 답하면 함께 확인해요.</p></div><button class="btn gray small" onclick="togetherExit()">← 함께 받아쓰기 메뉴</button></div>${grades()}
+  $('app').innerHTML=`<section class="panel"><div class="row" style="justify-content:space-between"><div><h1 class="title">🧩 3지선다 받아쓰기 테스트</h1><p class="muted">2~6명이 모두 같은 문장을 듣고, 바르게 쓴 문장을 각자 골라요. 모두 답하면 함께 확인해요.</p></div><button class="btn gray small" onclick="togetherExit()">← 함께 받아쓰기 메뉴</button></div>${grades()}
   <h2>🙋 참여 인원</h2><div class="row">${[2,3,4,5,6].map(n=>`<button class="btn ${st.count===n?'':'sub'}" onclick="togetherSetCount(${n})">${n}명</button>`).join('')}</div>
   <h2>🎯 몇 문제씩 풀까요?</h2><div class="row">${[3,5,10].map(n=>`<button class="btn ${st.total===n?'':'sub'}" onclick="togetherSetTotal(${n})">${n}문제</button>`).join('')}</div>
   <div class="tg-names-area"><label for="tgNames"><strong>학생 이름 (선택)</strong> — 한 줄에 한 명씩, 최대 ${st.count}명</label><textarea id="tgNames" rows="3" oninput="togetherDraft(this.value)" placeholder="이름이 없으면 1번, 2번으로 표시돼요.">${esc(togetherNameDraft)}</textarea><button class="btn sub small" onclick="togetherRandomNames()">🎲 우리 반에서 무작위 뽑기</button></div>
-  <div class="note">학생마다 <b>다른 문제</b>가 나와요. 게임 화면 아래 <b>🔊 내 문장 듣기</b>를 누르면 들을 수 있어요. 먼저 누른 친구의 정답은 전원 선택이 끝날 때까지 보여 주지 않아요. 게임 점수는 이번 판에만 사용해요.</div><div class="row" style="margin-top:20px"><button class="btn" onclick="togetherStart()">🎮 3지선다 테스트 시작</button></div></section>`;return}
+  <div class="note">모두 <b>같은 문장</b>을 듣고 <b>똑같은 세 보기</b> 중 바르게 쓴 문장을 각자 골라요. 위쪽 <b>🔊 모두 함께 문장 듣기</b>를 누르면 다시 들을 수 있어요. 정답은 전원이 제출한 뒤 공개해요. 점수는 이번 판에만 사용해요.</div><div class="row" style="margin-top:20px"><button class="btn" onclick="togetherStart()">🎮 3지선다 테스트 시작</button></div></section>`;return}
  if(st.stage==='done'){$('app').innerHTML=`<section class="panel" style="text-align:center"><h1 class="title">🎉 3지선다 테스트 완료!</h1><div class="tg-results">${st.names.map((n,i)=>`<div><strong>${esc(n)}</strong><span>⭐ ${st.scores[i]} / ${st.total}</span></div>`).join('')}</div><p class="muted">점수는 누적 저장하지 않아요.</p><button class="btn" onclick="togetherStart()">🔁 다시 도전</button> <button class="btn gray" onclick="togetherExit()">🏠 함께 받아쓰기 메뉴</button></section>`;return}
  const chosenVoice=chosenKoVoice();
  const selectedVoiceText=chosenVoice?`${/natural|neural/i.test(chosenVoice.name)?'✨ 자연 음성':'🔈 한국어 음성'}: ${esc(chosenVoice.name)}`:'⚠️ 한국어 음성 목록을 확인해 주세요';
  const status=st.stage==='ready'?`각자 아래에서 준비완료를 눌러요 (${st.ready.filter(Boolean).length}/${st.count}명)`:
  st.stage==='reveal'?'🎉 모두 선택했어요! 정답을 함께 확인한 뒤 자동으로 넘어가요':`${st.answers.filter(a=>a!==null).length}/${st.count}명 제출 · 정답은 모두 선택한 뒤 공개`;
- $('app').innerHTML=`<section class="tg-game"><div class="tg-head"><strong>🧩 3지선다 받아쓰기 테스트 · ${st.round+1}/${st.total}문제</strong><div class="tg-head-actions">${st.stage==='play'?`<button type="button" class="tg-read-all" onclick="togetherHearAll()">🔊 1번부터 차례로 듣기</button>`:''}<button type="button" class="tg-settings" onclick="showVoiceSettings()">🎙️ 목소리 설정</button><button type="button" class="btn gray small" onclick="togetherExit()">✕ 나가기</button></div></div><div class="tg-status">${status}</div><div class="tg-grid" style="--count:${st.count}">${st.names.map((_,i)=>togetherRenderLane(i)).join('')}</div><div class="tg-voicebar"><span id="togetherVoiceStatus">🔊 ${st.stage==='ready'?'시작 후 학생 칸에서 문장을 들을 수 있어요.':'각 학생의 듣기 버튼을 누르세요.'}</span><span class="tg-voicehint">${selectedVoiceText} · 📣 한 번에 한 문장씩 재생돼요.</span></div><div class="tg-footer">${st.stage==='ready'?'모두 준비완료를 누르면 시작해요':'문장을 듣고 자기 칸 아래에서 정답을 골라요!'}</div></section>`;
+ $('app').innerHTML=`<section class="tg-game"><div class="tg-head"><strong>🧩 3지선다 받아쓰기 테스트 · ${st.round+1}/${st.total}문제</strong><div class="tg-head-actions">${st.stage==='play'?`<button type="button" class="tg-read-all" onclick="togetherHear()">🔊 모두 함께 문장 듣기</button>`:''}<button type="button" class="tg-settings" onclick="showVoiceSettings()">🎙️ 목소리 설정</button><button type="button" class="btn gray small" onclick="togetherExit()">✕ 나가기</button></div></div><div class="tg-status">${status}</div><div class="tg-grid" style="--count:${st.count}">${st.names.map((_,i)=>togetherRenderLane(i)).join('')}</div><div class="tg-voicebar"><span id="togetherVoiceStatus">🔊 ${st.stage==='ready'?'모두 준비하면 같은 문장을 한 번 들려줘요.':'화면 위의 버튼을 눌러 같은 문장을 다시 들어요.'}</span><span class="tg-voicehint">${selectedVoiceText} · 📣 모두 같은 문장을 들어요.</span></div><div class="tg-footer">${st.stage==='ready'?'모두 준비완료를 누르면 시작해요':'같은 문장을 듣고 자기 칸의 세 보기에서 정답을 골라요!'}</div></section>`;
 }
 
 function render(){if(view==='together'){document.body.classList.remove('multi-active');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v==='board'));renderTogether();return}if(view==='studio'){document.body.classList.remove('multi-active');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v==='studio'));studioHome();return}if(view==='paper'){document.body.classList.remove('multi-active');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v==='paper'));paperHome();return}if(view==='reading'){document.body.classList.remove('multi-active');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v==='reading'));readingHome();return}if(view==='exam'){renderExam();return}document.body.classList.toggle('multi-active',view==='multi'&&['ready','countdown','play','reveal','boss-clear'].includes(phase));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===view||(view==='choice'&&t.dataset.v==='practice')));if(['play','ready','countdown','reveal','boss-clear'].includes(phase))game();else if(phase==='done')endScreen();else home()}
