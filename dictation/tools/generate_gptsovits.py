@@ -9,6 +9,11 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 manifest=json.loads((ROOT/"voice-manifest.json").read_text(encoding="utf-8"))
 sys.path[:0]=[str(pathlib.Path("_gptsovits/GPT_SoVITS").resolve()),str(pathlib.Path("_gptsovits").resolve())]
 from huggingface_hub import snapshot_download
+# The upstream inference imports ERes2NetV2 as a top-level module.
+# Locate its actual source directory rather than assuming the current cwd.
+for _p in pathlib.Path('_gptsovits').rglob('ERes2NetV2.py'):
+    sys.path.insert(0,str(_p.parent.resolve()))
+    break
 import soundfile as sf
 import numpy as np
 model_dir=pathlib.Path("_gptsovits/GPT_SoVITS/pretrained_models")
