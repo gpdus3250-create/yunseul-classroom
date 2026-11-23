@@ -20,6 +20,18 @@
 .school-status{font-size:11px;color:#7f7492;margin-top:12px;line-height:1.6}
 @media(max-width:850px){.school-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* 개인 구글 스프레드시트 바로가기: 주소는 공개 소스에 저장하지 않습니다. */
+.personal-shortcut-panel{background:linear-gradient(140deg,#fff,#faf6ff);border-color:#dcd0fa}
+.personal-shortcut-panel .school-panel-head h2{color:#6950a9}
+.personal-shortcut-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.personal-shortcut-links .school-link{justify-content:flex-start;padding:13px 15px;min-width:0;overflow-wrap:anywhere;text-align:left}
+.personal-shortcut-links .school-link .sheet-label{min-width:0;flex:1}
+.personal-shortcut-remove{border:1px solid #e4dcf3;background:#fff;border-radius:10px;color:#7a6c93;padding:6px 8px;font-size:11px}
+.personal-shortcut-remove:hover{background:#fff0f2;color:#c04c68}
+.personal-shortcut-panel .school-status{margin-top:10px}
+@media(max-width:850px){.personal-shortcut-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.personal-shortcut-links{grid-template-columns:1fr}}
+
 /* 주간학습안내 - 학교 사이트 밖으로 이동하지 않고 PDF/이미지 미리보기 */
 .weekly-panel{margin-top:18px;border:1px solid #e6dbfa;border-radius:23px;background:#fff;box-shadow:var(--shadow);padding:22px 23px}
 .weekly-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
@@ -116,9 +128,53 @@ function attr(name){return $(`[name="${name}"]`)?.value??''}
 function speak(text){if(!('speechSynthesis' in window)){toast('이 브라우저에서는 음성 읽기를 지원하지 않아요.');return}try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.85;u.pitch=1.03;const v=window.speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith('ko'));if(v)u.voice=v;window.speechSynthesis.speak(u)}catch(e){toast('음성을 재생하지 못했어요. 브라우저 설정을 확인해 주세요.')}}
 function navigate(view){if(ui.games.speedOn)endSpeed();if(view!=='settings'&&view!=='home'&&view!=='weekly'&&!TOOLS.some(t=>t.id===view))return;ui.view=view;render();window.scrollTo({top:0,behavior:'instant'});$('#app')?.focus({preventScroll:true})}
 function renderNav(){const nav=$('#nav-list');nav.innerHTML=`<button class="nav-item ${ui.view==='home'?'active':''}" data-view="home"><span class="nav-icon">🏠</span>우리 반 홈</button><button class="nav-item ${ui.view==='weekly'?'active':''}" data-view="weekly"><span class="nav-icon">📅</span>주간학습안내 미리보기</button>`+TOOLS.map(t=>`<button class="nav-item ${ui.view===t.id?'active':''}" data-view="${t.id}"><span class="nav-icon">${t.icon}</span>${t.name}</button>`).join('');$('#class-label').textContent=`${db.settings.grade}학년 ${db.settings.room}반`}
+// 교사용 바로가기: 민감한 시트 주소를 공개 GitHub 저장소에 올리지 않음.
+// 한 번에 등록할 때 URL #fragment만 읽고 기기의 localStorage에 보관함.
+const PERSONAL_LINKS_KEY='yunseul_personal_sheet_shortcuts_v1';
+function personalSafeUrl(url){
+ try{
+  const u=new URL(String(url||''));
+  return u.protocol==='https:'&&u.hostname==='docs.google.com'&&/^\/spreadsheets\/d\/[a-zA-Z0-9_-]+(?:\/|$)/.test(u.pathname)?u.href:null;
+ }catch(e){return null}
+}
+function personalEscape(value){
+ return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function personalGetLinks(){
+ try{
+  const items=JSON.parse(localStorage.getItem(PERSONAL_LINKS_KEY)||'[]');
+  if(!Array.isArray(items))return [];
+  return items.filter(x=>x&&personalSafeUrl(x.url)&&typeof x.title==='string').slice(0,24)
+    .map(x=>({title:x.title.slice(0,70),url:personalSafeUrl(x.url)}));
+ }catch(e){return []}
+}
+function personalImportFromHash(){
+ const marker=new URLSearchParams(location.hash.slice(1)).get('add-shortcuts');
+ if(!marker)return false;
+ try{
+  const items=JSON.parse(marker);
+  if(!Array.isArray(items)||items.length>24||items.length===0)throw Error('잘못된 링크 목록');
+  const incoming=items.map(x=>({title:String(x.title||'').slice(0,70),url:personalSafeUrl(x.url)}));
+  if(incoming.some(x=>!x.title||!x.url))throw Error('잘못된 스프레드시트 주소');
+  const merged=new Map(personalGetLinks().map(x=>[x.url,x]));
+  for(const item of incoming)merged.set(item.url,item);
+  localStorage.setItem(PERSONAL_LINKS_KEY,JSON.stringify([...merged.values()].slice(0,24)));
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  return true;
+ }catch(e){console.warn('개인 바로가기 가져오기 실패',e);return false}
+}
+function personalShortcutsPanel(){
+ const items=personalGetLinks();
+ const links=items.length?items.map((x,i)=>
+  '<div style="display:flex;align-items:stretch;gap:5px;min-width:0"><a class="school-link" style="flex:1" href="'+personalEscape(x.url)+'" target="_blank" rel="noopener noreferrer"><span>📗</span><span class="sheet-label">'+personalEscape(x.title)+' ↗</span></a><button class="personal-shortcut-remove" type="button" data-act="personal-remove" data-id="'+i+'" aria-label="'+personalEscape(x.title)+' 바로가기 삭제">✕</button></div>'
+ ).join(''):'<p class="school-status">아직 등록된 링크가 없어요. 채팅에서 받은 개인 등록 링크를 한 번 누르면 여섯 개가 나타나요.</p>';
+ return '<section class="school-panel personal-shortcut-panel" aria-label="개인 구글 스프레드시트 바로가기"><div class="school-panel-head"><div><h2>📗 내 구글 스프레드시트 바로가기</h2><p>한 번 등록하면 이 브라우저에서 바로 열 수 있어요.</p></div><span class="tag">🔒 이 브라우저에만 저장</span></div><div class="personal-shortcut-links">'+links+'</div><p class="school-status">공용 PC에서는 사용하지 않는 것을 권장해요. 학생 명단·교사 계정 시트의 Google 공유 권한도 반드시 확인해 주세요.</p><button class="btn tiny outline" type="button" data-act="personal-add" style="margin-top:12px">＋ 바로가기 추가</button></section>';
+}
+
 function home(){return `<div class="hero"><div><div class="eyebrow">HELLO, TEACHER ♡</div><h1>오늘도 우리 반은<br><span style="color:#886ad7">반짝반짝 성장 중! ✨</span></h1><p>학습지부터 게임, 기록 관리까지. 수업을 위한 열 가지 도구를 한곳에 모았어요.</p><div class="btn-group" style="margin-top:20px"><button class="btn" data-view="worksheet">학습지 만들기 ✍️</button><button class="btn outline" data-view="games">게임 시작하기 🎲</button></div></div><div class="hero-spark" aria-hidden="true">🐰🌷</div></div>
 ${weeklyPanel(true)}
 <section class="school-panel" aria-label="인천윤슬초등학교 바로가기"><div class="school-panel-head"><div><h2>🏫 우리 학교 바로가기</h2><p>인천윤슬초등학교 공식 홈페이지와 1학년 자료를 바로 열 수 있어요.</p></div><span class="tag">1학년 6반 ✨</span></div><div class="school-links"><a class="school-link" href="https://yunseul.icees.kr/" target="_blank" rel="noopener noreferrer"><span>🏫</span>학교 홈페이지 ↗</a><a class="school-link" href="https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&amp;m=020901&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>📅</span>1학년 주간학습안내 ↗</a><a class="school-link" href="https://yunseul.icees.kr/foodWlist.do?m=020401&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🍱</span>학교 급식 ↗</a><a class="school-link" href="https://yunseul.icees.kr/schdList.do?m=0206&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🎈</span>학교 일정 ↗</a></div><p class="school-status">💡 위 바로가기는 공식 확인용이에요. 이 페이지 안의 PDF·이미지 미리보기는 위 ‘이번 주 주간학습안내’ 영역에서 볼 수 있어요.</p></section>
+${personalShortcutsPanel()}
 <div class="section-heading"><div><h2>어떤 수업을 준비할까요?</h2><small>카드를 눌러 바로 시작해 보세요.</small></div><span class="tag">총 10개의 도구</span></div><div class="tool-grid">${TOOLS.map(t=>`<button class="tool-card" data-view="${t.id}"><span class="tool-emoji">${t.icon}</span><strong>${t.name}</strong><small>${t.desc}</small><span class="tool-arrow">↗</span></button>`).join('')}</div><div class="notice">🔒 학생 기록은 이 브라우저 안에만 저장됩니다. 같은 데이터를 다른 기기에서 쓰려면 <button class="btn tiny outline" data-view="settings">백업·복원</button>을 이용하세요. 공용 PC에서는 실명 대신 학생 번호 사용을 권장해요.</div>`}
 
 // === 1학년 주간학습안내 미리보기 =============================
@@ -337,6 +393,26 @@ async function startMediaRecording(){
 }
 function endSpeed(){clearInterval(speedTimer);speedTimer=null;ui.games.speedOn=false}
 function action(name,id){switch(name){
+case'personal-remove':{
+ const items=personalGetLinks(),n=Number(id);
+ if(!Number.isInteger(n)||n<0||n>=items.length)break;
+ if(confirm('이 브라우저에서 이 바로가기를 삭제할까요?')){
+  items.splice(n,1);localStorage.setItem(PERSONAL_LINKS_KEY,JSON.stringify(items));render();toast('바로가기를 삭제했어요.');
+ }
+ break;
+}
+case'personal-add':{
+ const title=prompt('새 바로가기 이름을 입력해 주세요.');
+ if(title===null)break;
+ const url=prompt('Google 스프레드시트 주소를 붙여넣어 주세요.');
+ if(url===null)break;
+ const valid=personalSafeUrl(url);
+ if(!valid||!title.trim()){toast('Google 스프레드시트 주소와 이름을 확인해 주세요.');break}
+ const items=personalGetLinks().filter(x=>x.url!==valid);
+ items.push({title:title.trim().slice(0,70),url:valid});
+ localStorage.setItem(PERSONAL_LINKS_KEY,JSON.stringify(items.slice(0,24)));render();toast('이 브라우저에 바로가기를 추가했어요.');
+ break;
+}
 case'weekly-prev':weeklyState.selectedWeek=weeklyOffset(weeklySelected(false),-7);render();break;
 case'weekly-next':weeklyState.selectedWeek=weeklyOffset(weeklySelected(false),7);render();break;
 case'weekly-today':weeklyState.selectedWeek=weeklyWeek();render();break;
@@ -418,6 +494,7 @@ if(el.id==='restore-file'&&el.files?.[0]){if(!confirm('현재 저장된 모든 �
 document.addEventListener('dragover',e=>{if(e.target.closest('#weekly-dropzone'))e.preventDefault()});
 document.addEventListener('drop',e=>{if(e.target.closest('#weekly-dropzone')){e.preventDefault();weeklyHandleFile(e.dataTransfer?.files?.[0])}});
 if('speechSynthesis' in window){window.speechSynthesis.onvoiceschanged=()=>{ /* voices available as browser loads */ }}
+personalImportFromHash();
 render();
 weeklyLoad().then(weeklyRefreshRemote);
 setInterval(weeklyRefreshRemote,30*60*1000);
