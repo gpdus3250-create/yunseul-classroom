@@ -135,6 +135,41 @@ const writingPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000
 assert.ok(writingPreview.includes('ws-writing-lines'),'Writing guide lines missing');
 vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
 assert.ok(!wsContext.lastPrinted.body.includes('class="ws-sheet ws-cute ws-kind-writing ws-answers'),'Writing worksheets should not print an unhelpful answer key');
+
+// A mixed worksheet must not squeeze story problems into half-width equation cards.
+wsObj.kind='math';wsObj.theme='cute';wsObj.items=[
+ {text:'16 + 4 =',answer:'20'},
+ {text:'7 + 9 =',answer:'16'},
+ {text:'18 - 6 =',answer:'12'},
+ {text:'사과가 1개 있고, 3개를 더 받았어요. 모두 몇 개일까요?',answer:'4'},
+ {text:'7 + 11 =',answer:'18'},
+ {text:'18 - 5 =',answer:'13'},
+ {text:'9 + 5 =',answer:'14'},
+ {text:'사과가 12개 있고, 7개를 더 받았어요. 모두 몇 개일까요?',answer:'19'},
+ {text:'11 + 3 =',answer:'14'},
+ {text:'13 - 6 =',answer:'7'}
+];
+const mixedCount=wsObj.items.length;
+const modes=vm.runInContext('ui.worksheet.items.map(q=>worksheetQuestionMode(q,"math"))',wsContext,{timeout:1000});
+assert.equal(modes.filter(m=>m==='word').length,2,'Math story questions not detected');
+assert.equal(modes.filter(m=>m==='equation').length,8,'Simple math equations must be compact');
+const mixedGroups=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
+assert.equal(mixedGroups.length,1,'Ten mixed questions should fit a single A4 when reasonably short');
+const mixedPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(mixedPreview.includes('ws-auto-mixed'),'Mixed automatic grid missing');
+assert.equal((mixedPreview.match(/class="ws-q ws-q-word"/g)||[]).length,2,'Story cards should span full width');
+assert.equal((mixedPreview.match(/class="ws-q ws-q-equation"/g)||[]).length,8,'Calculation cards should remain two-column');
+assert.ok(mixedPreview.includes('그림이나 식으로 풀어 보세요.'),'Working area missing from story cards');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.equal((wsContext.lastPrinted.body.match(/class="ws-q ws-q-word"/g)||[]).length,2,
+  'Full-width story cards must also print correctly');
+assert.ok(wsContext.lastPrinted.body.includes('grid-column:1/-1'),'Printing must include full-width story CSS');
+assert.equal(wsObj.items.length,mixedCount,'Auto layout must never change questions or answers');
+wsObj.kind='pattern';wsObj.items=[{text:'규칙을 찾아 빈칸에 알맞은 수를 쓰세요.  1 → 3 → 5 → □ → 9',answer:'7'}];
+const patternPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(patternPreview.includes('ws-pattern-wide'),'Pattern sequences need a full-width row');
+console.log('✓ Equations compact, sentence problems full width, math work space and automatic A4 pagination validated');
+
 console.log('✓ Cute/simple worksheet styles preview correctly, preserve questions and print A4 pages');
 
 const publicSheets=[
