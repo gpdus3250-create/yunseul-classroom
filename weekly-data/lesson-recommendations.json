@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "generated_at": "2026-11-23T08:03:47.724447+00:00",
+  "method": "literal_pdf_text_matching",
+  "description": "학습안내의 표현을 확인한 뒤 기존 활동으로 연결하는 규칙 기반 추천. 교과서 원문 또는 성취기준 검증이 아닙니다.",
+  "weeks": {
+    "2026-11-23": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-11-23/original.pdf",
+      "recommendations": [
+        {
+          "id": "math-pattern",
+          "subject": "수학",
+          "topic": "규칙 찾기·만들기",
+          "icon": "🔺",
+          "evidence": [
+            "규칙을 찾아볼까요",
+            "규칙을 만들어 볼까요"
+          ],
+          "source_page": 1,
+          "why": "주간학습안내의 규칙 활동과 관련된 수 배열 규칙 문제를 연습해요. 교과서 문항을 그대로 옮긴 것은 아니에요.",
+          "actions": [
+            {
+              "id": "worksheet-pattern",
+              "label": "📝 규칙 학습지 20문제"
+            },
+            {
+              "id": "math-pattern",
+              "label": "🎮 수학 탐정 규칙 게임"
+            }
+          ]
+        },
+        {
+          "id": "math-calculation",
+          "subject": "수학",
+          "topic": "덧셈과 뺄셈 연습",
+          "icon": "➕",
+          "evidence": [
+            "덧셈과 뺄셈 문제 풀기",
+            "덧셈과 뺄셈",
+            "뺄셈 문제 풀기"
+          ],
+          "source_page": 1,
+          "why": "주간학습안내에 나온 계산 활동과 연결되는 별도 연습 문제예요.",
+          "actions": [
+            {
+              "id": "worksheet-math",
+              "label": "📝 덧셈·뺄셈 학습지"
+            }
+          ]
+        },
+        {
+          "id": "korean-word",
+          "subject": "국어",
+          "topic": "낱말 바르게 읽기",
+          "icon": "🔤",
+          "evidence": [
+            "낱말을 바르게 쓰고 읽"
+          ],
+          "source_page": 1,
+          "why": "교과서 원문 대신 새로운 연습 낱말로 읽기·듣기를 연습해요.",
+          "actions": [
+            {
+              "id": "reading-word",
+              "label": "🔊 낱말 읽기 게임"
+            }
+          ]
+        },
+        {
+          "id": "korean-sentence",
+          "subject": "국어",
+          "topic": "문장 바르게 읽기",
+          "icon": "✏️",
+          "evidence": [
+            "문장을 바르게 쓰고 읽"
+          ],
+          "source_page": 1,
+          "why": "교과서의 문장과 별개인 짧은 문장 읽기 활동으로 연결해요.",
+          "actions": [
+            {
+              "id": "reading-short",
+              "label": "🔊 짧은 문장 읽기"
+            }
+          ]
+        },
+        {
+          "id": "korean-meaning",
+          "subject": "국어",
+          "topic": "글의 의미 생각하며 읽기",
+          "icon": "📖",
+          "evidence": [
+            "글의 의미를 생각하며"
+          ],
+          "source_page": 1,
+          "why": "새로 만든 짧은 이야기의 내용을 읽고 질문에 답하는 확장 활동이에요. 교과서 본문은 포함하지 않아요.",
+          "actions": [
+            {
+              "id": "reading-meaning",
+              "label": "💡 읽기 이해 미션"
+            }
+          ]
+        }
+      ],
+      "message": null,
+      "source_title": "1학년 11월 23일 - 11월 27일(15주)"
+    },
+    "2026-11-16": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-11-16/original.pdf",
+      "recommendations": [],
+      "message": null,
+      "source_title": "1학년 11월 16일 – 11월 20일(14주)"
+    },
+    "2026-11-09": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-11-09/original.pdf",
+      "recommendations": [],
+      "message": null,
+      "source_title": "1학년 11월 9일 – 11월 13일(13주)"
+    },
+    "2026-11-02": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-11-02/original.pdf",
+      "recommendations": [],
+      "message": null,
+      "source_title": "1학년 11월 2일 – 11월 6일(12주)"
+    },
+    "2026-10-26": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-10-26/original.pdf",
+      "recommendations": [],
+      "message": null,
+      "source_title": "1학년 10월 26일 – 10월 30일(11주)"
+    },
+    "2026-10-19": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-10-19/original.pdf",
+      "recommendations": [],
+      "message": null,
+      "source_title": "1학년 10월 19일 – 10월 23일(10주)"
+    },
+    "2026-10-12": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-10-12/original.pdf",
+      "recommendations": [
+        {
+          "id": "math-calculation",
+          "subject": "수학",
+          "topic": "덧셈과 뺄셈 연습",
+          "icon": "➕",
+          "evidence": [
+            "덧셈과 뺄셈 문제 풀기",
+            "덧셈과 뺄셈",
+            "뺄셈 문제 풀기"
+          ],
+          "source_page": 1,
+          "why": "주간학습안내에 나온 계산 활동과 연결되는 별도 연습 문제예요.",
+          "actions": [
+            {
+              "id": "worksheet-math",
+              "label": "📝 덧셈·뺄셈 학습지"
+            }
+          ]
+        }
+      ],
+      "message": null,
+      "source_title": "1학년 10월 12일 – 10월 16일(9주)"
+    },
+    "2026-10-05": {
+      "status": "ok",
+      "source_pdf": "weekly-data/2026-10-05/original.pdf",
+      "recommendations": [],
+      "message": null,
+      "source_title": "1학년 10월 5일 – 10월 9일(8주)"
+    }
+  }
+}
