@@ -27,13 +27,14 @@ def phrases():
 
 
 def make_mp3(tts, style, text, output):
+    import imageio_ffmpeg
     with tempfile.TemporaryDirectory(prefix="dictation-tts-") as tmp:
         wav_path = pathlib.Path(tmp) / "speak.wav"
         audio, duration = tts.synthesize(text, voice_style=style, lang="ko")
         tts.save_audio(audio, str(wav_path))
         subprocess.run(
             [
-                "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                imageio_ffmpeg.get_ffmpeg_exe(), "-hide_banner", "-loglevel", "error", "-y",
                 "-i", str(wav_path),
                 "-vn", "-c:a", "libmp3lame", "-q:a", "5", "-ar", "24000",
                 str(output),
