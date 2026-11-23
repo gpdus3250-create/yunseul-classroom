@@ -171,10 +171,7 @@ assert.ok(wsContext.lastPrinted.body.includes('grid-column:1/-1'),'Print stylesh
 const ratioOutput=vm.runInContext("makeQuestions('math',10,'normal',{mathRange:'20',operation:'mixed',carry:'none',wordRatio:3})",wsContext,{timeout:1000});
 assert.equal(ratioOutput.length,10);
 assert.equal(ratioOutput.filter(x=>x.mode==='word').length,3,'Exact word ratio was not respected');
-assert.deepEqual(ratioOutput.map(q=>q.mode),[
- 'equation','equation','equation','equation','equation','equation','equation',
- 'word','word','word'
-],'Generated math problems must list calculations before word problems');
+assert.equal(ratioOutput.map(q=>q.mode).join(','),Array(7).fill('equation').concat(Array(3).fill('word')).join(','),'Generated math problems must list calculations before word problems');
 for(const q of ratioOutput){
  assert.equal(Number(q.answer),q.meta.expected,'Generated answer must match arithmetic');
  assert.ok(q.meta.expected<=20,'Out-of-range result');
