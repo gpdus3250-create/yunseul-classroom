@@ -219,6 +219,40 @@ const patternBlank=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000})
 assert.ok(patternBlank.includes('ws-pattern-blank'),'Pattern questions should use a real square answer box');
 console.log('✓ Manuscript paper, first-cell indentation, ruled writing and square pattern blanks verified');
 
+
+// Continuation sheets omit the masthead and activity prompt, preserving the footer number.
+wsObj.kind='math';
+wsObj.theme='cute';
+wsObj.purpose='class';
+wsObj.pageMode='auto';
+wsObj.wordRatio=0;
+wsObj.previewPage=0;
+wsObj.items=Array.from({length:24},(_,i)=>({text:(i+1)+' + 1 =',answer:String(i+2),mode:'equation'}));
+const compactGroups=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
+assert.equal(compactGroups.length,2,'Continuations should fit 24 equations into two A4 sheets rather than three');
+assert.equal(compactGroups[0].items.length,10,'Keep the first page at original comfortable density');
+assert.equal(compactGroups[1].items.length,14,'Use the saved header area to fit more on page two');
+const firstSheet=vm.runInContext('worksheetSheetMarkup(ui.worksheet,ui.worksheet.items.slice(0,10),0,2,1,false,false)',wsContext,{timeout:1000});
+const secondSheet=vm.runInContext('worksheetSheetMarkup(ui.worksheet,ui.worksheet.items.slice(10),10,2,2,false,false)',wsContext,{timeout:1000});
+assert.ok(firstSheet.includes('class="ws-header"'),'Page one must still show the title and name');
+assert.ok(firstSheet.includes('class="ws-meta"'),'Page one must still show the pupil information');
+assert.ok(firstSheet.includes('class="ws-intro"'),'Page one needs the assignment heading');
+assert.ok(!secondSheet.includes('class="ws-header"'),'Continuation must not repeat the title');
+assert.ok(!secondSheet.includes('class="ws-meta"'),'Continuation must not repeat the pupil information');
+assert.ok(!secondSheet.includes('class="ws-intro"'),'Continuation must not repeat assignment instructions');
+assert.ok(secondSheet.includes('ws-continuation'),'Continuation styling required');
+assert.ok(secondSheet.includes('2 / 2'),'Continuation footer must keep page number');
+wsObj.previewPage=1;
+const compactPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(compactPreview.includes('ws-continuation'),'Preview should display continuation mode');
+assert.ok(!compactPreview.includes('class="ws-header"'),'Second preview page should not display full header');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+const printed=wsContext.lastPrinted.body;
+assert.equal((printed.match(/class="ws-header"/g)||[]).length,2,'Header only on student page one and answer-key page one');
+assert.equal((printed.match(/ws-continuation ws-print/g)||[]).length,1,'Only page two should be compact');
+assert.ok(printed.includes('.ws-print.ws-sheet.ws-continuation'),'Print CSS should preserve compact page layout');
+console.log('✓ Continuation pages omit repeated heading and fit 24 equations on two A4 pages');
+
 console.log('✓ Worksheet studio: themes, ratio, math validation, purpose, A4, per-question edits and print validated');
 
 const publicSheets=[
