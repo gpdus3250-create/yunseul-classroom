@@ -12,7 +12,7 @@ const app={innerHTML:''};
 const ctx={
   view:'together',number:3,selected:new Set([1]),levels:{1:['꽃이 활짝 피었습니다.','하늘이 맑다.','무릎을 꿇다.']},
   COLORS:['#e993af','#e7be69','#8eaddf'],audioConfig:{mode:'recorded',recordedVoice:'MELO'},
-  allQuestions(){return [...this.selected].flatMap(g=>this.levels[g].map((text,index)=>({grade:g,index,text,id:g+':'+index})))},
+  allQuestions:()=>[...ctx.selected].flatMap(g=>ctx.levels[g].map((text,index)=>({grade:g,index,text,id:g+':'+index}))),
   shuffle(xs){return xs.slice()},
   makeOptions(text){return [text+' (틀림 1)',text,text+' (틀림 2)']},
   esc:x=>x, grades:()=>'', chosenKoVoice:()=>null,
