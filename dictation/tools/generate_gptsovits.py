@@ -7,7 +7,7 @@ Never edits F1/M1/F2/M2/S1 original voice files.
 import json,pathlib,subprocess,sys,tempfile
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 manifest=json.loads((ROOT/"voice-manifest.json").read_text(encoding="utf-8"))
-sys.path.insert(0,str(pathlib.Path("_gptsovits").resolve()))
+sys.path[:0]=[str(pathlib.Path("_gptsovits/GPT_SoVITS").resolve()),str(pathlib.Path("_gptsovits").resolve())]
 from huggingface_hub import snapshot_download
 import soundfile as sf
 import numpy as np
