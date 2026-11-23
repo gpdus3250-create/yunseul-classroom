@@ -1,0 +1,35 @@
+name: Generate Korean MeloTTS voice files
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'dictation/tools/generate_melo.py'
+      - '.github/workflows/generate-melo-voice.yml'
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install MeloTTS
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install git+https://github.com/myshell-ai/MeloTTS.git
+          python -m unidic download
+      - name: Generate original 140 sentences and prompts
+        run: python dictation/tools/generate_melo.py
+      - name: Commit actual MP3 files only when generation succeeds
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dictation/voice/MELO/*.mp3
+          git diff --cached --quiet || (git commit -m "Add generated MeloTTS Korean MP3 recordings" && git push)
