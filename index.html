@@ -203,11 +203,6 @@ const PERSONAL_SHEET_NAMES=[
     "url": "https://docs.google.com/spreadsheets/d/11veDOcjX0EB-M2qmv46SZ2x-Yle1MKx32H54ySWenlc/edit?usp=drivesdk"
   },
   {
-    "title": "1~6반 명단",
-    "icon": "👩‍🏫",
-    "url": "https://docs.google.com/spreadsheets/d/1m6bmPL1oXSJQG2EPk0X2rLs2bPAzdZnw6ThTCVARj2s/edit?usp=drivesdk"
-  },
-  {
     "title": "정보부 유지보수",
     "icon": "🛠️",
     "url": "https://docs.google.com/spreadsheets/d/1gERSanAtJyXjvVaClyKokEKHDFbYTISckBaO_iq6s8A/edit?usp=drivesdk"
@@ -216,11 +211,6 @@ const PERSONAL_SHEET_NAMES=[
     "title": "과학정보부",
     "icon": "🔬",
     "url": "https://docs.google.com/spreadsheets/d/1z1SIGY0po5oZNPqbqylxw_3QjB2jh8y4arhDR0MW6MI/edit?usp=drivesdk"
-  },
-  {
-    "title": "교사 계정 생성",
-    "icon": "💻",
-    "url": "https://docs.google.com/spreadsheets/d/1ENaxKLSD59mleEZoyQP7V-O6k0y0TymNlHvjL9nt-po/edit?usp=drivesdk"
   }
 ];
 function personalShortcutsPanel(){
@@ -228,11 +218,11 @@ function personalShortcutsPanel(){
  const cards=PERSONAL_SHEET_NAMES.map(entry=>
   '<div class="personal-shortcut-card"><a class="school-link" style="flex:1" href="'+personalEscape(entry.url)+'" target="_blank" rel="noopener noreferrer"><span>'+entry.icon+'</span><span class="sheet-label">'+personalEscape(entry.title)+' ↗</span></a></div>'
  ).join('');
- const others=items.filter(x=>!PERSONAL_SHEET_NAMES.some(p=>p.title===x.title));
+ const others=items.filter(x=>!PERSONAL_SHEET_NAMES.some(p=>p.title===x.title) && !['1~6반 명단','교사 계정 생성'].includes(x.title) && !/\/d\/(?:1m6bmPL1oXSJQG2EPk0X2rLs2bPAzdZnw6ThTCVARj2s|1ENaxKLSD59mleEZoyQP7V-O6k0y0TymNlHvjL9nt-po)\//.test(x.url));
  const otherLinks=others.map(x=>
   '<a class="school-link" href="'+personalEscape(x.url)+'" target="_blank" rel="noopener noreferrer"><span>📗</span><span class="sheet-label">'+personalEscape(x.title)+' ↗</span></a>'
  ).join('');
- return '<section class="school-panel personal-shortcut-panel" aria-label="윤슬초 구글 스프레드시트 바로가기"><div class="school-panel-head"><div><h2>📗 윤슬초 구글 시트 바로가기</h2><p>별도 등록 없이 학교 업무 시트를 바로 열 수 있어요.</p></div><span class="tag">🔗 6개 바로가기</span></div><div class="personal-shortcut-links">'+cards+'</div>'+(otherLinks?'<div class="personal-shortcut-links" style="margin-top:10px">'+otherLinks+'</div>':'')+'<p class="school-status">⚠️ 이 여섯 개의 링크는 공개사이트에 표시돼요. 각 시트의 자료 열람·수정은 Google 공유 권한에 따라 결정됩니다. 학생 명단과 교사 계정 시트는 반드시 접근 권한을 점검해 주세요. 그 외 개인 바로가기는 사용 중인 브라우저에만 보관됩니다.</p><button class="btn tiny outline" type="button" data-act="personal-add" style="margin-top:12px">＋ 내 바로가기 추가</button></section>';
+ return '<section class="school-panel personal-shortcut-panel" aria-label="윤슬초 구글 스프레드시트 바로가기"><div class="school-panel-head"><div><h2>📗 윤슬초 구글 시트 바로가기</h2><p>별도 등록 없이 학교 업무 시트를 바로 열 수 있어요.</p></div><span class="tag">🔗 4개 바로가기</span></div><div class="personal-shortcut-links">'+cards+'</div>'+(otherLinks?'<div class="personal-shortcut-links" style="margin-top:10px">'+otherLinks+'</div>':'')+'<p class="school-status">⚠️ 이 네 개의 링크는 공개사이트에 표시돼요. 각 시트의 자료 열람·수정은 Google 공유 권한에 따라 결정됩니다. 그 외 개인 바로가기는 사용 중인 브라우저에만 보관됩니다.</p><button class="btn tiny outline" type="button" data-act="personal-add" style="margin-top:12px">＋ 내 바로가기 추가</button></section>';
 }
 
 // 실제 학교 PDF의 확인 가능한 표현만 연결합니다. 불확실하면 추천을 보여주지 않습니다.
