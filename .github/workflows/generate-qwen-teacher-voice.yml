@@ -1,11 +1,6 @@
 name: Generate Sohee teacher voice (all 140 dictation phrases)
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - dictation/generate_qwen_teacher_voice.py
-      - .github/workflows/generate-qwen-teacher-voice.yml
 permissions:
   contents: write
   actions: write
