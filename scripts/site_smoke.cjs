@@ -50,6 +50,41 @@ for(const item of current.recommendations.filter(x=>x.book)){
   assert.ok(item.sheet?.prompt&&item.steps?.length>0,'Book suggestion lacks ready-to-teach plans');
 }
 
+
+// The standalone playlab must work without a network, account or build framework.
+const playHtml=fs.readFileSync('playlab.html','utf8');
+const playScripts=[...playHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
+assert.equal(playScripts.length,1,'Playlab should have one inline game script');
+new vm.Script(playScripts[0][1],{filename:'playlab-inline.js'});
+const gameModes=['safety','builder','roulette','story','path','train'];
+for(const mode of gameModes){
+  assert.ok(playHtml.includes('data-mode="'+mode+'"'),'Missing game tab: '+mode);
+  assert.ok(html.includes('playlab.html#'+mode),'Homepage game shortcut missing: '+mode);
+}
+assert.ok(html.includes('function lessonPlayMode'),'Weekly integrated cards must link to playable games');
+assert.ok(!html.includes('🪄 수업 흐름과 교사용 팁 보기</summary>') || !html.includes('+guide+(sparkText?'),
+  'Teacher plan text must not appear in recommendation cards');
+// Run each game's initial render under a minimal browser-like environment.
+const testStage={innerHTML:''};
+const fakeTabs=gameModes.map(mode=>({dataset:{mode},classList:{toggle(){}}}));
+const fakeLocation={hash:'#safety'};
+const fakeDocument={
+  getElementById(id){return id==='stage'?testStage:null;},
+  querySelectorAll(query){return query==='.tab'?fakeTabs:[];},
+  addEventListener(){},
+};
+const sandbox=vm.createContext({
+  document:fakeDocument,window:{addEventListener(){}},location:fakeLocation,
+  history:{replaceState(a,b,hash){fakeLocation.hash=hash;}},requestAnimationFrame(){},
+  Math,Set,Array,console,devicePixelRatio:1
+});
+vm.runInContext(playScripts[0][1],sandbox,{timeout:3000});
+for(const mode of gameModes){
+  vm.runInContext('setMode("'+mode+'")',sandbox,{timeout:1000});
+  assert.ok(testStage.innerHTML.length>250,'Game did not render: '+mode);
+}
+console.log('✓ Six immediate-play integrated games parse and render in minimal browser context');
+
 const publicSheets=[
   '1BS2-5MUB_RP-GV8TgYscY70aNrxyRyiAaDSMd0H1Gv8',
   '11veDOcjX0EB-M2qmv46SZ2x-Yle1MKx32H54ySWenlc',
