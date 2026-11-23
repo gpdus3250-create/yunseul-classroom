@@ -45,6 +45,8 @@ jobs:
               assert all(f.stat().st_size>1000 for f in files)
               print(voice, len(files), 'validated audio files')
           PY
+      - name: Verify both original AI voices remain unchanged
+        run: node scripts/dictation_voice_lock.cjs
       - name: Commit recorded voices without changing classroom site
         run: |
           git config user.name "github-actions[bot]"
