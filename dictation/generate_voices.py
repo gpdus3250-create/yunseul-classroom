@@ -63,7 +63,7 @@ def main():
                 continue
             duration = make_mp3(tts, style, text, output)
             if idx % 10 == 0 or idx == 1 or idx == len(phrases_to_generate):
-                print(f"{voice} {idx}/{len(phrases_to_generate)}: {text[:22]} ({duration:.1f}s)", flush=True)
+                print(f"{voice} {idx}/{len(phrases_to_generate)}: {text[:22]} (음성 생성 완료)", flush=True)
     print("Generated all required natural Korean speech clips.", flush=True)
 
 
