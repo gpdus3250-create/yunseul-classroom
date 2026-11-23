@@ -780,7 +780,13 @@ async function weeklySaveLink(){let url=attr('weekly-url').trim();if(!url)return
 async function weeklyRemove(){const week=weeklySelected(ui.view==='home');if(!confirm(`${weeklyLabel(week)}의 저장된 학습안내만 삭제할까요?`))return;
  try{await weeklyDelete(week)}catch(e){console.warn(e)}weeklyDestroyURL(week);weeklyState.entries.delete(week);render();toast('선택한 주의 학습안내를 삭제했어요.')}
 
-function render(){renderNav();const routes={home,weekly:renderWeekly,worksheet:renderWorksheet,reading:renderReading,games:renderGames,writing:renderWriting,math:renderMath,planner:renderPlanner,media:renderMedia,fitness:renderFitness,design:renderDesign,books:renderBooks,settings:renderSettings};$('#app').innerHTML=(routes[ui.view]||home)();let bar=$('#mobile-toolbar');if(bar)bar.remove();if(ui.view!=='home'){const e=document.createElement('div');e.className='mobile-toolbar';e.id='mobile-toolbar';e.innerHTML=`<button data-view="home">🏠 홈</button><button data-view="weekly">📅 주간학습안내</button>`+TOOLS.map(t=>`<button data-view="${t.id}">${t.icon} ${t.name}</button>`).join('');document.querySelector('.main-shell').append(e)}}
+
+function archivedToolsPanel(){
+ return '<details class="panel" style="margin-top:18px"><summary style="cursor:pointer;font-weight:800;color:#77678b">📦 예전에 만든 도구 보관함 (필요할 때만 열기)</summary>'+
+  '<p class="small-hint" style="margin:12px 0">홈에서만 숨겼어요. 이전에 저장한 학급 자료는 삭제하지 않았고 아래에서 예전 도구를 다시 열 수 있어요.</p>'+
+  '<div class="btn-group">'+ARCHIVED_TOOLS.map(t=>'<button class="btn outline tiny" data-view="'+t.id+'">'+t.icon+' '+safe(t.name)+'</button>').join('')+'</div></details>';
+}
+function render(){renderNav();const routes={home,weekly:renderWeekly,worksheet:renderWorksheet,reading:renderReading,games:renderGames,writing:renderWriting,math:renderMath,planner:renderPlanner,media:renderMedia,fitness:renderFitness,design:renderDesign,books:renderBooks,settings:renderSettings};$('#app').innerHTML=(routes[ui.view]||home)()+(ui.view==='settings'?archivedToolsPanel():'');let bar=$('#mobile-toolbar');if(bar)bar.remove();if(ui.view!=='home'){const e=document.createElement('div');e.className='mobile-toolbar';e.id='mobile-toolbar';e.innerHTML=`<button data-view="home">🏠 홈</button><button data-view="weekly">📅 주간학습안내</button>`+TOOLS.map(t=>`<button data-view="${t.id}">${t.icon} ${t.name}</button>`).join('');document.querySelector('.main-shell').append(e)}}
 
 // 1. 학습지 자동 제작소
 const KOREAN_ITEMS=[['나는 오늘 학교에 갔어요.','나는 오늘학교에 갔어요.'],['친구와 함께 놀았어요.','친구와함께 놀았어요.'],['할머니 댁에 다녀왔어요.','할머니댁에 다녀왔어요.'],['우리 집에 고양이가 있어요.','우리집에 고양이가 있어요.'],['책을 한 권 읽었어요.','책을 한권 읽었어요.'],['아침에 밥을 먹었어요.','아침에 밥을먹었어요.'],['나무 아래에 앉았어요.','나무아래에 앉았어요.'],['비가 와서 우산을 썼어요.','비가와서 우산을 썼어요.'],['동생이 그림을 그려요.','동생이 그림을그려요.'],['우리는 줄을 서요.','우리는 줄을서요.'],['노란 꽃이 피었어요.','노란꽃이 피었어요.'],['연필 세 자루가 있어요.','연필 세자루가 있어요.']];
