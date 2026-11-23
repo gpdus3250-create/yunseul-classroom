@@ -877,29 +877,120 @@ function worksheetThemeChooser(w){
   '<button type="button" class="ws-theme-choice cute '+(w.theme==='cute'?'active':'')+'" data-act="worksheet-theme" data-id="cute" aria-pressed="'+(w.theme==='cute')+'"><span class="ws-theme-symbol">🐰</span><span><strong>귀여운 연보라</strong><small>토끼 · 구름 · 둥근 카드</small></span></button>'+
   '<button type="button" class="ws-theme-choice simple '+(w.theme==='simple'?'active':'')+'" data-act="worksheet-theme" data-id="simple" aria-pressed="'+(w.theme==='simple')+'"><span class="ws-theme-symbol">▤</span><span><strong>심플한 디자인</strong><small>흑백 인쇄 · 잉크 절약</small></span></button></div>';
 }
+function worksheetIssues(w){
+ const issues=[],seen=new Map();
+ const items=w.items||[];
+ items.forEach((q,i)=>{
+  const number=i+1,text=String(q.text||'').trim(),answer=String(q.answer||'').trim();
+  if(!text)issues.push({level:'error',message:number+'번 문제가 비어 있어요.'});
+  if(w.kind!=='writing'&&!answer)issues.push({level:'error',message:number+'번 정답이 비어 있어요.'});
+  const normalized=text.replace(/\s+/g,'');
+  if(normalized){
+   if(seen.has(normalized))issues.push({level:'warn',message:number+'번 문제가 '+seen.get(normalized)+'번 문제와 같아요.'});
+   else seen.set(normalized,number);
+  }
+  if(text.length>175)issues.push({level:'warn',message:number+'번 문장이 길어서 출력 전에 확인이 필요해요.'});
+  if(w.kind==='math'&&text&&answer){
+   const eq=text.match(/^\s*(\d+)\s*([+-])\s*(\d+)\s*=\s*$/);
+   if(eq){
+    const result=eq[2]==='+'?Number(eq[1])+Number(eq[3]):Number(eq[1])-Number(eq[3]);
+    if(!Number.isFinite(Number(answer))||result!==Number(answer))
+     issues.push({level:'error',message:number+'번 계산식과 정답이 일치하지 않아요. (계산값 '+result+')'});
+   }else if(q.meta&&text===q.meta.original){
+    if(Number(answer)!==Number(q.meta.expected))issues.push({level:'error',message:number+'번 문장제 정답이 생성된 계산과 달라요.'});
+   }else issues.push({level:'warn',message:number+'번 문장제는 선생님이 문장과 정답을 직접 확인해 주세요.'});
+   if(q.meta&&text!==q.meta.original)issues.push({level:'warn',message:number+'번 문제 내용이 수정됐어요. 숫자 조건을 다시 확인해 주세요.'});
+  }
+  if(w.kind==='korean'&&q.edited)
+   issues.push({level:'warn',message:number+'번 국어 문제는 문장과 정답 표시를 확인해 주세요.'});
+ });
+ if(!items.length)issues.push({level:'error',message:'학습지 문제가 없어요.'});
+ const count=worksheetPaginate(w).length;
+ if(w.pageMode==='one'&&count>1)
+  issues.push({level:'warn',message:'내용을 크게 유지하기 위해 '+count+'장으로 나누었어요. 1장에 억지로 줄이지 않았어요.'});
+ if(w.kind==='math'&&w.items.length){
+  const word=w.items.filter(q=>worksheetQuestionMode(q,'math')==='word').length;
+  const expected=Math.round(w.items.length*w.wordRatio/10);
+  if(word!==expected)issues.push({level:'warn',message:'수정된 현재 학습지는 계산식 '+(w.items.length-word)+'개·문장제 '+word+'개예요. 설정 비율은 다음 새 학습지부터 적용돼요.'});
+ }
+ return issues;
+}
+function worksheetIssueMarkup(w){
+ const issues=worksheetIssues(w);
+ if(!issues.length)return '<div class="ws-check ws-check-pass">✅ 중복·정답·배치 자동 점검을 통과했어요. 출력 전에 선생님이 한 번 읽어 주세요.</div>';
+ const errors=issues.filter(x=>x.level==='error').length;
+ const shown=issues.slice(0,9).map(x=>'<li>'+safe(x.message)+'</li>').join('');
+ const summary=(errors?'⛔ 수정 필요 '+errors+'건 · ':'')+'확인 사항 '+issues.length+'건';
+ return '<div class="ws-check '+(errors?'ws-check-error':'ws-check-warn')+'"><strong>🔍 출력 전 점검: '+summary+'</strong><ul>'+shown+'</ul>'+
+  (issues.length>9?'<small>그 외 '+(issues.length-9)+'건이 더 있어요.</small>':'')+'</div>';
+}
+function worksheetEditorMarkup(w){
+ if(!w.items.length)return '';
+ const editing=w.editIndex;
+ const rows=w.items.map((q,i)=>{
+  const mode=worksheetQuestionMode(q,w.kind);
+  const type=mode==='word'?'문장제':mode==='equation'?'계산식':mode==='pattern'?'규칙':mode==='choice'?'띄어쓰기':'문장 쓰기';
+  const short=String(q.text||'').replace(/\s+/g,' ').slice(0,75);
+  const edit=editing===i?
+   '<div class="ws-editor-form"><label for="ws-edit-text-'+i+'">문제 내용</label><textarea id="ws-edit-text-'+i+'" data-ws-text="'+i+'" rows="3">'+safe(q.text)+'</textarea>'+
+   '<label for="ws-edit-answer-'+i+'">정답'+(w.kind==='writing'?' (자유 응답 가능)':'')+'</label><input id="ws-edit-answer-'+i+'" data-ws-answer="'+i+'" value="'+safe(q.answer)+'">'+
+   '<div class="ws-edit-buttons"><button class="btn tiny" data-act="worksheet-save-one" data-id="'+i+'">✓ 이 문제 저장</button><button class="btn tiny outline" data-act="worksheet-edit" data-id="'+i+'">닫기</button></div></div>':'';
+  return '<article class="ws-editor-row" id="ws-editor-'+i+'"><div class="ws-editor-line"><span class="ws-editor-no">'+(i+1)+'</span>'+
+   '<span class="ws-editor-type">'+type+'</span><span class="ws-editor-summary">'+safe(short)+'</span></div>'+
+   '<div class="ws-editor-actions"><button data-act="worksheet-reroll" data-id="'+i+'" type="button">🎲 다시 뽑기</button>'+
+   '<button data-act="worksheet-edit" data-id="'+i+'" type="button">✏️ 수정</button>'+
+   '<button data-act="worksheet-remove" data-id="'+i+'" type="button">삭제</button></div>'+edit+'</article>';
+ }).join('');
+ return shell('✂️ 문제 하나씩 고치기','<p class="small-hint">원하는 문제만 다시 뽑거나 글과 답을 직접 고칠 수 있어요. 다른 문항은 그대로 유지돼요.</p>'+
+ '<div class="ws-edit-list">'+rows+'</div>'+
+ '<div class="btn-group" style="margin-top:12px"><button class="btn outline" data-act="worksheet-add">＋ 문제 하나 추가하기</button></div>');
+}
 function renderWorksheet(){
  const w=ui.worksheet;
- const pageGroups=worksheetPaginate(w);
- const pages=pageGroups.length;
- const answerPages=w.kind==='writing'?0:Math.ceil(w.items.length/30);
- return heading('📝','학습지 자동 제작소','같은 문제도 원하는 디자인으로 바꾸고 미리 본 뒤 인쇄해요.')+
- shell('🎨 디자인 먼저 선택','<p class="small-hint" style="margin-bottom:10px">🐰 귀여운 연보라 / ▤ 심플 — 아래에서 바로 바꿔 보세요.</p>'+worksheetThemeChooser(w))+
- shell('학습지 설정','<div class="form-row">'+
+ worksheetNormalize(w);
+ const groups=worksheetPaginate(w),pages=groups.length;
+ w.previewPage=Math.max(0,Math.min(w.previewPage,pages-1));
+ const shown=groups[w.previewPage];
+ const answers=w.kind==='writing'?0:Math.ceil(w.items.length/30);
+ const mathSetting=w.kind==='math'?
+ '<div class="ws-advanced"><h4>🔢 수학 문제 세부 설정</h4><div class="form-row">'+
+ hField('수 범위','<select name="worksheet-range">'+selectOptions([['10','10 이내'],['20','20 이내'],['100','100 이내']],w.mathRange)+'</select>')+
+ hField('연산','<select name="worksheet-operation">'+selectOptions([['mixed','덧셈·뺄셈 섞기'],['add','덧셈만'],['sub','뺄셈만']],w.operation)+'</select>')+
+ hField('받아올림·받아내림','<select name="worksheet-carry">'+selectOptions([['any','섞어서'],['none','없는 문제'],['yes','있는 문제']],w.carry)+'</select>')+
+ '</div><div class="ws-ratio-title"><label for="worksheet-word-ratio"><strong>문장제 비율</strong></label><span id="ws-ratio-text">계산식 '+(10-w.wordRatio)+' : 문장제 '+w.wordRatio+'</span></div>'+
+ '<input type="range" id="worksheet-word-ratio" name="worksheet-word-ratio" min="0" max="10" step="1" value="'+w.wordRatio+'" class="ws-ratio-range">'+
+ '<p class="small-hint">예: 문장제 3이면 10문제 중 3문제 정도 만들어요. 설정은 새 학습지 생성 시 적용돼요.</p></div>':'';
+ const controls='<div class="form-row">'+
  hField('종류','<select name="worksheet-kind">'+selectOptions([['math','덧셈·뺄셈'],['pattern','규칙 찾기'],['korean','국어 띄어쓰기'],['writing','문장 쓰기']],w.kind)+'</select>')+
  hField('난이도','<select name="worksheet-difficulty">'+selectOptions([['easy','쉬움'],['normal','보통'],['hard','도전']],w.difficulty)+'</select>')+
  hField('문제 수','<select name="worksheet-count">'+selectOptions([[10,'10문제'],[20,'20문제'],[30,'30문제'],[40,'40문제']],w.n)+'</select>')+
- '<button class="btn" data-act="worksheet-generate">✨ 새 학습지 만들기</button></div>'+
- '<p class="small-hint">디자인을 바꿔도 이미 생성한 문제는 그대로 유지돼요. 실제 인쇄/PDF에도 선택한 디자인이 적용돼요.</p>')+
- shell('A4 인쇄 미리보기',w.items.length?
- '<div class="ws-preview-caption"><span>1쪽 미리보기 · '+pageGroups[0].items.length+'문제 / 전체 '+w.items.length+'문제</span><span>학습지 '+pages+'쪽'+(answerPages?' + 정답표 '+answerPages+'쪽':'')+'</span></div>'+
- '<div class="ws-preview-frame">'+worksheetSheetMarkup(w,pageGroups[0].items,pageGroups[0].start,pages,1,false,false)+'</div>'+
- '<div class="btn-group" style="margin-top:18px"><button class="btn" data-act="worksheet-print">🖨️ 선택한 디자인으로 인쇄 / PDF 저장</button><button class="btn outline" data-act="worksheet-answer">정답표 보기</button></div>'+
- (w.answers?'<div class="result">'+w.items.map((q,i)=>(i+1)+'. '+safe(q.answer)).join('　 /　 ')+'</div>':'')
- :blank('설정을 고르고 「새 학습지 만들기」를 눌러 주세요.'));
+ '</div><div class="form-row" style="margin-top:14px">'+
+ hField('사용 목적','<select name="worksheet-purpose">'+selectOptions([['class','수업용 · 넉넉하게'],['homework','숙제용 · 쓰는 칸 크게'],['test','쪽지시험용 · 간결하게']],w.purpose)+'</select>')+
+ hField('A4 배치','<select name="worksheet-page-mode">'+selectOptions([['one','한 장 우선 · 넘치면 분리'],['auto','읽기 편한 여백 우선']],w.pageMode)+'</select>')+
+ '</div>'+mathSetting+
+ '<div class="btn-group" style="margin-top:16px"><button class="btn" data-act="worksheet-generate">✨ 새 학습지 만들기</button></div>'+
+ '<p class="small-hint">수업 진도에 맞게 조건을 정하고, 결과를 꼭 검토한 후 출력해 주세요.</p>';
+ const pageNav=pages>1?
+ '<div class="ws-page-tabs">'+groups.map((_,i)=>'<button data-act="worksheet-preview-page" data-id="'+i+'" class="'+(w.previewPage===i?'active':'')+'">'+(i+1)+'쪽</button>').join('')+'</div>':'';
+ const preview=w.items.length?
+ '<div class="ws-preview-caption"><span>현재 '+(w.previewPage+1)+'쪽 · '+shown.items.length+'문제 / 전체 '+w.items.length+'문제</span><span>학습지 '+pages+'쪽'+(answers?' + 정답표 '+answers+'쪽':'')+'</span></div>'+pageNav+
+ '<div class="ws-preview-frame">'+worksheetSheetMarkup(w,shown.items,shown.start,pages,w.previewPage+1,false,false)+'</div>'+
+ '<div class="btn-group" style="margin-top:17px"><button class="btn" data-act="worksheet-print">🖨️ 인쇄 / PDF 저장</button>'+
+ '<button class="btn outline" data-act="worksheet-answer">정답표 '+(w.answers?'닫기':'보기')+'</button></div>'+
+ (w.answers?'<div class="result">'+w.items.map((q,i)=>(i+1)+'. '+safe(q.answer)).join('　 /　 ')+'</div>':''):
+ blank('설정을 고르고 「새 학습지 만들기」를 눌러 주세요.');
+ return heading('📝','학습지 제작소 2.0','문제 하나씩 고치고, 수업 목적과 문제 유형에 맞춰 자동 인쇄해요.')+
+ shell('🎨 디자인 먼저 선택','<p class="small-hint" style="margin-bottom:10px">귀여운 연보라와 심플한 디자인 중 골라 보세요. 문제는 그대로 유지돼요.</p>'+worksheetThemeChooser(w))+
+ shell('⚙️ 원하는 학습지 만들기',controls)+
+ (w.items.length?shell('🔍 인쇄 전 자동 점검',worksheetIssueMarkup(w)):'')+
+ shell('📄 A4 인쇄 미리보기',preview)+worksheetEditorMarkup(w);
 }
 function printWorksheet(){
  const w=ui.worksheet;
  if(!w.items.length)return;
+ const issues=worksheetIssues(w);
+ if(issues.some(x=>x.level==='error')){toast('⛔ 정답 또는 문제 오류가 있어요. 점검 내용을 먼저 수정해 주세요.');return}
+ if(issues.length&&!confirm('확인할 사항이 '+issues.length+'건 있어요. 검토한 뒤 인쇄할까요?'))return;
  const body='<style>'+WORKSHEET_PRINT_CSS+'</style>'+worksheetOutputPages(w).join('');
  printHTML(worksheetTitle(w.kind)+' 학습지',body);
 }
