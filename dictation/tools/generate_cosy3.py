@@ -13,7 +13,8 @@ args=parser.parse_args()
 assert 0<=args.shard<args.shards
 sys.path[:0]=[str(pathlib.Path("_cosyvoice").resolve()),str(pathlib.Path("_cosyvoice/third_party/Matcha-TTS").resolve())]
 from cosyvoice.cli.cosyvoice import AutoModel
-import torchaudio
+import soundfile as sf
+import torch
 from huggingface_hub import snapshot_download
 model_dir=pathlib.Path("_cosyvoice/pretrained_models/Fun-CosyVoice3-0.5B")
 snapshot_download("FunAudioLLM/Fun-CosyVoice3-0.5B-2512",local_dir=str(model_dir))
@@ -42,7 +43,9 @@ with tempfile.TemporaryDirectory(prefix="cosy3-") as tmp:
             wave=part if wave is None else __import__("torch").cat([wave,part],dim=-1)
         if wave is None or wave.numel()<model.sample_rate//3:raise RuntimeError(f"No audio: {key}")
         intermediate=pathlib.Path(tmp)/(key+".wav")
-        torchaudio.save(str(intermediate),wave,model.sample_rate)
+        # SoundFile avoids a torchaudio/FFmpeg C++ backend crash seen after the
+        # first waveform was synthesized on the GitHub CPU runner (exit 139).
+        sf.write(str(intermediate),wave.squeeze().detach().cpu().numpy(),model.sample_rate)
         subprocess.run(["ffmpeg","-loglevel","error","-y","-i",str(intermediate),"-ac","1","-codec:a","libmp3lame","-q:a","4",str(target)],check=True)
         intermediate.unlink()
         if target.stat().st_size<2000:raise RuntimeError(f"Too small: {key}")
