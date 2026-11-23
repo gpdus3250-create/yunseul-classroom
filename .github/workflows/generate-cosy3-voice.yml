@@ -37,8 +37,9 @@ jobs:
           sudo apt-get install -y ffmpeg sox libsox-dev
           git clone --depth=1 --recursive https://github.com/FunAudioLLM/CosyVoice.git _cosyvoice
           python -m pip install --upgrade pip
+          python -m pip install 'setuptools<81' wheel
           python -m pip install torch==2.3.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cpu
-          grep -Ev '^(--extra-index-url|deepspeed|onnxruntime-gpu|tensorrt|torch==|torchaudio==|gradio==|matplotlib==)' _cosyvoice/requirements.txt > /tmp/cosy-cpu.txt
+          grep -Ev '^(--extra-index-url|deepspeed|onnxruntime-gpu|tensorrt|torch==|torchaudio==|gradio==|matplotlib==|openai-whisper==)' _cosyvoice/requirements.txt > /tmp/cosy-cpu.txt
           python -m pip install -r /tmp/cosy-cpu.txt
           python -m pip install huggingface_hub soundfile
       - name: Synthesize Korean phrases with the actual CosyVoice3 model
