@@ -8,7 +8,7 @@ on:
     branches: [main]
     paths:
       - "scripts/sync_weekly.py"
-      - "scripts/inspect_lessons.py"
+      - "scripts/recommend_lessons.py"
       - "requirements.txt"
       - ".github/workflows/weekly-sync.yml"
 permissions:
@@ -38,8 +38,8 @@ jobs:
           python -m pip install -r requirements.txt
       - name: Check public grade-1 weekly notices
         run: python scripts/sync_weekly.py
-      - name: Inspect public PDF lessons
-        run: python scripts/inspect_lessons.py
+      - name: Recommend activities based on original weekly PDFs
+        run: python scripts/recommend_lessons.py
       - name: Save verified documents and status
         run: |
           git config user.name "github-actions[bot]"
