@@ -292,7 +292,13 @@ function lessonRecommendationsPanel(homeMode){
  const count=type=>type==='all'?all.length:all.filter(x=>x.subject===type).length;
  const active=lessonState.filter;
  const showing=all.filter(x=>active==='all'||x.subject===active);
- const selected=lessonState.expanded?showing:showing.slice(0,6);
+ const highlights=active==='all'?[
+   ...all.filter(x=>x.subject==='상상').slice(0,2),
+   ...all.filter(x=>x.subject==='이야기').slice(0,2),
+   ...all.filter(x=>x.subject==='국어').slice(0,1),
+   ...all.filter(x=>x.subject==='수학').slice(0,1)
+ ]:showing.slice(0,6);
+ const selected=lessonState.expanded?showing:highlights;
  let contents='';
  if(lessonState.status==='loading')contents='<div class="lesson-status">이번 주 주간학습안내를 읽고 수업 자료를 준비하고 있어요…</div>';
  else if(lessonState.status!=='ok')contents='<div class="lesson-status">추천 자료를 불러오지 못했어요. 학교 주간학습안내 PDF는 위에서 확인할 수 있어요.</div>';
