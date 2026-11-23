@@ -34,9 +34,12 @@ def all_phrases():
     return data
 
 
-def spoken(text):
-    # Never change the actual dictated words or the user-visible original.
-    # Add only sentence-final punctuation for neutral intonation when absent.
+def spoken(text, key):
+    # Narration-only adjustment; never modify the original dictation text.
+    # Short numeric labels can be cut off by an autoregressive TTS model;
+    # read "7번 문제입니다." instead of the awkward isolated "7번.".
+    if key.startswith("n") and key[1:].isdigit():
+        return str(int(key[1:])) + "번 문제입니다."
     text = text.strip()
     return text if text and text[-1] in ".!?…。”’\"" else text + "."
 
@@ -46,7 +49,7 @@ def render_one(model, key, text, out, sr_converter):
     import torch
     with torch.inference_mode():
         wavs, sr = model.generate_custom_voice(
-            text=spoken(text), language="Korean", speaker="Sohee"
+            text=spoken(text, key), language="Korean", speaker="Sohee"
         )
     if not wavs or len(wavs[0]) < int(sr * 0.3):
         raise RuntimeError(f"Empty or extremely short audio generated: {key}")
