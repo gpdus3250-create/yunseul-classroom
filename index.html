@@ -772,21 +772,43 @@ function worksheetQuestionMode(q,kind){
  return 'writing';
 }
 function worksheetPaginate(w){
- const limit=({math:12.8,pattern:8,korean:6,writing:3})[w.kind]||10;
- const maxCards=worksheetPageSize(w.kind);
- const pages=[];let group=[],start=0,used=0;
- (w.items||[]).forEach((item,i)=>{
-  const mode=worksheetQuestionMode(item,w.kind);
-  const len=String(item.text||'').length;
-  const cost=mode==='word'?2.3+Math.min(1.6,Math.max(0,len-55)/55):1;
-  if(group.length&&(group.length>=maxCards||used+cost>limit+0.001)){
-   pages.push({items:group,start});group=[];used=0;start=i;
+ worksheetNormalize(w);
+ const items=w.items||[],pages=[];
+ if(!items.length)return pages;
+ const maxContent=w.purpose==='homework'?200:w.purpose==='test'?220:210;
+ const maxCount=w.pageMode==='one'?({math:18,pattern:10,korean:8,writing:4})[w.kind]:
+  ({math:10,pattern:8,korean:6,writing:3})[w.kind];
+ let group=[],start=0;
+ const heightOf=(list)=>{
+  const gap=3;
+  if(w.kind!=='math'){
+   const each=w.kind==='pattern'?27:w.kind==='korean'?32:w.purpose==='homework'?61:55;
+   return list.length*(each+gap);
   }
-  group.push(item);used+=cost;
+  let total=0,oneHalf=false;
+  for(const item of list){
+   const word=worksheetQuestionMode(item,'math')==='word';
+   if(word){
+    if(oneHalf){total+=gap;oneHalf=false}
+    total+= (w.purpose==='homework'?49:w.purpose==='test'?35:41)+
+       Math.min(21,Math.max(0,Math.ceil((String(item.text||'').length-50)/35))*7)+gap;
+   }else if(!oneHalf){
+    total+= (w.purpose==='homework'?30:w.purpose==='test'?19:24)+gap;
+    oneHalf=true;
+   }else oneHalf=false;
+  }
+  return total;
+ };
+ items.forEach((item,i)=>{
+  if(group.length&&(group.length>=maxCount||heightOf([...group,item])>maxContent)){
+   pages.push({items:group,start});group=[];start=i;
+  }
+  group.push(item);
  });
  if(group.length)pages.push({items:group,start});
  return pages;
 }
+
 function worksheetQuestionText(q,kind){
  if(kind==='pattern'){
   const parts=String(q.text||'').split('  ');
@@ -795,36 +817,46 @@ function worksheetQuestionText(q,kind){
  return String(q.text||'');
 }
 function worksheetSheetMarkup(w,items,start,totalPages,pageNo,answerKey,forPrint){
+ worksheetNormalize(w);
  const theme=w.theme==='simple'?'simple':'cute';
  const columns=answerKey?'ws-two':w.kind==='math'?'ws-auto-mixed':w.kind==='pattern'?'ws-pattern-wide':'ws-one';
  const title=answerKey?'정답 확인':worksheetTitle(w.kind);
+ const purpose=({class:'수업용',homework:'숙제용',test:'쪽지시험'})[w.purpose]||'수업용';
  const classLine=safe(db.settings.grade||1)+'학년 (<span style="display:inline-block;width:19mm;height:1em;vertical-align:-.12em"></span>)반 (<span style="display:inline-block;width:13mm;height:1em;vertical-align:-.12em"></span>)번';
- const safeItems=items.map(function(q,index){
+ const safeItems=items.map((q,index)=>{
   const num=start+index+1;
   const mode=answerKey?'answer':worksheetQuestionMode(q,w.kind);
-  const text=answerKey?String(q.answer):worksheetQuestionText(q,w.kind);
-  const work=mode==='word'?'<div class="ws-story-space"><span>그림이나 식으로 풀어 보세요.</span></div>':'';
-  const answer=answerKey?'':(
-   (w.kind==='math'||w.kind==='pattern')?'<div class="ws-answer-line">답</div>':
-   w.kind==='writing'?'<div class="ws-writing-lines"><i></i><i></i><i></i></div>':''
-  );
-  return '<div class="ws-q ws-q-'+mode+'"><div class="ws-q-head"><span class="ws-q-num">'+num+'</span><span class="ws-q-text">'+safe(text)+'</span></div>'+work+answer+'</div>';
+  const content=answerKey?String(q.answer):worksheetQuestionText(q,w.kind);
+  const isStory=mode==='word',isExam=w.purpose==='test';
+  let answer='';
+  if(!answerKey){
+   if(w.kind==='math'){
+    if(isStory){
+     answer='<div class="ws-story-space">'+(isExam?'':'<span>그림이나 식으로 생각해 보세요.</span>')+'</div>'+
+      '<div class="ws-word-response"><span>식 <i></i></span><span>답 <i></i></span></div>';
+    }else answer='<div class="ws-answer-line">답</div>';
+   }else if(w.kind==='pattern')answer='<div class="ws-answer-line">답</div>';
+   else if(w.kind==='writing')answer='<div class="ws-writing-lines"><i></i><i></i><i></i>'+(w.purpose==='homework'?'<i></i><i></i>':'')+'</div>';
+  }
+  return '<div class="ws-q ws-q-'+mode+'"><div class="ws-q-head"><span class="ws-q-num">'+num+'</span><span class="ws-q-text">'+safe(content)+'</span></div>'+answer+'</div>';
  }).join('');
  const intro=answerKey?'선생님이 확인하는 정답표입니다.':
   w.kind==='math'?'식을 살펴보고 알맞은 답을 써 보세요.':
-  w.kind==='pattern'?'규칙을 찾아 빈칸에 알맞은 수를 써 보세요.':
+  w.kind==='pattern'?'규칙을 찾아 빈칸에 알맞은 수를 쓰세요.':
   w.kind==='korean'?'바르게 띄어 쓴 문장을 찾아 ○표 하세요.':
   '내 생각을 떠올리고 두세 문장으로 써 보세요.';
- const className='ws-sheet ws-'+theme+' ws-kind-'+w.kind+(answerKey?' ws-answers':'')+(forPrint?' ws-print':' ws-preview');
+ const className='ws-sheet ws-'+theme+' ws-kind-'+w.kind+' ws-purpose-'+w.purpose+(answerKey?' ws-answers':'')+(forPrint?' ws-print':' ws-preview');
  return '<section class="'+className+'">'+
-   '<div class="ws-header"><div class="ws-banner">'+
-   (theme==='cute'?'<span class="ws-bunny">'+WS_BUNNY+'</span><span class="ws-pencil" aria-hidden="true">✏️</span>':'')+
-   '<h1>'+safe(title)+'</h1></div>'+
-   '<div class="ws-meta"><span>'+classLine+'</span><span class="ws-name">이름 (　　　　　　　)</span></div></div>'+
-   '<div class="ws-intro"><strong>'+(theme==='cute'?'🌟 오늘의 활동':'활동')+'</strong>'+safe(intro)+'</div>'+
-   '<div class="ws-questions '+columns+'">'+safeItems+'</div>'+
-   '<div class="ws-foot"><span>'+(theme==='cute'?'♡ 우리 반의 반짝이는 배움 ♡':'우리 반 학습지')+'</span><span>'+pageNo+' / '+totalPages+'</span></div></section>';
+ '<div class="ws-header"><div class="ws-banner">'+
+ (theme==='cute'?'<span class="ws-bunny">'+WS_BUNNY+'</span><span class="ws-pencil" aria-hidden="true">✏️</span>':'')+
+ '<h1>'+safe(title)+'</h1></div>'+
+ '<div class="ws-meta"><span>'+classLine+'</span><span class="ws-name">이름 (　　　　　　　)</span></div></div>'+
+ '<div class="ws-intro"><strong>'+(theme==='cute'?'🌟 오늘의 활동':'활동')+'</strong>'+safe(intro)+
+ '<span class="ws-purpose-label">'+purpose+'</span></div>'+
+ '<div class="ws-questions '+columns+'">'+safeItems+'</div>'+
+ '<div class="ws-foot"><span>'+(theme==='cute'?'♡ 우리 반의 반짝이는 배움 ♡':'우리 반 학습지')+'</span><span>'+pageNo+' / '+totalPages+'</span></div></section>';
 }
+
 function worksheetOutputPages(w){
  const grouped=worksheetPaginate(w);
  const total=grouped.length;
