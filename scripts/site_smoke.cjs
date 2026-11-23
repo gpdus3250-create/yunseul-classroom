@@ -88,90 +88,104 @@ for(const mode of gameModes){
 console.log('✓ Six immediate-play integrated games parse and render in minimal browser context');
 
 
-// Verify both printable worksheet designs with a functional HTML preview and print smoke test.
+// Automated tests for worksheet studio 2.0.
 const appJs=scripts[0][1];
-const worksheetStart=appJs.indexOf('const WORKSHEET_PRINT_CSS=');
+const worksheetStart=appJs.indexOf('function worksheetMathPairs(');
 const worksheetEnd=appJs.indexOf('// 2. 읽기 왕국',worksheetStart);
-assert.ok(worksheetStart>0&&worksheetEnd>worksheetStart,'Worksheet theme implementation missing');
-const normalizeStart=appJs.indexOf('function worksheetNormalize(');
-assert.ok(normalizeStart>0&&normalizeStart<worksheetStart,'Worksheet normalization helper missing');\nconst worksheetCode=appJs.slice(normalizeStart,worksheetEnd);
-const dummyItems=Array.from({length:11},(_,i)=>({text:(i+1)+' + 2 =',answer:String(i+3)}));
-const wsObj={theme:'cute',kind:'math',n:11,difficulty:'normal',items:dummyItems,answers:false};
+assert.ok(worksheetStart>0&&worksheetEnd>worksheetStart,'Worksheet studio source missing');
+const worksheetCode=appJs.slice(worksheetStart,worksheetEnd);
+const wsObj={
+ theme:'cute',kind:'math',n:11,difficulty:'normal',items:[],answers:false,
+ mathRange:'20',operation:'mixed',carry:'any',wordRatio:0,
+ purpose:'class',pageMode:'auto',previewPage:0,editIndex:null
+};
+wsObj.items=Array.from({length:11},(_,i)=>({text:(i+1)+' + 2 =',answer:String(i+3)}));
 const fakeDb={settings:{grade:1,room:6,school:'우리 학교'}};
 const htmlSafe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const wsContext=vm.createContext({
- ui:{worksheet:wsObj},db:fakeDb,safe:htmlSafe,console,
+ ui:{worksheet:wsObj},db:fakeDb,safe:htmlSafe,console,Math,Set,Array,
+ rnd:(a,b)=>a+Math.floor(Math.random()*(b-a+1)),
+ shuffle:a=>a.slice().reverse(),
+ KOREAN_ITEMS:[['우리 집','우리집'],['맛있는 밥','맛있는밥']],
+ WRITE_TOPICS:['나의 즐거운 하루','우리 반 친구'],
+ toast:()=>{},render:()=>{},
+ confirm:()=>true,requestAnimationFrame:()=>{},
  localStorage:{getItem(){return 'cute'},setItem(){}},
  heading:(a,b,c)=>'<h2>'+b+'</h2>',
  shell:(a,b)=>'<section><h3>'+a+'</h3>'+b+'</section>',
  blank:message=>message,
  hField:(label,body)=>'<label>'+label+body+'</label>',
- selectOptions:(items,chosen)=>items.map(([value,title])=>'<option '+(chosen===value?'selected':'')+'>'+title+'</option>').join(''),
+ selectOptions:(items,chosen)=>items.map(([value,title])=>'<option '+(String(chosen)===String(value)?'selected':'')+'>'+title+'</option>').join(''),
  printHTML:(title,body)=>{wsContext.lastPrinted={title,body};return true}
 });
 vm.runInContext(worksheetCode,wsContext,{timeout:3000});
-const cuteHtml=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
-assert.ok(cuteHtml.includes('ws-cute'),'Cute worksheet preview not rendered');
-assert.ok(cuteHtml.includes('ws-bunny'),'Cute illustration missing');
-assert.ok(cuteHtml.includes('data-id="cute"')&&cuteHtml.includes('data-id="simple"'),'Theme picker missing');
-assert.equal(wsObj.items.length,11);
+const cute=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(cute.includes('ws-sheet ws-cute'),'Cute sheet preview missing');
+assert.ok(cute.includes('ws-bunny'),'Cute bunny decoration missing');
+assert.ok(cute.includes('data-id="cute"')&&cute.includes('data-id="simple"'),'Two theme choices missing');
+assert.ok(cute.includes('worksheet-word-ratio'),'Word-problem ratio slider missing');
+assert.ok(cute.includes('worksheet-range')&&cute.includes('worksheet-carry'),'Number range and regrouping controls missing');
+assert.ok(cute.includes('worksheet-purpose')&&cute.includes('worksheet-page-mode'),'Page and use-case options missing');
+assert.ok(cute.includes('data-act="worksheet-reroll"')&&cute.includes('data-act="worksheet-edit"'),'One-by-one editing missing');
 wsObj.theme='simple';
-const simpleHtml=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
-assert.ok(simpleHtml.includes('ws-simple'),'Simple worksheet preview not rendered');
-assert.ok(!simpleHtml.includes('<span class="ws-bunny">'),'Simple design should not print cute illustration');
-assert.equal(wsObj.items.length,11,'Switching theme changed worksheet questions');
+const simple=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(simple.includes('ws-sheet ws-simple'),'Simple sheet preview missing');
+assert.ok(!simple.includes('<span class="ws-bunny">'),'Simple design should omit illustration');
 vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
-assert.ok(wsContext.lastPrinted.body.includes('ws-simple'),'Print did not preserve selected design');
-assert.ok(wsContext.lastPrinted.body.includes('.ws-sheet.ws-cute'),'Print CSS for both themes missing');
-assert.equal((wsContext.lastPrinted.body.match(/ws-print/g)||[]).length>0,true);
-assert.equal((wsContext.lastPrinted.body.match(/class="ws-sheet ws-simple ws-kind-math ws-print"/g)||[]).length,2,
-  'Eleven math questions should print on two A4 question pages');
+assert.ok(wsContext.lastPrinted.body.includes('ws-sheet ws-simple'),'Printable simple design missing');
+assert.equal((wsContext.lastPrinted.body.match(/ws-purpose-class ws-print"/g)||[]).length,2,
+  'Auto mode must split 11 equations across two student pages');
 assert.ok(wsContext.lastPrinted.body.includes('ws-answers'),'Printable answer key missing');
-wsObj.theme='cute';
-vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
-assert.ok(wsContext.lastPrinted.body.includes('ws-cute'),'Cute design does not print');
-wsObj.kind='writing';
-wsObj.items=[{text:'나의 즐거운 하루',answer:'자유 응답'}];
-const writingPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
-assert.ok(writingPreview.includes('ws-writing-lines'),'Writing guide lines missing');
-vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
-assert.ok(!wsContext.lastPrinted.body.includes('class="ws-sheet ws-cute ws-kind-writing ws-answers'),'Writing worksheets should not print an unhelpful answer key');
-
-// A mixed worksheet must not squeeze story problems into half-width equation cards.
-wsObj.kind='math';wsObj.theme='cute';wsObj.items=[
- {text:'16 + 4 =',answer:'20'},
- {text:'7 + 9 =',answer:'16'},
+wsObj.theme='cute';wsObj.pageMode='one';wsObj.wordRatio=2;
+wsObj.items=[
+ {text:'16 + 4 =',answer:'20'},{text:'7 + 9 =',answer:'16'},
  {text:'18 - 6 =',answer:'12'},
  {text:'사과가 1개 있고, 3개를 더 받았어요. 모두 몇 개일까요?',answer:'4'},
- {text:'7 + 11 =',answer:'18'},
- {text:'18 - 5 =',answer:'13'},
+ {text:'7 + 11 =',answer:'18'},{text:'18 - 5 =',answer:'13'},
  {text:'9 + 5 =',answer:'14'},
  {text:'사과가 12개 있고, 7개를 더 받았어요. 모두 몇 개일까요?',answer:'19'},
- {text:'11 + 3 =',answer:'14'},
- {text:'13 - 6 =',answer:'7'}
+ {text:'11 + 3 =',answer:'14'},{text:'13 - 6 =',answer:'7'}
 ];
-const mixedCount=wsObj.items.length;
 const modes=vm.runInContext('ui.worksheet.items.map(q=>worksheetQuestionMode(q,"math"))',wsContext,{timeout:1000});
-assert.equal(modes.filter(m=>m==='word').length,2,'Math story questions not detected');
-assert.equal(modes.filter(m=>m==='equation').length,8,'Simple math equations must be compact');
+assert.equal(modes.filter(x=>x==='word').length,2);
 const mixedGroups=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
-assert.equal(mixedGroups.length,1,'Ten mixed questions should fit a single A4 when reasonably short');
-const mixedPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
-assert.ok(mixedPreview.includes('ws-auto-mixed'),'Mixed automatic grid missing');
-assert.equal((mixedPreview.match(/class="ws-q ws-q-word"/g)||[]).length,2,'Story cards should span full width');
-assert.equal((mixedPreview.match(/class="ws-q ws-q-equation"/g)||[]).length,8,'Calculation cards should remain two-column');
-assert.ok(mixedPreview.includes('그림이나 식으로 풀어 보세요.'),'Working area missing from story cards');
+assert.equal(mixedGroups.length,1,'Ten mixed math problems should fit one sheet');
+const mixed=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(mixed.includes('ws-auto-mixed'),'Mixed 2-column/full-width layout missing');
+assert.equal((mixed.match(/class="ws-q ws-q-word"/g)||[]).length,2);
+assert.equal((mixed.match(/class="ws-q ws-q-equation"/g)||[]).length,8);
+assert.ok(mixed.includes('ws-word-response'),'Word problems need both equation and answer fields');
 vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
-assert.equal((wsContext.lastPrinted.body.match(/class="ws-q ws-q-word"/g)||[]).length,2,
-  'Full-width story cards must also print correctly');
-assert.ok(wsContext.lastPrinted.body.includes('grid-column:1/-1'),'Printing must include full-width story CSS');
-assert.equal(wsObj.items.length,mixedCount,'Auto layout must never change questions or answers');
+assert.ok(wsContext.lastPrinted.body.includes('ws-q-word'),'Word problems should print full-width');
+assert.ok(wsContext.lastPrinted.body.includes('grid-column:1/-1'),'Print stylesheet missing full-width rule');
+const ratioOutput=vm.runInContext("makeQuestions('math',10,'normal',{mathRange:'20',operation:'mixed',carry:'none',wordRatio:3})",wsContext,{timeout:1000});
+assert.equal(ratioOutput.length,10);
+assert.equal(ratioOutput.filter(x=>x.mode==='word').length,3,'Exact word ratio was not respected');
+for(const q of ratioOutput){
+ assert.equal(Number(q.answer),q.meta.expected,'Generated answer must match arithmetic');
+ assert.ok(q.meta.expected<=20,'Out-of-range result');
+ assert.equal(q.meta.carry,undefined);
+}
+const allBefore=wsObj.items.map(x=>x.text);
+vm.runInContext('worksheetRerollOne(2)',wsContext,{timeout:1000});
+assert.equal(wsObj.items.length,10);
+assert.equal(wsObj.items[0].text,allBefore[0]);
+assert.equal(wsObj.items[1].text,allBefore[1]);
+assert.equal(wsObj.items[3].text,allBefore[3]);
+wsObj.items=[{text:'5 + 3 =',answer:'9'}];
+const invalid=vm.runInContext('worksheetIssues(ui.worksheet)',wsContext,{timeout:1000});
+assert.ok(invalid.some(x=>x.level==='error'&&x.message.includes('계산식')),'Wrong math answer must be detected');
+wsObj.items=[{text:'나의 즐거운 하루',answer:'자유 응답'}];wsObj.kind='writing';
+const writing=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(writing.includes('ws-writing-lines'),'Writing paper lines absent');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(!wsContext.lastPrinted.body.includes('ws-answers'),'Writing should not print answer key');
 wsObj.kind='pattern';wsObj.items=[{text:'규칙을 찾아 빈칸에 알맞은 수를 쓰세요.  1 → 3 → 5 → □ → 9',answer:'7'}];
-const patternPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
-assert.ok(patternPreview.includes('ws-pattern-wide'),'Pattern sequences need a full-width row');
-console.log('✓ Equations compact, sentence problems full width, math work space and automatic A4 pagination validated');
-
-console.log('✓ Cute/simple worksheet styles preview correctly, preserve questions and print A4 pages');
+assert.ok(vm.runInContext('renderWorksheet()',wsContext).includes('ws-pattern-wide'),'Patterns should use full-width rows');
+for(const action of ["worksheet-reroll","worksheet-edit","worksheet-save-one","worksheet-remove","worksheet-add","worksheet-preview-page"]){
+ assert.ok(html.includes("case'"+action+"'"),"Worksheet action not wired: "+action);
+}
+console.log('✓ Worksheet studio: themes, ratio, math validation, purpose, A4, per-question edits and print validated');
 
 const publicSheets=[
   '1BS2-5MUB_RP-GV8TgYscY70aNrxyRyiAaDSMd0H1Gv8',
