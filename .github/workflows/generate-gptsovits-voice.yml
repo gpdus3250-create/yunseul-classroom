@@ -52,8 +52,20 @@ jobs:
           git add dictation/voice/GPTSOVITS dictation/index.html
           if ! git diff --cached --quiet; then
             git commit -m 'Publish genuine GPT-SoVITS Korean teacher voice'
-            git pull --rebase origin main
-            git push origin HEAD:main
+            # Other classroom updates may land during the long audio generation.
+            # Rebase and retry a non-force push rather than overwriting changes.
+            for attempt in 1 2 3 4 5 6 7 8; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then
+                echo 'GPT-SoVITS files published successfully.'
+                break
+              fi
+              if [ "$attempt" -eq 8 ]; then
+                echo 'Failed to publish after 8 non-force attempts.' >&2
+                exit 1
+              fi
+              sleep $((attempt * 3))
+            done
           fi
       - name: Request updated GitHub Pages deployment
         env:
