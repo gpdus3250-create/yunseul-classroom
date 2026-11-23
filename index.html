@@ -281,7 +281,7 @@ function personalShortcutsPanel(){
 }
 
 // 실제 학교 PDF의 확인 가능한 표현만 연결합니다. 불확실하면 추천을 보여주지 않습니다.
-const lessonState={status:'loading',weeks:{},generated:null,message:'',filter:'all',expanded:false,sparks:{},sparkIndices:{}};
+const lessonState={status:'loading',weeks:{},generated:null,message:'',filter:'all',expanded:false};
 async function lessonsLoad(){
  if(location.protocol==='file:'){lessonState.status='unavailable';return;}
  try{
@@ -350,11 +350,9 @@ function lessonRecommendationsPanel(homeMode){
    const actions=(item.actions||[]).filter(a=>/^[a-z-]+$/.test(a.id||'')).map(a=>
     '<button type="button" data-act="'+(a.id==='lesson-print'?'lesson-print':'lesson-launch')+'" data-id="'+safe(a.id==='lesson-print'?item.id:a.id)+'">'+safe(a.label)+'</button>'
    ).join('');
-   const spark=(item.spark||[]).length?'<button type="button" class="lesson-secondary-action" data-act="lesson-spark" data-id="'+safe(item.id)+'">🎲 아이디어 뽑기</button>':'';
-   const sparkText=lessonState.sparks[item.id]||'';
    const playMode=integrated?lessonPlayMode(item.topic):'';
    const gameLink=playMode?'<a class="play-now" href="./playlab.html#'+playMode+'">🎮 지금 바로 게임 시작 ↗</a>':'';
-   return '<article class="lesson-card lesson-card-upgraded"><div class="lesson-card-head"><span class="lesson-card-icon">'+safe(item.icon||'📚')+'</span><span class="lesson-card-subject">'+badge+'</span>'+(item.minutes?'<span class="lesson-card-time">'+safe(item.minutes)+'분</span>':'')+'</div><h3>'+caption+'</h3><div class="lesson-card-topic">📖 '+safe(item.topic)+'</div><p class="lesson-card-hook">'+safe(item.hook||item.why||'관련 연습 활동을 해 보세요.')+'</p><div class="lesson-evidence">✓ 학교 학습안내 '+safe(item.source_page||1)+'쪽 확인: '+proof+'</div>'+(integrated?'<span class="lesson-integrated">🌼 바·슬·즐 통합교과 활동</span>':'')+(sparkText?'<div class="lesson-spark-result">💡 '+safe(sparkText)+'</div>':'')+'<div class="lesson-buttons">'+gameLink+actions+spark+'</div></article>';
+   return '<article class="lesson-card lesson-card-upgraded"><div class="lesson-card-head"><span class="lesson-card-icon">'+safe(item.icon||'📚')+'</span><span class="lesson-card-subject">'+badge+'</span>'+(item.minutes?'<span class="lesson-card-time">'+safe(item.minutes)+'분</span>':'')+'</div><h3>'+caption+'</h3><div class="lesson-card-topic">📖 '+safe(item.topic)+'</div><p class="lesson-card-hook">'+safe(item.hook||item.why||'관련 연습 활동을 해 보세요.')+'</p><div class="lesson-evidence">✓ 학교 학습안내 '+safe(item.source_page||1)+'쪽 확인: '+proof+'</div>'+(integrated?'<span class="lesson-integrated">🌼 바·슬·즐 통합교과 활동</span>':'')+'<div class="lesson-buttons">'+gameLink+actions+'</div></article>';
   }).join('');
   const more=showing.length>6?'<div class="lesson-more"><button class="btn outline" type="button" data-act="lesson-expand">'+(lessonState.expanded?'접어서 보기 ↑':'🌷 나머지 추천 '+(showing.length-6)+'개 더 보기 ↓')+'</button></div>':'';
   contents='<div class="lesson-toolbar"><div class="lesson-counts">🪄 실제 학습안내 기반 추천 <strong>'+all.length+'개</strong> · 상상 '+count('상상')+'개 · 이야기 '+count('이야기')+'개</div><div class="lesson-filters">'+tabs+'</div></div>'+(selected.length?'<div class="lesson-cards">'+cards+'</div>':'<div class="lesson-status">이번 주 해당 교과서의 추천 활동이 없어요.</div>')+more;
@@ -365,14 +363,7 @@ function lessonFindById(id){
  const week=weeklySelected(ui.view==='home');
  return lessonState.weeks[week]?.recommendations?.find(x=>x.id===id) || null;
 }
-function lessonSparkPrompt(id){
- const item=lessonFindById(id);
- if(!item||!Array.isArray(item.spark)||!item.spark.length)return;
- const current=lessonState.sparkIndices[id]||0;
- lessonState.sparks[id]=item.spark[current % item.spark.length];
- lessonState.sparkIndices[id]=current+1;
- render();
-}
+
 function lessonPrintSheet(id){
  const item=lessonFindById(id);
  if(!item||!item.sheet?.prompt){toast('선택한 활동의 출력물을 찾지 못했어요.');return;}
@@ -428,7 +419,6 @@ ${personalShortcutsPanel()}
 <section class="quick-play" aria-label="상상 이야기 즉시 시작 게임"><h2>🎪 설명 없이 바로! 상상·이야기 게임랜드</h2><p>수학 탐정처럼 학생이 직접 누르고 참여하는 수업 놀이 6가지</p><div class="quick-play-grid"><a class="quick-play-card" href="./playlab.html#safety"><span class="game-icon">🕵️</span><strong>안전 탐정 ↗</strong><small>선택형 안전 게임 · 별 모으기</small></a><a class="quick-play-card" href="./playlab.html#builder"><span class="game-icon">🛝</span><strong>놀이터 꾸미기 ↗</strong><small>터치해서 놀이터 건설</small></a><a class="quick-play-card" href="./playlab.html#roulette"><span class="game-icon">🎲</span><strong>놀이 발명기 ↗</strong><small>미션 룰렛 · 놀잇감 없이 시작</small></a><a class="quick-play-card" href="./playlab.html#story"><span class="game-icon">📖</span><strong>이야기 만들기 ↗</strong><small>선택 카드로 우리 반 이야기</small></a><a class="quick-play-card" href="./playlab.html#path"><span class="game-icon">✍️</span><strong>선 따라 그리기 ↗</strong><small>손가락·전자칠판 펜으로</small></a><a class="quick-play-card" href="./playlab.html#train"><span class="game-icon">🚂</span><strong>협동 기차 ↗</strong><small>랜덤 정거장 몸놀이</small></a></div></section>
 ${weeklyPanel(true)}
 
-${lessonRecommendationsPanel(true)}
 <section class="school-panel" aria-label="인천윤슬초등학교 바로가기"><div class="school-panel-head"><div><h2>🏫 우리 학교 바로가기</h2><p>인천윤슬초등학교 공식 홈페이지와 1학년 자료를 바로 열 수 있어요.</p></div><span class="tag">1학년 6반 ✨</span></div><div class="school-links"><a class="school-link" href="https://yunseul.icees.kr/" target="_blank" rel="noopener noreferrer"><span>🏫</span>학교 홈페이지 ↗</a><a class="school-link" href="https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&amp;m=020901&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>📅</span>1학년 주간학습안내 ↗</a><a class="school-link" href="https://yunseul.icees.kr/foodWlist.do?m=020401&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🍱</span>학교 급식 ↗</a><a class="school-link" href="https://yunseul.icees.kr/schdList.do?m=0206&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🎈</span>학교 일정 ↗</a></div><p class="school-status">💡 위 바로가기는 공식 확인용이에요. 이 페이지 안의 PDF·이미지 미리보기는 위 ‘이번 주 주간학습안내’ 영역에서 볼 수 있어요.</p></section>
 <div class="section-heading"><div><h2>어떤 수업을 준비할까요?</h2><small>카드를 눌러 바로 시작해 보세요.</small></div><span class="tag">총 10개의 도구</span></div><div class="tool-grid">${TOOLS.map(t=>`<button class="tool-card" data-view="${t.id}"><span class="tool-emoji">${t.icon}</span><strong>${t.name}</strong><small>${t.desc}</small><span class="tool-arrow">↗</span></button>`).join('')}</div><div class="notice">🔒 학생 기록은 이 브라우저 안에만 저장됩니다. 같은 데이터를 다른 기기에서 쓰려면 <button class="btn tiny outline" data-view="settings">백업·복원</button>을 이용하세요. 공용 PC에서는 실명 대신 학생 번호 사용을 권장해요.</div>`}
 
@@ -518,7 +508,7 @@ async function weeklyRefreshRemote(){
  }catch(e){weeklyState.remoteStatus='error';weeklyState.remoteMessage=String(e.message||e);}
  if(weeklyState.ready)render();
 }
-function renderWeekly(){return heading('📅','주간학습안내','이번 주 자료를 이 사이트 안에서 크게 보고, 지난 주 자료도 다시 열어요.')+weeklyPanel(false)+lessonRecommendationsPanel(false)}
+function renderWeekly(){return heading('📅','주간학습안내','이번 주 자료를 이 사이트 안에서 크게 보고, 지난 주 자료도 다시 열어요.')+weeklyPanel(false)}
 function weeklyDB(){return new Promise((resolve,reject)=>{if(!window.indexedDB)return reject(new Error('IndexedDB unavailable'));
  const req=indexedDB.open('yunseul-weekly-docs',1);
  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('weeks'))req.result.createObjectStore('weeks',{keyPath:'week'})};
@@ -650,7 +640,6 @@ function endSpeed(){clearInterval(speedTimer);speedTimer=null;ui.games.speedOn=f
 function action(name,id){switch(name){
 case'lesson-filter':if(['all','상상','이야기','국어','수학'].includes(id)){lessonState.filter=id;lessonState.expanded=false;render()}break;
 case'lesson-expand':lessonState.expanded=!lessonState.expanded;render();break;
-case'lesson-spark':lessonSparkPrompt(id);break;
 case'lesson-print':lessonPrintSheet(id);break;
 case'lesson-launch':lessonOpenAction(id);break;
 case'lesson-meaning-answer':{if(lessonMeaning.result!==null)break;const answer=Number(id),q=lessonMeaningBank[lessonMeaning.index%lessonMeaningBank.length];if(answer<0||answer>2||!Number.isInteger(answer))break;lessonMeaning.result=answer;if(answer===q.correct)lessonMeaning.score++;render();break}
@@ -779,10 +768,8 @@ document.addEventListener('drop',e=>{if(e.target.closest('#weekly-dropzone')){e.
 if('speechSynthesis' in window){window.speechSynthesis.onvoiceschanged=()=>{ /* voices available as browser loads */ }}
 personalImportFromHash();
 render();
-lessonsLoad();
 weeklyLoad().then(weeklyRefreshRemote);
 setInterval(weeklyRefreshRemote,30*60*1000);
-setInterval(lessonsLoad,60*60*1000);
 
 </script>
 </body>
