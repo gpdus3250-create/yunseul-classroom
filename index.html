@@ -218,7 +218,7 @@ function personalShortcutsPanel(){
  const cards=PERSONAL_SHEET_NAMES.map(entry=>
   '<div class="personal-shortcut-card"><a class="school-link" style="flex:1" href="'+personalEscape(entry.url)+'" target="_blank" rel="noopener noreferrer"><span>'+entry.icon+'</span><span class="sheet-label">'+personalEscape(entry.title)+' ↗</span></a></div>'
  ).join('');
- const others=items.filter(x=>!PERSONAL_SHEET_NAMES.some(p=>p.title===x.title) && !['1~6반 명단','교사 계정 생성'].includes(x.title) && !/\/d\/(?:1m6bmPL1oXSJQG2EPk0X2rLs2bPAzdZnw6ThTCVARj2s|1ENaxKLSD59mleEZoyQP7V-O6k0y0TymNlHvjL9nt-po)\//.test(x.url));
+ const others=items.filter(x=>!PERSONAL_SHEET_NAMES.some(p=>p.title===x.title) && !['1~6반 명단','교사 계정 생성'].includes(x.title));
  const otherLinks=others.map(x=>
   '<a class="school-link" href="'+personalEscape(x.url)+'" target="_blank" rel="noopener noreferrer"><span>📗</span><span class="sheet-label">'+personalEscape(x.title)+' ↗</span></a>'
  ).join('');
