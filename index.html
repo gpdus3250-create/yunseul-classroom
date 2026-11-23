@@ -393,13 +393,13 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="주요 메뉴">
-      <button class="brand" data-view="home" aria-label="홈으로 이동"><span class="brand-mark">✦</span><span><strong>우리 반 놀이터</strong><small>선생님을 위한 10가지 도구</small></span></button>
+      <button class="brand" data-view="home" aria-label="홈으로 이동"><span class="brand-mark">✦</span><span><strong>우리 반 놀이터</strong><small>선생님을 위한 3가지 핵심 도구</small></span></button>
       <div class="side-section">수업 & 활동</div>
       <nav id="nav-list"></nav>
       <div class="sidebar-bottom"><div class="mini-note">🌷 <b>작고 귀여운 수업 도우미</b><br>내 자료는 이 브라우저에만 저장돼요.</div><button class="settings-nav" data-view="settings">⚙️ 기본 설정 · 백업</button></div>
     </aside>
     <div class="main-shell">
-      <header class="topbar"><button class="mobile-brand" data-view="home">✦ 우리 반 놀이터</button><div class="topbar-right"><span class="chip">🟣 10가지 도구</span><span id="class-label" class="class-pill">1학년 6반</span></div></header>
+      <header class="topbar"><button class="mobile-brand" data-view="home">✦ 우리 반 놀이터</button><div class="topbar-right"><span class="chip">🟣 3가지 핵심 도구</span><span id="class-label" class="class-pill">1학년 6반</span></div></header>
       <main class="main-content" id="app" tabindex="-1"></main>
       <footer class="app-footer">Made for your classroom ♡ · 오프라인 사용 가능 · API 키 불필요</footer>
     </div>
@@ -409,17 +409,20 @@
 'use strict';
 /* 우리 반 교육 플랫폼 — no external dependencies, no remote data transfer. */
 const KEY='classroom_playground_v1';
+
 const TOOLS=[
-{id:'worksheet',icon:'📝',name:'학습지 자동 제작소',desc:'국어·수학·글쓰기 문항과 인쇄용 답지'},
-{id:'reading',icon:'🗣️',name:'읽기 왕국',desc:'소리 듣기·읽기 연습·3지선다 퀴즈'},
-{id:'games',icon:'🎲',name:'우리 반 게임랜드',desc:'뽑기·모둠·OX·빙고·스피드 게임'},
-{id:'writing',icon:'💌',name:'주제글쓰기 뽑기',desc:'재미있는 주제와 생각 펼치기 질문'},
-{id:'math',icon:'🔎',name:'수학 탐정 사무소',desc:'1학년 수준 미션을 해결하는 게임'},
-{id:'planner',icon:'📅',name:'선생님 업무 비서',desc:'할 일·준비물·수업 아이디어 정리'},
-{id:'media',icon:'🎤',name:'매체 변신 연구소',desc:'같은 이야기, 다른 매체로 표현하기'},
-{id:'fitness',icon:'🏃',name:'건강체력교실 기록실',desc:'4종목 재측정과 변화 비교'},
-{id:'design',icon:'🎨',name:'선생님 디자인 공방',desc:'쿠폰·상장·원고지·초대장 만들기'},
-{id:'books',icon:'📚',name:'독서 모험 지도',desc:'독서기록과 성장 섬 모으기'}
+{id:'worksheet',icon:'📝',name:'학습지 자동 제작소',desc:'문제 생성 · 수정 · A4 인쇄'},
+{id:'math',icon:'🔎',name:'수학 탐정 사무소',desc:'1학년 수학 미션 게임'},
+{id:'games',icon:'🎲',name:'우리 반 게임랜드',desc:'발표자 뽑기 · 모둠 편성 · OX 놀이'}
+];
+const ARCHIVED_TOOLS=[
+{id:'reading',icon:'🗣️',name:'읽기 왕국',desc:'읽기 연습 · 퀴즈'},
+{id:'writing',icon:'💌',name:'주제글쓰기 뽑기',desc:'글쓰기 주제 카드'},
+{id:'planner',icon:'📅',name:'선생님 업무 비서',desc:'개인 할 일 · 수업 아이디어'},
+{id:'media',icon:'🎤',name:'매체 변신 연구소',desc:'매체 표현 활동'},
+{id:'fitness',icon:'🏃',name:'건강체력교실 기록실',desc:'PAPS 재측정 기록'},
+{id:'design',icon:'🎨',name:'선생님 디자인 공방',desc:'쿠폰 · 상장 · 원고지'},
+{id:'books',icon:'📚',name:'독서 모험 지도',desc:'독서 활동 기록'}
 ];
 const DEFAULT={settings:{school:'인천윤슬초등학교',grade:1,room:6,teacher:''},students:[],customReading:{syllable:[],word:[],short:[],long:[]},tasks:[],ideas:[],savedPrompts:[],mediaDocs:[],fitness:[],books:[],gameQuestions:[]};
 function parseState(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')return {...structuredClone(DEFAULT),...v,settings:{...DEFAULT.settings,...(v.settings||{})},customReading:{...DEFAULT.customReading,...(v.customReading||{})}};}catch(e){console.warn('저장된 자료를 읽을 수 없습니다.',e)}return structuredClone(DEFAULT)}
@@ -448,7 +451,7 @@ function download(name,data,mime='text/plain'){const blob=new Blob([data],{type:
 function csvEscape(value){let s=String(value??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
 function attr(name){return $(`[name="${name}"]`)?.value??''}
 function speak(text){if(!('speechSynthesis' in window)){toast('이 브라우저에서는 음성 읽기를 지원하지 않아요.');return}try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.85;u.pitch=1.03;const v=window.speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith('ko'));if(v)u.voice=v;window.speechSynthesis.speak(u)}catch(e){toast('음성을 재생하지 못했어요. 브라우저 설정을 확인해 주세요.')}}
-function navigate(view){if(ui.games.speedOn)endSpeed();if(view!=='settings'&&view!=='home'&&view!=='weekly'&&!TOOLS.some(t=>t.id===view))return;ui.view=view;render();window.scrollTo({top:0,behavior:'instant'});$('#app')?.focus({preventScroll:true})}
+function navigate(view){if(ui.games.speedOn)endSpeed();if(view!=='settings'&&view!=='home'&&view!=='weekly'&&!TOOLS.some(t=>t.id===view)&&!ARCHIVED_TOOLS.some(t=>t.id===view))return;ui.view=view;render();window.scrollTo({top:0,behavior:'instant'});$('#app')?.focus({preventScroll:true})}
 function renderNav(){const nav=$('#nav-list');nav.innerHTML=`<button class="nav-item ${ui.view==='home'?'active':''}" data-view="home"><span class="nav-icon">🏠</span>우리 반 홈</button><button class="nav-item ${ui.view==='weekly'?'active':''}" data-view="weekly"><span class="nav-icon">📅</span>주간학습안내 미리보기</button>`+TOOLS.map(t=>`<button class="nav-item ${ui.view===t.id?'active':''}" data-view="${t.id}"><span class="nav-icon">${t.icon}</span>${t.name}</button>`).join('');$('#class-label').textContent=`${db.settings.grade}학년 ${db.settings.room}반`}
 // 교사용 바로가기: 민감한 시트 주소를 공개 GitHub 저장소에 올리지 않음.
 // 한 번에 등록할 때 URL #fragment만 읽고 기기의 localStorage에 보관함.
@@ -654,13 +657,13 @@ function lessonComprehensionPanel(){
  return '<section class="meaning-panel" id="lesson-meaning-panel"><h3>📖 의미를 생각하며 읽기 미션</h3><p class="small-hint">교과서 본문이 아닌 짧은 창작 이야기예요. 읽고 알맞은 답을 골라 보세요.</p><div class="meaning-story">'+safe(q.story)+'</div><h3>'+safe(q.question)+'</h3><div class="meaning-choices">'+choices+'</div>'+note+'<div class="btn-group"><button class="btn light" data-act="lesson-meaning-next">다음 이야기 →</button><span class="badge-num">⭐ '+lessonMeaning.score+'개</span></div></section>';
 }
 
-function home(){return `<div class="hero"><div><div class="eyebrow">HELLO, TEACHER ♡</div><h1>오늘도 우리 반은<br><span style="color:#886ad7">반짝반짝 성장 중! ✨</span></h1><p>학습지부터 게임, 기록 관리까지. 수업을 위한 열 가지 도구를 한곳에 모았어요.</p><div class="btn-group" style="margin-top:20px"><button class="btn" data-view="worksheet">학습지 만들기 ✍️</button><button class="btn outline" data-view="games">게임 시작하기 🎲</button><a class="btn" style="background:#f4e8ff;color:#6d4a9e" href="./playlab.html#safety">🎪 상상·이야기 게임랜드</a></div></div><div class="hero-spark" aria-hidden="true">🐰🌷</div></div>
+function home(){return `<div class="hero"><div><div class="eyebrow">HELLO, TEACHER ♡</div><h1>오늘도 우리 반은<br><span style="color:#886ad7">반짝반짝 성장 중! ✨</span></h1><p>학습지부터 게임, 기록 관리까지. 자주 쓰는 도구만 남겨 수업 준비를 더 간편하게 만들었어요.</p><div class="btn-group" style="margin-top:20px"><button class="btn" data-view="worksheet">학습지 만들기 ✍️</button><button class="btn outline" data-view="games">게임 시작하기 🎲</button><a class="btn" style="background:#f4e8ff;color:#6d4a9e" href="./playlab.html#train">🚂 협동 기차 바로가기</a></div></div><div class="hero-spark" aria-hidden="true">🐰🌷</div></div>
 ${personalShortcutsPanel()}
-<section class="quick-play" aria-label="상상 이야기 즉시 시작 게임"><h2>🎪 설명 없이 바로! 상상·이야기 게임랜드</h2><p>수학 탐정처럼 학생이 직접 누르고 참여하는 수업 놀이 6가지</p><div class="quick-play-grid"><a class="quick-play-card" href="./playlab.html#safety"><span class="game-icon">🕵️</span><strong>안전 탐정 ↗</strong><small>선택형 안전 게임 · 별 모으기</small></a><a class="quick-play-card" href="./playlab.html#builder"><span class="game-icon">🛝</span><strong>놀이터 꾸미기 ↗</strong><small>터치해서 놀이터 건설</small></a><a class="quick-play-card" href="./playlab.html#roulette"><span class="game-icon">🎲</span><strong>놀이 발명기 ↗</strong><small>미션 룰렛 · 놀잇감 없이 시작</small></a><a class="quick-play-card" href="./playlab.html#story"><span class="game-icon">📖</span><strong>이야기 만들기 ↗</strong><small>선택 카드로 우리 반 이야기</small></a><a class="quick-play-card" href="./playlab.html#path"><span class="game-icon">✍️</span><strong>선 따라 그리기 ↗</strong><small>손가락·전자칠판 펜으로</small></a><a class="quick-play-card" href="./playlab.html#train"><span class="game-icon">🚂</span><strong>협동 기차 ↗</strong><small>랜덤 정거장 몸놀이</small></a></div></section>
+<section class="quick-play" aria-label="협동 기차 바로가기"><h2>🚂 우리 반 협동 기차</h2><p>좋아하는 활동은 한 번에 시작할 수 있게 남겨뒀어요.</p><div class="quick-play-grid"><a class="quick-play-card" href="./playlab.html#train"><span class="game-icon">🚂</span><strong>협동 기차 시작 ↗</strong><small>다 함께 움직이는 정거장 미션</small></a></div></section>
 ${weeklyPanel(true)}
 
 <section class="school-panel" aria-label="인천윤슬초등학교 바로가기"><div class="school-panel-head"><div><h2>🏫 우리 학교 바로가기</h2><p>인천윤슬초등학교 공식 홈페이지와 1학년 자료를 바로 열 수 있어요.</p></div><span class="tag">1학년 6반 ✨</span></div><div class="school-links"><a class="school-link" href="https://yunseul.icees.kr/" target="_blank" rel="noopener noreferrer"><span>🏫</span>학교 홈페이지 ↗</a><a class="school-link" href="https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&amp;m=020901&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>📅</span>1학년 주간학습안내 ↗</a><a class="school-link" href="https://yunseul.icees.kr/foodWlist.do?m=020401&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🍱</span>학교 급식 ↗</a><a class="school-link" href="https://yunseul.icees.kr/schdList.do?m=0206&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🎈</span>학교 일정 ↗</a></div><p class="school-status">💡 위 바로가기는 공식 확인용이에요. 이 페이지 안의 PDF·이미지 미리보기는 위 ‘이번 주 주간학습안내’ 영역에서 볼 수 있어요.</p></section>
-<div class="section-heading"><div><h2>어떤 수업을 준비할까요?</h2><small>카드를 눌러 바로 시작해 보세요.</small></div><span class="tag">총 10개의 도구</span></div><div class="tool-grid">${TOOLS.map(t=>`<button class="tool-card" data-view="${t.id}"><span class="tool-emoji">${t.icon}</span><strong>${t.name}</strong><small>${t.desc}</small><span class="tool-arrow">↗</span></button>`).join('')}</div><div class="notice">🔒 학생 기록은 이 브라우저 안에만 저장됩니다. 같은 데이터를 다른 기기에서 쓰려면 <button class="btn tiny outline" data-view="settings">백업·복원</button>을 이용하세요. 공용 PC에서는 실명 대신 학생 번호 사용을 권장해요.</div>`}
+<div class="section-heading"><div><h2>어떤 수업을 준비할까요?</h2><small>카드를 눌러 바로 시작해 보세요.</small></div><span class="tag">핵심 ${TOOLS.length}개의 도구</span></div><div class="tool-grid">${TOOLS.map(t=>`<button class="tool-card" data-view="${t.id}"><span class="tool-emoji">${t.icon}</span><strong>${t.name}</strong><small>${t.desc}</small><span class="tool-arrow">↗</span></button>`).join('')}</div><div class="notice">🔒 학생 기록은 이 브라우저 안에만 저장됩니다. 같은 데이터를 다른 기기에서 쓰려면 <button class="btn tiny outline" data-view="settings">백업·복원</button>을 이용하세요. 공용 PC에서는 실명 대신 학생 번호 사용을 권장해요.</div>`}
 
 // === 1학년 주간학습안내 미리보기 =============================
 // 주간 자동 업데이트: 배포된 호스트가 정기 생성한 weekly-data/index.json을 이 페이지에서 표시함.
