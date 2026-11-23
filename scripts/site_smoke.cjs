@@ -265,6 +265,38 @@ assert.equal((printed.match(/ws-continuation ws-print/g)||[]).length,1,'Only pag
 assert.ok(printed.includes('.ws-print.ws-sheet.ws-continuation'),'Print CSS should preserve compact page layout');
 console.log('✓ Continuation pages omit repeated heading and fit 24 equations on two A4 pages');
 
+
+// Adjustable layout for first-grade Korean multiple-choice questions.
+wsObj.kind='korean';wsObj.theme='cute';wsObj.pageMode='one';
+wsObj.purpose='class';wsObj.previewPage=0;wsObj.spacing=2;wsObj.answers=false;
+wsObj.items=Array.from({length:20},(_,i)=>({
+ text:'바르게 띄어 쓴 문장에 ○표 하세요.\n  ① 나는 오늘 학교에 갔어요.\n  ② 나는 오늘학교에 갔어요.',
+ answer:'①'
+}));
+const beforeKorean=wsObj.items.map(q=>q.text).join('|');
+const tight=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
+assert.ok(tight[0].items.length>=9,'Readable Korean multiple-choice questions should fit at least 9 per first A4');
+assert.ok(tight.length<=3,'20 short choice questions should require at most three sheets at compact spacing');
+const renderedKorean=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(renderedKorean.includes('id="worksheet-spacing"'),'User-adjustable spacing slider missing');
+assert.ok(renderedKorean.includes('--ws-compact-space:2mm'),'Preview must use chosen question spacing');
+assert.ok(!renderedKorean.includes('<span class="ws-q-text">바르게 띄어 쓴 문장에 ○표 하세요.'),
+ 'Repeated instructions should be omitted from individual choice cards');
+assert.ok(renderedKorean.includes('① 나는 오늘 학교에 갔어요.'),'Choice must remain readable');
+assert.equal(wsObj.items.map(q=>q.text).join('|'),beforeKorean,'Layout changes must not rewrite questions');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(wsContext.lastPrinted.body.includes('--ws-compact-space:2mm'),'Print should use the same spacing');
+assert.ok(wsContext.lastPrinted.body.includes('font-size:11pt'),'Print must preserve readable 11pt question text');
+wsObj.spacing=10;
+const loose=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
+assert.ok(loose[0].items.length<tight[0].items.length,'Wider user spacing must fit fewer questions');
+const widePreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(widePreview.includes('--ws-compact-space:10mm'),'Spacing changes should affect preview without regenerating questions');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(wsContext.lastPrinted.body.includes('--ws-compact-space:10mm'),'Spacing changes should affect printing');
+assert.equal(wsObj.items.map(q=>q.text).join('|'),beforeKorean,'Spacing slider may not regenerate student questions');
+console.log('✓ Korean compact/loose slider, choice readability, page counts and print preview synchronized');
+
 console.log('✓ Worksheet studio: themes, ratio, math validation, purpose, A4, per-question edits and print validated');
 
 const publicSheets=[
