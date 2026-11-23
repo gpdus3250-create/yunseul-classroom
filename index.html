@@ -21,6 +21,8 @@
 @media(max-width:850px){.school-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* 개인 구글 스프레드시트 바로가기: 주소는 공개 소스에 저장하지 않습니다. */
+.personal-shortcut-card{display:flex;align-items:stretch;min-width:0}.personal-shortcut-card .school-link{text-align:left;justify-content:flex-start;min-height:66px}.personal-shortcut-card button.school-link{cursor:pointer;font:inherit}.personal-shortcut-card .school-link .sheet-label{flex:1}.personal-shortcut-card button.school-link:hover{background:#e9e1ff}
+
 .personal-shortcut-panel{background:linear-gradient(140deg,#fff,#faf6ff);border-color:#dcd0fa}
 .personal-shortcut-panel .school-panel-head h2{color:#6950a9}
 .personal-shortcut-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -188,12 +190,27 @@ function personalImportFromHash(){
   return true;
  }catch(e){console.warn('개인 바로가기 가져오기 실패',e);return false}
 }
+const PERSONAL_SHEET_NAMES=[
+ {title:'2026 윤슬초 플래너',icon:'📅'},
+ {title:'특별실 예약',icon:'🏫'},
+ {title:'1~6반 명단',icon:'👩‍🏫'},
+ {title:'정보부 유지보수',icon:'🛠️'},
+ {title:'과학정보부',icon:'🔬'},
+ {title:'교사 계정 생성',icon:'💻'}
+];
 function personalShortcutsPanel(){
  const items=personalGetLinks();
- const links=items.length?items.map((x,i)=>
-  '<div style="display:flex;align-items:stretch;gap:5px;min-width:0"><a class="school-link" style="flex:1" href="'+personalEscape(x.url)+'" target="_blank" rel="noopener noreferrer"><span>📗</span><span class="sheet-label">'+personalEscape(x.title)+' ↗</span></a><button class="personal-shortcut-remove" type="button" data-act="personal-remove" data-id="'+i+'" aria-label="'+personalEscape(x.title)+' 바로가기 삭제">✕</button></div>'
- ).join(''):'<p class="school-status">아직 등록된 링크가 없어요. 채팅에서 받은 개인 등록 링크를 한 번 누르면 여섯 개가 나타나요.</p>';
- return '<section class="school-panel personal-shortcut-panel" aria-label="개인 구글 스프레드시트 바로가기"><div class="school-panel-head"><div><h2>📗 내 구글 스프레드시트 바로가기</h2><p>한 번 등록하면 이 브라우저에서 바로 열 수 있어요.</p></div><span class="tag">🔒 이 브라우저에만 저장</span></div><div class="personal-shortcut-links">'+links+'</div><p class="school-status">공용 PC에서는 사용하지 않는 것을 권장해요. 학생 명단·교사 계정 시트의 Google 공유 권한도 반드시 확인해 주세요.</p><button class="btn tiny outline" type="button" data-act="personal-add" style="margin-top:12px">＋ 바로가기 추가</button></section>';
+ const cards=PERSONAL_SHEET_NAMES.map((entry)=>{
+  const item=items.find(x=>x.title===entry.title);
+  const opening=item?'<a class="school-link" style="flex:1" href="'+personalEscape(item.url)+'" target="_blank" rel="noopener noreferrer"><span>'+entry.icon+'</span><span class="sheet-label">'+personalEscape(entry.title)+' ↗</span></a>':
+   '<button class="school-link" type="button" style="width:100%;flex:1" data-act="personal-connect" data-id="'+personalEscape(entry.title)+'"><span>'+entry.icon+'</span><span class="sheet-label">'+personalEscape(entry.title)+'<small style="display:block;color:#988bb3;font-weight:600">처음 한 번 연결하기</small></span></button>';
+  return '<div class="personal-shortcut-card">'+opening+'</div>';
+ }).join('');
+ const others=items.filter(x=>!PERSONAL_SHEET_NAMES.some(p=>p.title===x.title));
+ const otherLinks=others.map((x)=>
+  '<a class="school-link" href="'+personalEscape(x.url)+'" target="_blank" rel="noopener noreferrer"><span>📗</span><span class="sheet-label">'+personalEscape(x.title)+' ↗</span></a>'
+ ).join('');
+ return '<section class="school-panel personal-shortcut-panel" aria-label="개인 구글 스프레드시트 바로가기"><div class="school-panel-head"><div><h2>📗 내 구글 시트 바로가기</h2><p>요청한 여섯 가지 메뉴는 항상 표시돼요. 연결된 시트는 누르면 바로 열려요.</p></div><span class="tag">🔒 '+PERSONAL_SHEET_NAMES.filter(e=>items.some(x=>x.title===e.title)).length+'/6 연결됨</span></div><div class="personal-shortcut-links">'+cards+'</div>'+(otherLinks?'<div class="personal-shortcut-links" style="margin-top:10px">'+otherLinks+'</div>':'')+'<p class="school-status">💜 교사용 시트 주소는 공개 웹사이트에 올리지 않았어요. 처음 한 번 개인 등록 링크를 열면 이 기기의 브라우저에 저장돼요. 다른 기기에서는 다시 등록해야 해요.</p><div class="btn-group" style="margin-top:12px"><button class="btn tiny outline" type="button" data-act="personal-add">＋ 다른 바로가기 추가</button><button class="btn tiny outline" type="button" data-act="personal-clear-all">개인 바로가기 초기화</button></div></section>';
 }
 
 // 실제 학교 PDF의 확인 가능한 표현만 연결합니다. 불확실하면 추천을 보여주지 않습니다.
@@ -273,10 +290,10 @@ function lessonComprehensionPanel(){
 }
 
 function home(){return `<div class="hero"><div><div class="eyebrow">HELLO, TEACHER ♡</div><h1>오늘도 우리 반은<br><span style="color:#886ad7">반짝반짝 성장 중! ✨</span></h1><p>학습지부터 게임, 기록 관리까지. 수업을 위한 열 가지 도구를 한곳에 모았어요.</p><div class="btn-group" style="margin-top:20px"><button class="btn" data-view="worksheet">학습지 만들기 ✍️</button><button class="btn outline" data-view="games">게임 시작하기 🎲</button></div></div><div class="hero-spark" aria-hidden="true">🐰🌷</div></div>
+${personalShortcutsPanel()}
 ${weeklyPanel(true)}
 ${lessonRecommendationsPanel(true)}
 <section class="school-panel" aria-label="인천윤슬초등학교 바로가기"><div class="school-panel-head"><div><h2>🏫 우리 학교 바로가기</h2><p>인천윤슬초등학교 공식 홈페이지와 1학년 자료를 바로 열 수 있어요.</p></div><span class="tag">1학년 6반 ✨</span></div><div class="school-links"><a class="school-link" href="https://yunseul.icees.kr/" target="_blank" rel="noopener noreferrer"><span>🏫</span>학교 홈페이지 ↗</a><a class="school-link" href="https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&amp;m=020901&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>📅</span>1학년 주간학습안내 ↗</a><a class="school-link" href="https://yunseul.icees.kr/foodWlist.do?m=020401&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🍱</span>학교 급식 ↗</a><a class="school-link" href="https://yunseul.icees.kr/schdList.do?m=0206&amp;s=yunseul" target="_blank" rel="noopener noreferrer"><span>🎈</span>학교 일정 ↗</a></div><p class="school-status">💡 위 바로가기는 공식 확인용이에요. 이 페이지 안의 PDF·이미지 미리보기는 위 ‘이번 주 주간학습안내’ 영역에서 볼 수 있어요.</p></section>
-${personalShortcutsPanel()}
 <div class="section-heading"><div><h2>어떤 수업을 준비할까요?</h2><small>카드를 눌러 바로 시작해 보세요.</small></div><span class="tag">총 10개의 도구</span></div><div class="tool-grid">${TOOLS.map(t=>`<button class="tool-card" data-view="${t.id}"><span class="tool-emoji">${t.icon}</span><strong>${t.name}</strong><small>${t.desc}</small><span class="tool-arrow">↗</span></button>`).join('')}</div><div class="notice">🔒 학생 기록은 이 브라우저 안에만 저장됩니다. 같은 데이터를 다른 기기에서 쓰려면 <button class="btn tiny outline" data-view="settings">백업·복원</button>을 이용하세요. 공용 PC에서는 실명 대신 학생 번호 사용을 권장해요.</div>`}
 
 // === 1학년 주간학습안내 미리보기 =============================
@@ -498,6 +515,27 @@ function action(name,id){switch(name){
 case'lesson-launch':lessonOpenAction(id);break;
 case'lesson-meaning-answer':{if(lessonMeaning.result!==null)break;const answer=Number(id),q=lessonMeaningBank[lessonMeaning.index%lessonMeaningBank.length];if(answer<0||answer>2||!Number.isInteger(answer))break;lessonMeaning.result=answer;if(answer===q.correct)lessonMeaning.score++;render();break}
 case'lesson-meaning-next':lessonMeaning.index=(lessonMeaning.index+1)%lessonMeaningBank.length;lessonMeaning.result=null;render();break;
+case'personal-connect':{
+ const title=String(id||'');
+ if(!PERSONAL_SHEET_NAMES.some(x=>x.title===title))break;
+ const raw=prompt(title+' 구글 스프레드시트 주소를 붙여 넣어 주세요.');
+ if(raw===null)break;
+ const url=personalSafeUrl(raw);
+ if(!url){toast('docs.google.com/spreadsheets 주소를 확인해 주세요.');break}
+ const items=personalGetLinks().filter(x=>x.title!==title);
+ items.push({title,url});
+ localStorage.setItem(PERSONAL_LINKS_KEY,JSON.stringify(items.slice(0,24)));
+ render();toast('시트가 연결됐어요!');
+ break;
+}
+case'personal-clear-all':{
+ if(confirm('이 기기의 구글 시트 바로가기 주소를 모두 지울까요?')){
+  localStorage.removeItem(PERSONAL_LINKS_KEY);
+  render();
+  toast('개인 바로가기를 초기화했어요.');
+ }
+ break;
+}
 case'personal-remove':{
  const items=personalGetLinks(),n=Number(id);
  if(!Number.isInteger(n)||n<0||n>=items.length)break;
