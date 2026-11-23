@@ -224,6 +224,37 @@
 @media(max-width:520px){.ws-sheet.ws-preview{padding:17px 13px;min-height:580px}.ws-banner{min-height:55px}.ws-cute .ws-banner h1{font-size:19px}.ws-simple .ws-banner h1{font-size:19px}.ws-bunny{width:43px;height:46px}.ws-pencil{font-size:25px}.ws-q{padding:9px 8px}.ws-q-text{font-size:12px}.ws-kind-math .ws-q-text{font-size:14px}.ws-meta{font-size:10px}.ws-q-num{width:20px;height:20px;font-size:10px}.ws-questions{gap:7px}.ws-intro{margin:12px 0}}
 @media print{@page{size:A4;margin:12mm}html,body{background:#fff!important}.ws-print.ws-sheet{border-width:1px;min-height:271mm;padding:9mm 8mm;break-inside:avoid;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important}.ws-print.ws-sheet:last-of-type{break-after:auto;page-break-after:auto}.ws-print .ws-banner{min-height:18mm;margin-bottom:3mm}.ws-print .ws-meta{padding:2.5mm 3mm}.ws-print .ws-intro{margin:4mm 0}.ws-print .ws-questions{gap:2.6mm}.ws-print .ws-q{padding:3mm 3.5mm}.ws-print.ws-kind-math .ws-q{min-height:25mm}.ws-print.ws-kind-pattern .ws-q{min-height:27mm}.ws-print.ws-kind-korean .ws-q{min-height:32mm}.ws-print.ws-kind-writing .ws-q{min-height:55mm}.ws-print .ws-q-text{font-size:11pt}.ws-print.ws-kind-math .ws-q-text{font-size:13pt}.ws-print .ws-writing-lines{gap:4mm}.ws-print .ws-foot{margin-top:4mm}.ws-print.ws-answers .ws-q{min-height:12mm;padding:2mm}.ws-sheet.ws-print{width:100%}}
 
+
+/* Automatic content-aware worksheet layout: short math equations in pairs, word problems full width. */
+.ws-questions.ws-auto-mixed{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;align-content:start}
+.ws-questions.ws-pattern-wide{grid-template-columns:minmax(0,1fr);align-content:start}
+.ws-questions.ws-auto-mixed .ws-q-word{grid-column:1/-1;min-height:145px;padding:15px 17px}
+.ws-questions.ws-auto-mixed .ws-q-equation{min-height:96px}
+.ws-questions.ws-pattern-wide .ws-q-pattern{min-height:108px}
+.ws-q-word .ws-q-text{font-size:15px;line-height:1.65}
+.ws-q-word .ws-q-head{align-items:flex-start}
+.ws-story-space{flex:1;display:flex;align-items:flex-start;min-height:43px;margin:5px 2px 2px;padding:5px 3px;border-bottom:1px dashed #c8b5e1;color:#a08aaf;font-size:10px;font-weight:600}
+.ws-simple .ws-story-space{color:#777;border-bottom:1px solid #c8c8c8}
+.ws-q-word .ws-answer-line{align-self:flex-end;min-width:150px;margin:0 0 0 auto}
+.ws-q-word .ws-answer-line:after{flex:1;width:110px}
+.ws-questions.ws-pattern-wide .ws-q-text{font-size:17px}
+@media(max-width:520px){
+ .ws-questions.ws-auto-mixed .ws-q-word{padding:12px;min-height:137px}
+ .ws-questions.ws-auto-mixed .ws-q-equation{min-height:89px}
+ .ws-q-word .ws-q-text{font-size:13px}
+ .ws-story-space{min-height:31px}
+}
+@media print{
+ .ws-print .ws-questions.ws-auto-mixed{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ws-print .ws-questions.ws-pattern-wide{grid-template-columns:minmax(0,1fr)}
+ .ws-print.ws-kind-math .ws-q-equation{min-height:22mm}
+ .ws-print.ws-kind-math .ws-q-word{grid-column:1/-1;min-height:39mm;padding:3.5mm 4mm;gap:2mm}
+ .ws-print.ws-kind-pattern .ws-q-pattern{min-height:24mm}
+ .ws-print .ws-q-word .ws-q-text{font-size:12pt;line-height:1.5}
+ .ws-print .ws-story-space{min-height:12mm;margin:1mm 0}
+ .ws-print .ws-q-word .ws-answer-line{margin-left:auto}
+}
+
 </style>
 </head>
 <body>
@@ -623,7 +654,7 @@ else if(kind==='pattern'){let seed=rnd(1,6),step=rnd(1,difficulty==='hard'?4:2),
 else if(kind==='korean'){const [correct,wrong]=KOREAN_ITEMS[i%KOREAN_ITEMS.length];const flip=Math.random()>.5;const opts=flip?[wrong,correct]:[correct,wrong];items.push({text:`바르게 띄어 쓴 문장에 ○표 하세요.\n  ① ${opts[0]}\n  ② ${opts[1]}`,answer:flip?'②':'①'})}
 else {items.push({text:`${WRITE_TOPICS[i%WRITE_TOPICS.length]}에 대해 두세 문장으로 써 보세요.`,answer:'자유 응답'})}}return items}
 
-const WORKSHEET_PRINT_CSS="\n/* Printable 1st-grade worksheet — shared by live preview and print window. */\n.ws-theme-switch{display:flex;gap:11px;flex-wrap:wrap;margin:12px 0 8px}\n.ws-theme-choice{display:flex;align-items:center;gap:11px;flex:1;min-width:185px;padding:12px 14px;text-align:left;background:#fff;border:2px solid #e2d9f3;border-radius:17px;color:#574771;cursor:pointer}\n.ws-theme-choice:hover{border-color:#bca5e7;background:#fdfaff}\n.ws-theme-choice.active{border-color:#8868d4;background:#f7f1ff;box-shadow:0 0 0 3px #eae0ff}\n.ws-theme-choice .ws-theme-symbol{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:13px;font-size:25px}\n.ws-theme-choice.cute .ws-theme-symbol{background:#f1dfff;color:#744da8}\n.ws-theme-choice.simple .ws-theme-symbol{background:#f1f1f3;color:#53535b}\n.ws-theme-choice strong{display:block;font-size:14px}\n.ws-theme-choice small{display:block;margin-top:3px;color:#8b8099;font-size:11px}\n.ws-preview-caption{display:flex;justify-content:space-between;gap:10px;color:#857795;font-size:12px;margin:4px 0 13px;flex-wrap:wrap}\n.ws-preview-frame{max-width:760px;margin:auto;background:#f0edf4;padding:13px;border-radius:16px;overflow:hidden}\n.ws-sheet{font-family:\"Apple SD Gothic Neo\",\"Malgun Gothic\",sans-serif;color:#332c42;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden}\n.ws-sheet *{box-sizing:border-box}\n.ws-sheet.ws-preview{width:100%;margin:0 auto;min-height:780px;padding:26px 27px}\n.ws-sheet.ws-print{width:100%;min-height:253mm;padding:10mm 8mm;break-inside:avoid}\n.ws-sheet.ws-cute{border:2px solid #d3baf0;border-radius:21px;background:linear-gradient(180deg,#faf5ff 0,#fff 10%,#fff 93%,#faf5ff 100%)}\n.ws-sheet.ws-cute:before{content:\"\";position:absolute;top:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,#e9dbff 0 22px,#fff3cd 22px 44px,#d9eaff 44px 66px,#ffe4eb 66px 88px);opacity:.65;pointer-events:none}\n.ws-sheet.ws-simple{border:1px solid #dedee4;border-radius:5px;background:#fff}\n.ws-header{position:relative;flex:none}\n.ws-sheet.ws-cute .ws-header{padding-top:8px}\n.ws-banner{display:flex;align-items:center;justify-content:center;position:relative;text-align:center;min-height:72px;margin:0 0 12px}\n.ws-cute .ws-banner:before{content:\"\";position:absolute;inset:3px 17%;background:linear-gradient(135deg,#ead8ff,#f7edff);border:2px dashed #aa86dd;border-radius:45% 42% 35% 40%;transform:rotate(-1deg);z-index:0}\n.ws-cute .ws-banner h1{position:relative;z-index:1;text-align:center;font-size:25px;margin:0;color:#604184;letter-spacing:-.7px;line-height:1.3}\n.ws-simple .ws-banner{min-height:49px;justify-content:flex-start;border-bottom:2px solid #55525c;margin-bottom:14px}\n.ws-simple .ws-banner h1{text-align:left;font-size:24px;font-weight:900;color:#282631;margin:0;letter-spacing:-.6px}\n.ws-bunny{width:64px;height:65px;position:absolute;left:11px;bottom:0;z-index:2}\n.ws-bunny svg{width:100%;height:100%}\n.ws-pencil{position:absolute;right:10px;top:5px;font-size:35px;transform:rotate(20deg);z-index:2}\n.ws-simple .ws-bunny,.ws-simple .ws-pencil{display:none}\n.ws-meta{border-radius:13px;padding:10px 13px;display:flex;justify-content:space-between;gap:11px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:800}\n.ws-cute .ws-meta{border:1.5px solid #cbb3eb;background:#fff}\n.ws-simple .ws-meta{border:1px solid #bbb; border-radius:2px}\n.ws-meta .ws-name{white-space:nowrap;letter-spacing:1px}\n.ws-intro{font-size:12px;padding:10px 12px;margin:15px 0 14px;line-height:1.55}\n.ws-cute .ws-intro{border:1px solid #e4d2f8;border-radius:13px;background:#fbf6ff;color:#665083}\n.ws-simple .ws-intro{border-left:3px solid #62606b;background:#f7f7f7;color:#444}\n.ws-intro strong{margin-right:9px}\n.ws-questions{display:grid;align-content:start;gap:10px;flex:1}\n.ws-questions.ws-two{grid-template-columns:repeat(2,minmax(0,1fr))}\n.ws-questions.ws-one{grid-template-columns:minmax(0,1fr)}\n.ws-q{min-width:0;display:flex;flex-direction:column;gap:9px;padding:13px 13px 12px;break-inside:avoid;page-break-inside:avoid}\n.ws-cute .ws-q{border:1.5px solid #d9c6f1;border-radius:15px;background:#fff}\n.ws-simple .ws-q{border:1px solid #d4d4d6;border-radius:4px}\n.ws-q-head{display:flex;align-items:flex-start;gap:8px}\n.ws-q-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:12px;font-weight:900}\n.ws-cute .ws-q-num{background:#eedfff;color:#7555a2}\n.ws-simple .ws-q-num{background:#efefef;color:#333;border-radius:3px}\n.ws-q-text{font-size:14px;font-weight:750;line-height:1.7;white-space:pre-line;overflow-wrap:anywhere;word-break:keep-all;min-width:0;flex:1}\n.ws-answer-line{font-size:12px;display:flex;align-items:center;gap:8px;color:#8b78a3;margin-top:auto}\n.ws-answer-line:after{content:\"\";display:block;width:85px;height:12px;border-bottom:1px dotted #b7a5d0}\n.ws-simple .ws-answer-line{color:#555}\n.ws-simple .ws-answer-line:after{border-bottom-color:#aaa}\n.ws-writing-lines{display:grid;gap:13px;margin-top:auto}\n.ws-writing-lines i{display:block;height:12px;border-bottom:1px dotted #baa9d2}\n.ws-simple .ws-writing-lines i{border-bottom:1px solid #aaa}\n.ws-kind-math .ws-q{min-height:112px}\n.ws-kind-pattern .ws-q{min-height:118px}\n.ws-kind-korean .ws-q{min-height:145px}\n.ws-kind-writing .ws-q{min-height:168px}\n.ws-kind-math .ws-q-text{font-size:18px}\n.ws-kind-pattern .ws-q-text{font-size:14px}\n.ws-kind-korean .ws-q-text{font-size:13px;line-height:2}\n.ws-kind-writing .ws-q-text{font-size:15px}\n.ws-foot{flex:none;display:flex;align-items:center;justify-content:space-between;margin-top:17px;padding:8px 3px 0;border-top:1px dashed #ded2ec;font-size:10px;color:#9988b0}\n.ws-simple .ws-foot{border-top:1px solid #ddd;color:#777}\n.ws-answers .ws-q{min-height:46px;padding:9px}\n.ws-answers .ws-q-text{font-size:13px}\n.ws-answers .ws-questions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}\n.ws-answers .ws-q-num{width:23px;height:23px}\n.ws-print.ws-sheet{border-radius:8px}\n@media(max-width:520px){.ws-sheet.ws-preview{padding:17px 13px;min-height:580px}.ws-banner{min-height:55px}.ws-cute .ws-banner h1{font-size:19px}.ws-simple .ws-banner h1{font-size:19px}.ws-bunny{width:43px;height:46px}.ws-pencil{font-size:25px}.ws-q{padding:9px 8px}.ws-q-text{font-size:12px}.ws-kind-math .ws-q-text{font-size:14px}.ws-meta{font-size:10px}.ws-q-num{width:20px;height:20px;font-size:10px}.ws-questions{gap:7px}.ws-intro{margin:12px 0}}\n@media print{@page{size:A4;margin:12mm}html,body{background:#fff!important}.ws-print.ws-sheet{border-width:1px;min-height:271mm;padding:9mm 8mm;break-inside:avoid;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important}.ws-print.ws-sheet:last-of-type{break-after:auto;page-break-after:auto}.ws-print .ws-banner{min-height:18mm;margin-bottom:3mm}.ws-print .ws-meta{padding:2.5mm 3mm}.ws-print .ws-intro{margin:4mm 0}.ws-print .ws-questions{gap:2.6mm}.ws-print .ws-q{padding:3mm 3.5mm}.ws-print.ws-kind-math .ws-q{min-height:25mm}.ws-print.ws-kind-pattern .ws-q{min-height:27mm}.ws-print.ws-kind-korean .ws-q{min-height:32mm}.ws-print.ws-kind-writing .ws-q{min-height:55mm}.ws-print .ws-q-text{font-size:11pt}.ws-print.ws-kind-math .ws-q-text{font-size:13pt}.ws-print .ws-writing-lines{gap:4mm}.ws-print .ws-foot{margin-top:4mm}.ws-print.ws-answers .ws-q{min-height:12mm;padding:2mm}.ws-sheet.ws-print{width:100%}}\n";
+const WORKSHEET_PRINT_CSS="/* Printable 1st-grade worksheet — shared by live preview and print window. */\n.ws-theme-switch{display:flex;gap:11px;flex-wrap:wrap;margin:12px 0 8px}\n.ws-theme-choice{display:flex;align-items:center;gap:11px;flex:1;min-width:185px;padding:12px 14px;text-align:left;background:#fff;border:2px solid #e2d9f3;border-radius:17px;color:#574771;cursor:pointer}\n.ws-theme-choice:hover{border-color:#bca5e7;background:#fdfaff}\n.ws-theme-choice.active{border-color:#8868d4;background:#f7f1ff;box-shadow:0 0 0 3px #eae0ff}\n.ws-theme-choice .ws-theme-symbol{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:13px;font-size:25px}\n.ws-theme-choice.cute .ws-theme-symbol{background:#f1dfff;color:#744da8}\n.ws-theme-choice.simple .ws-theme-symbol{background:#f1f1f3;color:#53535b}\n.ws-theme-choice strong{display:block;font-size:14px}\n.ws-theme-choice small{display:block;margin-top:3px;color:#8b8099;font-size:11px}\n.ws-preview-caption{display:flex;justify-content:space-between;gap:10px;color:#857795;font-size:12px;margin:4px 0 13px;flex-wrap:wrap}\n.ws-preview-frame{max-width:760px;margin:auto;background:#f0edf4;padding:13px;border-radius:16px;overflow:hidden}\n.ws-sheet{font-family:\"Apple SD Gothic Neo\",\"Malgun Gothic\",sans-serif;color:#332c42;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden}\n.ws-sheet *{box-sizing:border-box}\n.ws-sheet.ws-preview{width:100%;margin:0 auto;min-height:780px;padding:26px 27px}\n.ws-sheet.ws-print{width:100%;min-height:253mm;padding:10mm 8mm;break-inside:avoid}\n.ws-sheet.ws-cute{border:2px solid #d3baf0;border-radius:21px;background:linear-gradient(180deg,#faf5ff 0,#fff 10%,#fff 93%,#faf5ff 100%)}\n.ws-sheet.ws-cute:before{content:\"\";position:absolute;top:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,#e9dbff 0 22px,#fff3cd 22px 44px,#d9eaff 44px 66px,#ffe4eb 66px 88px);opacity:.65;pointer-events:none}\n.ws-sheet.ws-simple{border:1px solid #dedee4;border-radius:5px;background:#fff}\n.ws-header{position:relative;flex:none}\n.ws-sheet.ws-cute .ws-header{padding-top:8px}\n.ws-banner{display:flex;align-items:center;justify-content:center;position:relative;text-align:center;min-height:72px;margin:0 0 12px}\n.ws-cute .ws-banner:before{content:\"\";position:absolute;inset:3px 17%;background:linear-gradient(135deg,#ead8ff,#f7edff);border:2px dashed #aa86dd;border-radius:45% 42% 35% 40%;transform:rotate(-1deg);z-index:0}\n.ws-cute .ws-banner h1{position:relative;z-index:1;text-align:center;font-size:25px;margin:0;color:#604184;letter-spacing:-.7px;line-height:1.3}\n.ws-simple .ws-banner{min-height:49px;justify-content:flex-start;border-bottom:2px solid #55525c;margin-bottom:14px}\n.ws-simple .ws-banner h1{text-align:left;font-size:24px;font-weight:900;color:#282631;margin:0;letter-spacing:-.6px}\n.ws-bunny{width:64px;height:65px;position:absolute;left:11px;bottom:0;z-index:2}\n.ws-bunny svg{width:100%;height:100%}\n.ws-pencil{position:absolute;right:10px;top:5px;font-size:35px;transform:rotate(20deg);z-index:2}\n.ws-simple .ws-bunny,.ws-simple .ws-pencil{display:none}\n.ws-meta{border-radius:13px;padding:10px 13px;display:flex;justify-content:space-between;gap:11px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:800}\n.ws-cute .ws-meta{border:1.5px solid #cbb3eb;background:#fff}\n.ws-simple .ws-meta{border:1px solid #bbb; border-radius:2px}\n.ws-meta .ws-name{white-space:nowrap;letter-spacing:1px}\n.ws-intro{font-size:12px;padding:10px 12px;margin:15px 0 14px;line-height:1.55}\n.ws-cute .ws-intro{border:1px solid #e4d2f8;border-radius:13px;background:#fbf6ff;color:#665083}\n.ws-simple .ws-intro{border-left:3px solid #62606b;background:#f7f7f7;color:#444}\n.ws-intro strong{margin-right:9px}\n.ws-questions{display:grid;align-content:start;gap:10px;flex:1}\n.ws-questions.ws-two{grid-template-columns:repeat(2,minmax(0,1fr))}\n.ws-questions.ws-one{grid-template-columns:minmax(0,1fr)}\n.ws-q{min-width:0;display:flex;flex-direction:column;gap:9px;padding:13px 13px 12px;break-inside:avoid;page-break-inside:avoid}\n.ws-cute .ws-q{border:1.5px solid #d9c6f1;border-radius:15px;background:#fff}\n.ws-simple .ws-q{border:1px solid #d4d4d6;border-radius:4px}\n.ws-q-head{display:flex;align-items:flex-start;gap:8px}\n.ws-q-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:12px;font-weight:900}\n.ws-cute .ws-q-num{background:#eedfff;color:#7555a2}\n.ws-simple .ws-q-num{background:#efefef;color:#333;border-radius:3px}\n.ws-q-text{font-size:14px;font-weight:750;line-height:1.7;white-space:pre-line;overflow-wrap:anywhere;word-break:keep-all;min-width:0;flex:1}\n.ws-answer-line{font-size:12px;display:flex;align-items:center;gap:8px;color:#8b78a3;margin-top:auto}\n.ws-answer-line:after{content:\"\";display:block;width:85px;height:12px;border-bottom:1px dotted #b7a5d0}\n.ws-simple .ws-answer-line{color:#555}\n.ws-simple .ws-answer-line:after{border-bottom-color:#aaa}\n.ws-writing-lines{display:grid;gap:13px;margin-top:auto}\n.ws-writing-lines i{display:block;height:12px;border-bottom:1px dotted #baa9d2}\n.ws-simple .ws-writing-lines i{border-bottom:1px solid #aaa}\n.ws-kind-math .ws-q{min-height:112px}\n.ws-kind-pattern .ws-q{min-height:118px}\n.ws-kind-korean .ws-q{min-height:145px}\n.ws-kind-writing .ws-q{min-height:168px}\n.ws-kind-math .ws-q-text{font-size:18px}\n.ws-kind-pattern .ws-q-text{font-size:14px}\n.ws-kind-korean .ws-q-text{font-size:13px;line-height:2}\n.ws-kind-writing .ws-q-text{font-size:15px}\n.ws-foot{flex:none;display:flex;align-items:center;justify-content:space-between;margin-top:17px;padding:8px 3px 0;border-top:1px dashed #ded2ec;font-size:10px;color:#9988b0}\n.ws-simple .ws-foot{border-top:1px solid #ddd;color:#777}\n.ws-answers .ws-q{min-height:46px;padding:9px}\n.ws-answers .ws-q-text{font-size:13px}\n.ws-answers .ws-questions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}\n.ws-answers .ws-q-num{width:23px;height:23px}\n.ws-print.ws-sheet{border-radius:8px}\n@media(max-width:520px){.ws-sheet.ws-preview{padding:17px 13px;min-height:580px}.ws-banner{min-height:55px}.ws-cute .ws-banner h1{font-size:19px}.ws-simple .ws-banner h1{font-size:19px}.ws-bunny{width:43px;height:46px}.ws-pencil{font-size:25px}.ws-q{padding:9px 8px}.ws-q-text{font-size:12px}.ws-kind-math .ws-q-text{font-size:14px}.ws-meta{font-size:10px}.ws-q-num{width:20px;height:20px;font-size:10px}.ws-questions{gap:7px}.ws-intro{margin:12px 0}}\n@media print{@page{size:A4;margin:12mm}html,body{background:#fff!important}.ws-print.ws-sheet{border-width:1px;min-height:271mm;padding:9mm 8mm;break-inside:avoid;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important}.ws-print.ws-sheet:last-of-type{break-after:auto;page-break-after:auto}.ws-print .ws-banner{min-height:18mm;margin-bottom:3mm}.ws-print .ws-meta{padding:2.5mm 3mm}.ws-print .ws-intro{margin:4mm 0}.ws-print .ws-questions{gap:2.6mm}.ws-print .ws-q{padding:3mm 3.5mm}.ws-print.ws-kind-math .ws-q{min-height:25mm}.ws-print.ws-kind-pattern .ws-q{min-height:27mm}.ws-print.ws-kind-korean .ws-q{min-height:32mm}.ws-print.ws-kind-writing .ws-q{min-height:55mm}.ws-print .ws-q-text{font-size:11pt}.ws-print.ws-kind-math .ws-q-text{font-size:13pt}.ws-print .ws-writing-lines{gap:4mm}.ws-print .ws-foot{margin-top:4mm}.ws-print.ws-answers .ws-q{min-height:12mm;padding:2mm}.ws-sheet.ws-print{width:100%}}\n\n\n/* Automatic content-aware worksheet layout: short math equations in pairs, word problems full width. */\n.ws-questions.ws-auto-mixed{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;align-content:start}\n.ws-questions.ws-pattern-wide{grid-template-columns:minmax(0,1fr);align-content:start}\n.ws-questions.ws-auto-mixed .ws-q-word{grid-column:1/-1;min-height:145px;padding:15px 17px}\n.ws-questions.ws-auto-mixed .ws-q-equation{min-height:96px}\n.ws-questions.ws-pattern-wide .ws-q-pattern{min-height:108px}\n.ws-q-word .ws-q-text{font-size:15px;line-height:1.65}\n.ws-q-word .ws-q-head{align-items:flex-start}\n.ws-story-space{flex:1;display:flex;align-items:flex-start;min-height:43px;margin:5px 2px 2px;padding:5px 3px;border-bottom:1px dashed #c8b5e1;color:#a08aaf;font-size:10px;font-weight:600}\n.ws-simple .ws-story-space{color:#777;border-bottom:1px solid #c8c8c8}\n.ws-q-word .ws-answer-line{align-self:flex-end;min-width:150px;margin:0 0 0 auto}\n.ws-q-word .ws-answer-line:after{flex:1;width:110px}\n.ws-questions.ws-pattern-wide .ws-q-text{font-size:17px}\n@media(max-width:520px){\n .ws-questions.ws-auto-mixed .ws-q-word{padding:12px;min-height:137px}\n .ws-questions.ws-auto-mixed .ws-q-equation{min-height:89px}\n .ws-q-word .ws-q-text{font-size:13px}\n .ws-story-space{min-height:31px}\n}\n@media print{\n .ws-print .ws-questions.ws-auto-mixed{grid-template-columns:repeat(2,minmax(0,1fr))}\n .ws-print .ws-questions.ws-pattern-wide{grid-template-columns:minmax(0,1fr)}\n .ws-print.ws-kind-math .ws-q-equation{min-height:22mm}\n .ws-print.ws-kind-math .ws-q-word{grid-column:1/-1;min-height:39mm;padding:3.5mm 4mm;gap:2mm}\n .ws-print.ws-kind-pattern .ws-q-pattern{min-height:24mm}\n .ws-print .ws-q-word .ws-q-text{font-size:12pt;line-height:1.5}\n .ws-print .ws-story-space{min-height:12mm;margin:1mm 0}\n .ws-print .ws-q-word .ws-answer-line{margin-left:auto}\n}";
 function worksheetSavedTheme(){
  try{return localStorage.getItem(WS_THEME_KEY)==='simple'?'simple':'cute'}catch(e){return 'cute'}
 }
@@ -632,6 +663,29 @@ function worksheetTitle(kind){
  return ({math:'즐거운 덧셈과 뺄셈',pattern:'반짝반짝 규칙 찾기',korean:'바른 문장 찾기',writing:'생각을 문장으로'})[kind]||'우리 반 학습지';
 }
 function worksheetPageSize(kind){return ({math:10,pattern:8,korean:6,writing:3})[kind]||10}
+function worksheetQuestionMode(q,kind){
+ const text=String(q?.text||'').trim();
+ if(kind==='math')return /[가-힣]/.test(text)||text.length>48?'word':'equation';
+ if(kind==='pattern')return 'pattern';
+ if(kind==='korean')return 'choice';
+ return 'writing';
+}
+function worksheetPaginate(w){
+ const limit=({math:12.8,pattern:8,korean:6,writing:3})[w.kind]||10;
+ const maxCards=worksheetPageSize(w.kind);
+ const pages=[];let group=[],start=0,used=0;
+ (w.items||[]).forEach((item,i)=>{
+  const mode=worksheetQuestionMode(item,w.kind);
+  const len=String(item.text||'').length;
+  const cost=mode==='word'?2.3+Math.min(1.6,Math.max(0,len-55)/55):1;
+  if(group.length&&(group.length>=maxCards||used+cost>limit+0.001)){
+   pages.push({items:group,start});group=[];used=0;start=i;
+  }
+  group.push(item);used+=cost;
+ });
+ if(group.length)pages.push({items:group,start});
+ return pages;
+}
 function worksheetQuestionText(q,kind){
  if(kind==='pattern'){
   const parts=String(q.text||'').split('  ');
@@ -641,18 +695,19 @@ function worksheetQuestionText(q,kind){
 }
 function worksheetSheetMarkup(w,items,start,totalPages,pageNo,answerKey,forPrint){
  const theme=w.theme==='simple'?'simple':'cute';
- const isTwo=!answerKey&&(w.kind==='math'||w.kind==='pattern');
- const columns=answerKey||isTwo?'ws-two':'ws-one';
+ const columns=answerKey?'ws-two':w.kind==='math'?'ws-auto-mixed':w.kind==='pattern'?'ws-pattern-wide':'ws-one';
  const title=answerKey?'정답 확인':worksheetTitle(w.kind);
  const classLine=safe(db.settings.grade||1)+'학년 (<span style="display:inline-block;width:19mm;height:1em;vertical-align:-.12em"></span>)반 (<span style="display:inline-block;width:13mm;height:1em;vertical-align:-.12em"></span>)번';
  const safeItems=items.map(function(q,index){
   const num=start+index+1;
+  const mode=answerKey?'answer':worksheetQuestionMode(q,w.kind);
   const text=answerKey?String(q.answer):worksheetQuestionText(q,w.kind);
+  const work=mode==='word'?'<div class="ws-story-space"><span>그림이나 식으로 풀어 보세요.</span></div>':'';
   const answer=answerKey?'':(
    (w.kind==='math'||w.kind==='pattern')?'<div class="ws-answer-line">답</div>':
    w.kind==='writing'?'<div class="ws-writing-lines"><i></i><i></i><i></i></div>':''
   );
-  return '<div class="ws-q"><div class="ws-q-head"><span class="ws-q-num">'+num+'</span><span class="ws-q-text">'+safe(text)+'</span></div>'+answer+'</div>';
+  return '<div class="ws-q ws-q-'+mode+'"><div class="ws-q-head"><span class="ws-q-num">'+num+'</span><span class="ws-q-text">'+safe(text)+'</span></div>'+work+answer+'</div>';
  }).join('');
  const intro=answerKey?'선생님이 확인하는 정답표입니다.':
   w.kind==='math'?'식을 살펴보고 알맞은 답을 써 보세요.':
@@ -670,12 +725,12 @@ function worksheetSheetMarkup(w,items,start,totalPages,pageNo,answerKey,forPrint
    '<div class="ws-foot"><span>'+(theme==='cute'?'♡ 우리 반의 반짝이는 배움 ♡':'우리 반 학습지')+'</span><span>'+pageNo+' / '+totalPages+'</span></div></section>';
 }
 function worksheetOutputPages(w){
- const per=worksheetPageSize(w.kind);
- const total=Math.ceil(w.items.length/per);
+ const grouped=worksheetPaginate(w);
+ const total=grouped.length;
  const pages=[];
- for(let i=0;i<total;i++){
-  pages.push(worksheetSheetMarkup(w,w.items.slice(i*per,(i+1)*per),i*per,total,i+1,false,true));
- }
+ grouped.forEach((page,i)=>{
+  pages.push(worksheetSheetMarkup(w,page.items,page.start,total,i+1,false,true));
+ });
  if(w.kind!=='writing'){
   const answerPer=30,totalAns=Math.ceil(w.items.length/answerPer);
   for(let i=0;i<totalAns;i++){
@@ -691,8 +746,8 @@ function worksheetThemeChooser(w){
 }
 function renderWorksheet(){
  const w=ui.worksheet;
- const pageSize=worksheetPageSize(w.kind);
- const pages=Math.ceil(w.items.length/pageSize);
+ const pageGroups=worksheetPaginate(w);
+ const pages=pageGroups.length;
  const answerPages=w.kind==='writing'?0:Math.ceil(w.items.length/30);
  return heading('📝','학습지 자동 제작소','같은 문제도 원하는 디자인으로 바꾸고 미리 본 뒤 인쇄해요.')+
  shell('🎨 디자인 먼저 선택','<p class="small-hint" style="margin-bottom:10px">🐰 귀여운 연보라 / ▤ 심플 — 아래에서 바로 바꿔 보세요.</p>'+worksheetThemeChooser(w))+
@@ -703,8 +758,8 @@ function renderWorksheet(){
  '<button class="btn" data-act="worksheet-generate">✨ 새 학습지 만들기</button></div>'+
  '<p class="small-hint">디자인을 바꿔도 이미 생성한 문제는 그대로 유지돼요. 실제 인쇄/PDF에도 선택한 디자인이 적용돼요.</p>')+
  shell('A4 인쇄 미리보기',w.items.length?
- '<div class="ws-preview-caption"><span>1쪽 미리보기 · '+w.items.length+'문제</span><span>학습지 '+pages+'쪽'+(answerPages?' + 정답표 '+answerPages+'쪽':'')+'</span></div>'+
- '<div class="ws-preview-frame">'+worksheetSheetMarkup(w,w.items.slice(0,pageSize),0,pages,1,false,false)+'</div>'+
+ '<div class="ws-preview-caption"><span>1쪽 미리보기 · '+pageGroups[0].items.length+'문제 / 전체 '+w.items.length+'문제</span><span>학습지 '+pages+'쪽'+(answerPages?' + 정답표 '+answerPages+'쪽':'')+'</span></div>'+
+ '<div class="ws-preview-frame">'+worksheetSheetMarkup(w,pageGroups[0].items,pageGroups[0].start,pages,1,false,false)+'</div>'+
  '<div class="btn-group" style="margin-top:18px"><button class="btn" data-act="worksheet-print">🖨️ 선택한 디자인으로 인쇄 / PDF 저장</button><button class="btn outline" data-act="worksheet-answer">정답표 보기</button></div>'+
  (w.answers?'<div class="result">'+w.items.map((q,i)=>(i+1)+'. '+safe(q.answer)).join('　 /　 ')+'</div>':'')
  :blank('설정을 고르고 「새 학습지 만들기」를 눌러 주세요.'));
