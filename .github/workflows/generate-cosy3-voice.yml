@@ -1,0 +1,84 @@
+name: Generate CosyVoice3 Korean teacher voice
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - dictation/tools/generate_cosy3.py
+      - .github/workflows/generate-cosy3-voice.yml
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: cosyvoice3-classroom-generation
+  cancel-in-progress: false
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Original voices unchanged
+        run: |
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+          node scripts/dictation_voice_s1.cjs
+      - name: Install CPU inference components
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg sox libsox-dev
+          git clone --depth=1 --recursive https://github.com/FunAudioLLM/CosyVoice.git _cosyvoice
+          python -m pip install --upgrade pip
+          python -m pip install torch==2.3.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cpu
+          grep -Ev '^(--extra-index-url|deepspeed|onnxruntime-gpu|tensorrt|torch==|torchaudio==|gradio==|matplotlib==)' _cosyvoice/requirements.txt > /tmp/cosy-cpu.txt
+          python -m pip install -r /tmp/cosy-cpu.txt
+          python -m pip install huggingface_hub soundfile
+      - name: Synthesize Korean phrases with the actual CosyVoice3 model
+        run: python -u dictation/tools/generate_cosy3.py --shard ${{ matrix.shard }} --shards 8
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cosy3-shard-${{ matrix.shard }}
+          path: dictation/voice/COSY3/*.mp3
+          if-no-files-found: error
+          retention-days: 7
+  publish:
+    needs: synthesize
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cosy3-shard-*
+          path: dictation/voice/COSY3
+          merge-multiple: true
+      - name: Validate and activate actual complete audio pack
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          python dictation/tools/activate_new_voice.py COSY3
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+          node scripts/dictation_voice_s1.cjs
+          node scripts/dictation_smoke.cjs
+      - name: Commit generated MP3s and new UI choice
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dictation/voice/COSY3 dictation/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add genuine CosyVoice3 Korean teacher voice pack'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Request Pages republish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --ref main
