@@ -2,7 +2,7 @@ name: 윤슬초 1학년 주간학습안내 자동 확인
 on:
   workflow_dispatch:
   schedule:
-    # 00/06/12/18 UTC = 09/15/21/03 KST, best-effort (may be delayed).
+    # UTC 00,06,12,18 = KST 09,15,21,03; schedules may be delayed.
     - cron: "0 0,6,12,18 * * *"
   push:
     branches: [main]
@@ -11,12 +11,17 @@ on:
       - ".github/workflows/weekly-sync.yml"
 permissions:
   contents: write
+  pages: write
+  id-token: write
 concurrency:
   group: yunseul-weekly-sync
   cancel-in-progress: false
 jobs:
-  sync:
+  sync-and-publish:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,3 +45,12 @@ jobs:
             git commit -m "Refresh weekly notice status and publicly available documents"
             git push
           fi
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload refreshed website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Publish refreshed PDF previews
+        id: deployment
+        uses: actions/deploy-pages@v4
