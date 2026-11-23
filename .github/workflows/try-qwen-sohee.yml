@@ -1,0 +1,46 @@
+name: Try native Korean Sohee teacher voice (new engine)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - dictation/experiment_qwen_sohee.py
+      - .github/workflows/try-qwen-sohee.yml
+permissions:
+  contents: write
+concurrency:
+  group: dictation-qwen-sample
+  cancel-in-progress: true
+jobs:
+  try:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify existing recorded voices are frozen
+        run: node scripts/dictation_voice_lock.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU Korean voice inference
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-tts soundfile imageio-ffmpeg
+      - name: Generate native Korean candidate samples
+        run: python -u dictation/experiment_qwen_sohee.py
+      - name: Validate all 3 candidate MP3s
+        run: |
+          test -s dictation/voice-candidates/S1/g01_01.mp3
+          test -s dictation/voice-candidates/S1/g01_05.mp3
+          test -s dictation/voice-candidates/S1/g02_06.mp3
+          node scripts/dictation_voice_lock.cjs
+      - name: Commit only new sample clips
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dictation/voice-candidates/S1
+          git commit -m "Add three native Korean Sohee teacher-voice previews" || exit 0
+          git pull --rebase origin main
+          node scripts/dictation_voice_lock.cjs
+          git push origin HEAD:main
