@@ -61,8 +61,20 @@ new vm.Script(playScripts[0][1],{filename:'playlab-inline.js'});
 const gameModes=['safety','builder','roulette','story','path','train'];
 for(const mode of gameModes){
   assert.ok(playHtml.includes('data-mode="'+mode+'"'),'Missing game tab: '+mode);
-  assert.ok(html.includes('playlab.html#'+mode),'Homepage game shortcut missing: '+mode);
 }
+assert.ok(html.includes('href="./playlab.html#train"'),'Favorite cooperative train shortcut missing');
+for(const mode of gameModes.filter(mode=>mode!=='train')){
+  assert.ok(!html.includes('href="./playlab.html#'+mode+'"'),'Extra game cards should be hidden from homepage: '+mode);
+}
+const visibleCatalog=html.slice(html.indexOf('const TOOLS=['),html.indexOf('const ARCHIVED_TOOLS=['));
+const hiddenCatalog=html.slice(html.indexOf('const ARCHIVED_TOOLS=['),html.indexOf('const DEFAULT='));
+assert.equal((visibleCatalog.match(/id:'/g)||[]).length,3,'Only three essential classroom tools should remain visible');
+assert.equal((hiddenCatalog.match(/id:'/g)||[]).length,7,'Other seven tools must remain safely archived');
+for(const id of ['worksheet','math','games'])assert.ok(visibleCatalog.includes("id:'"+id+"'"));
+for(const id of ['reading','writing','planner','media','fitness','design','books'])assert.ok(hiddenCatalog.includes("id:'"+id+"'"));
+assert.ok(html.includes('archivedToolsPanel()'),'Settings must provide optional recovery access');
+assert.ok(html.includes('personalShortcutsPanel()'),'Public spreadsheet shortcuts must remain visible');
+assert.ok(html.includes('weeklyPanel(true)'),'Weekly lesson preview must remain on homepage');
 assert.ok(html.includes('function lessonPlayMode'),'Weekly integrated cards must link to playable games');
 assert.ok(!html.includes('🪄 수업 흐름과 교사용 팁 보기</summary>') || !html.includes('+guide+(sparkText?'),
   'Teacher plan text must not appear in recommendation cards');
