@@ -9,6 +9,7 @@ on:
     paths:
       - "scripts/sync_weekly.py"
       - "scripts/recommend_lessons.py"
+      - "scripts/inspect_public_week.py"
       - "requirements.txt"
       - ".github/workflows/weekly-sync.yml"
 permissions:
@@ -40,6 +41,8 @@ jobs:
         run: python scripts/sync_weekly.py
       - name: Recommend activities based on original weekly PDFs
         run: python scripts/recommend_lessons.py
+      - name: Inspect original integrated textbook timetable
+        run: python scripts/inspect_public_week.py
       - name: Save verified documents and status
         run: |
           git config user.name "github-actions[bot]"
