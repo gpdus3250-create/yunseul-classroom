@@ -172,6 +172,8 @@ assert.ok(mixed.includes('ws-auto-mixed'),'Mixed 2-column/full-width layout miss
 assert.equal((mixed.match(/class="ws-q ws-q-word"/g)||[]).length,2);
 assert.equal((mixed.match(/class="ws-q ws-q-equation"/g)||[]).length,8);
 assert.ok(mixed.includes('ws-word-response'),'Word problems need both equation and answer fields');
+assert.ok(!html.includes('border-bottom:1px dashed #c8b5e1;'),'Extra writing-area divider must not reappear');
+assert.ok(!html.includes('.ws-simple .ws-story-space{color:#777;border-bottom:'),'Simple-theme writing divider must not reappear');
 assert.ok(!mixed.includes('그림이나 식으로 생각해 보세요.'),'Unwanted instruction in writing area');
 assert.ok(!html.includes('그림이나 식으로 생각해 보세요.'),'Prompt must be removed from source');
 assert.ok(html.includes('font-size:11.5pt'),'Printed math font size should be reduced');
