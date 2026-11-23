@@ -35,7 +35,7 @@ jobs:
           python -m pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           grep -Ev '^(torch==|torchaudio==|torchvision==|deepspeed==|onnxruntime-gpu|tensorrt|flash-attn|triton)' _gptsovits/requirements.txt > /tmp/gptsovits-cpu-requirements.txt
           python -m pip install -r /tmp/gptsovits-cpu-requirements.txt
-          python -m pip install huggingface_hub soundfile
+          python -m pip install huggingface_hub soundfile resampy
       - name: Generate 172 actual GPT-SoVITS Korean utterances
         run: python -u dictation/tools/generate_gptsovits.py
       - name: Validate and activate completed voice
