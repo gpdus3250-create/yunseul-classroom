@@ -149,18 +149,32 @@ wsObj.items=[
 const modes=vm.runInContext('ui.worksheet.items.map(q=>worksheetQuestionMode(q,"math"))',wsContext,{timeout:1000});
 assert.equal(modes.filter(x=>x==='word').length,2);
 const mixedGroups=vm.runInContext('worksheetPaginate(ui.worksheet)',wsContext,{timeout:1000});
+const mathModesInOrder=wsObj.items.map(q=>/[가-힣]/.test(q.text)?'word':'equation');
+const firstWord=mathModesInOrder.indexOf('word');
+assert.ok(firstWord>0&&mathModesInOrder.slice(0,firstWord).every(m=>m==='equation'));
+assert.ok(mathModesInOrder.slice(firstWord).every(m=>m==='word'),'Math word problems must appear only at the end');
+
 assert.equal(mixedGroups.length,1,'Ten mixed math problems should fit one sheet');
 const mixed=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
 assert.ok(mixed.includes('ws-auto-mixed'),'Mixed 2-column/full-width layout missing');
 assert.equal((mixed.match(/class="ws-q ws-q-word"/g)||[]).length,2);
 assert.equal((mixed.match(/class="ws-q ws-q-equation"/g)||[]).length,8);
 assert.ok(mixed.includes('ws-word-response'),'Word problems need both equation and answer fields');
+assert.ok(!mixed.includes('그림이나 식으로 생각해 보세요.'),'Unwanted instruction in writing area');
+assert.ok(!html.includes('그림이나 식으로 생각해 보세요.'),'Prompt must be removed from source');
+assert.ok(html.includes('font-size:11.5pt'),'Printed math font size should be reduced');
+assert.ok(html.includes('font-size:10.5pt'),'Printed word-problem font size should be reduced');
+
 vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
 assert.ok(wsContext.lastPrinted.body.includes('ws-q-word'),'Word problems should print full-width');
 assert.ok(wsContext.lastPrinted.body.includes('grid-column:1/-1'),'Print stylesheet missing full-width rule');
 const ratioOutput=vm.runInContext("makeQuestions('math',10,'normal',{mathRange:'20',operation:'mixed',carry:'none',wordRatio:3})",wsContext,{timeout:1000});
 assert.equal(ratioOutput.length,10);
 assert.equal(ratioOutput.filter(x=>x.mode==='word').length,3,'Exact word ratio was not respected');
+assert.deepEqual(ratioOutput.map(q=>q.mode),[
+ 'equation','equation','equation','equation','equation','equation','equation',
+ 'word','word','word'
+],'Generated math problems must list calculations before word problems');
 for(const q of ratioOutput){
  assert.equal(Number(q.answer),q.meta.expected,'Generated answer must match arithmetic');
  assert.ok(q.meta.expected<=20,'Out-of-range result');
