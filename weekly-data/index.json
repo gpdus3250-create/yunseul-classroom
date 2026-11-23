@@ -1,7 +1,80 @@
 {
-  "status": "error",
-  "checked_at": "2026-11-23T07:40:09.117022+00:00",
+  "status": "ok",
+  "checked_at": "2026-11-23T07:44:04.670154+00:00",
   "board_url": "https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&m=020901&s=yunseul",
-  "items": [],
-  "message": "404 Client Error: Not Found for url: https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=317890&lev=0&m=020901&viewBoardID=317890"
+  "items": [
+    {
+      "week": "2026-11-23",
+      "title": "1학년 11월 23일 - 11월 27일(15주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34360754&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-11-23/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-11-16",
+      "title": "1학년 11월 16일 – 11월 20일(14주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34342332&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-11-16/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-11-09",
+      "title": "1학년 11월 9일 – 11월 13일(13주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34317796&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-11-09/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-11-02",
+      "title": "1학년 11월 2일 – 11월 6일(12주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34300050&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-11-02/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-10-26",
+      "title": "1학년 10월 26일 – 10월 30일(11주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34275698&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-10-26/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-10-19",
+      "title": "1학년 10월 19일 – 10월 23일(10주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34250490&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-10-19/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-10-12",
+      "title": "1학년 10월 12일 – 10월 16일(9주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34223926&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-10-12/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    },
+    {
+      "week": "2026-10-05",
+      "title": "1학년 10월 5일 – 10월 9일(8주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34206784&lev=0&m=020901&viewBoardID=317890",
+      "preview_url": "weekly-data/2026-10-05/original.pdf",
+      "preview_type": "pdf",
+      "filename": "original.pdf",
+      "note": null
+    }
+  ],
+  "message": null
 }
