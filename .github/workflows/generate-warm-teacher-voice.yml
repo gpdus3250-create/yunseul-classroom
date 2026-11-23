@@ -1,0 +1,86 @@
+name: Generate warm Korean classroom teacher voice (Qwen3-TTS 1.7B)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'dictation/tools/generate_warm_teacher.py'
+      - '.github/workflows/generate-warm-teacher-voice.yml'
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: dictation-warm-teacher-generation
+  cancel-in-progress: false
+jobs:
+  render:
+    name: Warm Korean voice shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Protect every existing frozen recorded voice
+        run: |
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+          node scripts/dictation_voice_s1.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install genuine Qwen3 1.7B CustomVoice CPU inference
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install qwen-tts soundfile imageio-ffmpeg
+      - name: Synthesize genuine gentle teacher speech
+        run: python -u dictation/tools/generate_warm_teacher.py --shard ${{ matrix.shard }} --shards 12
+      - uses: actions/upload-artifact@v4
+        with:
+          name: warm-teacher-shard-${{ matrix.shard }}
+          path: dictation/voice/WARM1/*.mp3
+          if-no-files-found: error
+          retention-days: 7
+  publish:
+    name: Activate only after all 172 actual warm voice recordings pass verification
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: warm-teacher-shard-*
+          path: dictation/voice/WARM1
+          merge-multiple: true
+      - name: Validate all MP3s and add new voice option without modifying originals
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          python dictation/tools/activate_new_voice.py WARM1
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+          node scripts/dictation_voice_s1.cjs
+          node scripts/dictation_smoke.cjs
+          node scripts/dictation_together_smoke.cjs
+      - name: Commit only separate new voice and updated website selector
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dictation/voice/WARM1 dictation/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add gentle teacher-style Qwen3 Korean recorded voice (172 clips)'
+            for attempt in 1 2 3 4 5; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then break; fi
+              if [ "$attempt" -eq 5 ]; then exit 1; fi
+              sleep $((attempt * 3))
+            done
+          fi
+      - name: Republish dictation kingdom GitHub Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --ref main
