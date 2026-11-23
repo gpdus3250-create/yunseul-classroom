@@ -855,7 +855,7 @@ function worksheetPaginate(w){
   ({math:10,pattern:8,korean:6,writing:3})[w.kind];
  let group=[],start=0;
  const heightOf=(list)=>{
-  const gap=3;
+  const gap=2.5;
   if(w.kind!=='math'){
    const each=w.kind==='pattern'?27:w.kind==='korean'?32:w.purpose==='homework'?61:55;
    return list.length*(each+gap);
@@ -864,11 +864,11 @@ function worksheetPaginate(w){
   for(const item of list){
    const word=worksheetQuestionMode(item,'math')==='word';
    if(word){
-    if(oneHalf){total+=gap;oneHalf=false}
-    total+= (w.purpose==='homework'?49:w.purpose==='test'?35:41)+
+    oneHalf=false;
+    total+= (w.purpose==='homework'?49:w.purpose==='test'?35:39)+
        Math.min(21,Math.max(0,Math.ceil((String(item.text||'').length-50)/35))*7)+gap;
    }else if(!oneHalf){
-    total+= (w.purpose==='homework'?30:w.purpose==='test'?19:24)+gap;
+    total+= (w.purpose==='homework'?30:w.purpose==='test'?19:22)+gap;
     oneHalf=true;
    }else oneHalf=false;
   }
