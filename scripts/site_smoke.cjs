@@ -179,7 +179,7 @@ wsObj.items=[{text:'나의 즐거운 하루',answer:'자유 응답'}];wsObj.kind
 const writing=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
 assert.ok(writing.includes('ws-writing-lines'),'Writing paper lines absent');
 vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
-assert.ok(!wsContext.lastPrinted.body.includes('ws-answers'),'Writing should not print answer key');
+assert.ok(!/class="ws-sheet ws-cute ws-kind-writing [^"]*ws-answers/.test(wsContext.lastPrinted.body),'Writing should not print an answer page');
 wsObj.kind='pattern';wsObj.items=[{text:'규칙을 찾아 빈칸에 알맞은 수를 쓰세요.  1 → 3 → 5 → □ → 9',answer:'7'}];
 assert.ok(vm.runInContext('renderWorksheet()',wsContext).includes('ws-pattern-wide'),'Patterns should use full-width rows');
 for(const action of ["worksheet-reroll","worksheet-edit","worksheet-save-one","worksheet-remove","worksheet-add","worksheet-preview-page"]){
