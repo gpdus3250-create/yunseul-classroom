@@ -87,6 +87,56 @@ for(const mode of gameModes){
 }
 console.log('✓ Six immediate-play integrated games parse and render in minimal browser context');
 
+
+// Verify both printable worksheet designs with a functional HTML preview and print smoke test.
+const appJs=scripts[0][1];
+const worksheetStart=appJs.indexOf('const WORKSHEET_PRINT_CSS=');
+const worksheetEnd=appJs.indexOf('// 2. 읽기 왕국',worksheetStart);
+assert.ok(worksheetStart>0&&worksheetEnd>worksheetStart,'Worksheet theme implementation missing');
+const worksheetCode=appJs.slice(worksheetStart,worksheetEnd);
+const dummyItems=Array.from({length:11},(_,i)=>({text:(i+1)+' + 2 =',answer:String(i+3)}));
+const wsObj={theme:'cute',kind:'math',n:11,difficulty:'normal',items:dummyItems,answers:false};
+const fakeDb={settings:{grade:1,room:6,school:'우리 학교'}};
+const htmlSafe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const wsContext=vm.createContext({
+ ui:{worksheet:wsObj},db:fakeDb,safe:htmlSafe,console,
+ localStorage:{getItem(){return 'cute'},setItem(){}},
+ heading:(a,b,c)=>'<h2>'+b+'</h2>',
+ shell:(a,b)=>'<section><h3>'+a+'</h3>'+b+'</section>',
+ blank:message=>message,
+ hField:(label,body)=>'<label>'+label+body+'</label>',
+ selectOptions:(items,chosen)=>items.map(([value,title])=>'<option '+(chosen===value?'selected':'')+'>'+title+'</option>').join(''),
+ printHTML:(title,body)=>{wsContext.lastPrinted={title,body};return true}
+});
+vm.runInContext(worksheetCode,wsContext,{timeout:3000});
+const cuteHtml=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(cuteHtml.includes('ws-cute'),'Cute worksheet preview not rendered');
+assert.ok(cuteHtml.includes('ws-bunny'),'Cute illustration missing');
+assert.ok(cuteHtml.includes('data-id="cute"')&&cuteHtml.includes('data-id="simple"'),'Theme picker missing');
+assert.equal(wsObj.items.length,11);
+wsObj.theme='simple';
+const simpleHtml=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(simpleHtml.includes('ws-simple'),'Simple worksheet preview not rendered');
+assert.ok(!simpleHtml.includes('<span class="ws-bunny">'),'Simple design should not print cute illustration');
+assert.equal(wsObj.items.length,11,'Switching theme changed worksheet questions');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(wsContext.lastPrinted.body.includes('ws-simple'),'Print did not preserve selected design');
+assert.ok(wsContext.lastPrinted.body.includes('.ws-sheet.ws-cute'),'Print CSS for both themes missing');
+assert.equal((wsContext.lastPrinted.body.match(/ws-print/g)||[]).length>0,true);
+assert.equal((wsContext.lastPrinted.body.match(/class="ws-sheet ws-simple ws-kind-math ws-print"/g)||[]).length,2,
+  'Eleven math questions should print on two A4 question pages');
+assert.ok(wsContext.lastPrinted.body.includes('ws-answers'),'Printable answer key missing');
+wsObj.theme='cute';
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(wsContext.lastPrinted.body.includes('ws-cute'),'Cute design does not print');
+wsObj.kind='writing';
+wsObj.items=[{text:'나의 즐거운 하루',answer:'자유 응답'}];
+const writingPreview=vm.runInContext('renderWorksheet()',wsContext,{timeout:1000});
+assert.ok(writingPreview.includes('ws-writing-lines'),'Writing guide lines missing');
+vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
+assert.ok(!wsContext.lastPrinted.body.includes('class="ws-sheet ws-cute ws-kind-writing ws-answers'),'Writing worksheets should not print an unhelpful answer key');
+console.log('✓ Cute/simple worksheet styles preview correctly, preserve questions and print A4 pages');
+
 const publicSheets=[
   '1BS2-5MUB_RP-GV8TgYscY70aNrxyRyiAaDSMd0H1Gv8',
   '11veDOcjX0EB-M2qmv46SZ2x-Yle1MKx32H54ySWenlc',
