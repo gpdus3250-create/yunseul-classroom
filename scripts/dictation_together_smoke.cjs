@@ -42,7 +42,7 @@ assert.equal(readCalls.length,1,'Shared sentence must be read exactly once when 
 assert.equal(readCalls[0][0],st.question.text);
 assert.equal(st.choices.length,3);
 assert.equal(new Set(st.choices).size,3);
-const expectedOptionTexts=Array.from({length:3},(_,i)=>ctx.api.lane(i).match(/<button class="tg-option[^>]*>[\s\S]*?<\/button>/g));
+const expectedOptionTexts=Array.from({length:3},(_,i)=>ctx.api.lane(i).match(/<button class="tg-option[^>]*>[\s\S]*?<\/button>/g).map(x=>x.replace(/togetherAnswer\(\d+,/g,'togetherAnswer(student,')));
 assert.deepEqual(expectedOptionTexts[0],expectedOptionTexts[1],'Every student must have identical visible options');
 assert.deepEqual(expectedOptionTexts[1],expectedOptionTexts[2],'Every student must have identical visible options');
 ctx.api.answer(0,1);
