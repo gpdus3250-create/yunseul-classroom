@@ -17,6 +17,6 @@ for(const name of expected)if(fs.statSync(path.join(dir,name)).size<2000)throw E
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 for(const name of ['F1','M1','F2','M2','S1'])
  if(!html.includes('<option value="'+name+'">'))throw Error('Missing voice option '+name);
-if(!html.includes("setRecordedVoice('S1')"))throw Error('Cannot preview new Korean-native voice');
+if(!html.includes('onchange="setRecordedVoice(this.value)"')||!html.includes('function setRecordedVoice(name)')||!html.includes("'S1'"))throw Error('Cannot select Korean-native S1 voice');
 if(!html.includes('받아쓰기 왕국 39.0'))throw Error('39.0 build title missing');
 console.log('Valid: all 172 S1 clips, five selectable voices, original 140 dictation sentences preserved.');
