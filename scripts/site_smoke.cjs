@@ -7,8 +7,6 @@ const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
 assert.equal(scripts.length,1,'Expected one inline application script');
 new vm.Script(scripts[0][1],{filename:'site-inline-script.js'});
 for(const term of [
-  'lessonRecommendationsPanel(true)',
-  'lessonRecommendationsPanel(false)',
   'lessonComprehensionPanel()',
   "case'lesson-launch'",
   "case'lesson-meaning-answer'",
@@ -16,6 +14,10 @@ for(const term of [
 ]){
   assert.ok(html.includes(term),'Missing UI hook: '+term);
 }
+assert.ok(!html.includes('${lessonRecommendationsPanel(true)}'),'Unhelpful lesson panel must not render on homepage');
+assert.ok(!html.includes('+lessonRecommendationsPanel(false)'),'Unhelpful lesson panel must not render on weekly page');
+assert.ok(!html.includes('data-act="lesson-spark"'),'Idea picker button must stay removed');
+assert.ok(html.includes('weeklyLoad().then(weeklyRefreshRemote);'),'PDF weekly notices must remain connected');
 const data=JSON.parse(fs.readFileSync('weekly-data/lesson-recommendations.json','utf8'));
 assert.equal(data.version,1);
 assert.ok(data.weeks && typeof data.weeks==='object');
@@ -38,7 +40,7 @@ for(const item of catalog.activities){
   assert.ok(item.topic&&item.source_patterns.length>0,'Evidence rule missing: '+item.id);
   assert.ok(item.steps.length>=3&&item.materials.length>0&&item.sheet?.prompt,'Practical lesson details missing: '+item.id);
 }
-for(const name of ['lessonPrintSheet','lessonRecommendationsPanel','lessonSparkPrompt',"case'lesson-filter'","case'lesson-print'","case'lesson-spark'"]){
+for(const name of ['lessonPrintSheet','lessonRecommendationsPanel',"case'lesson-filter'","case'lesson-print'"]){
   assert.ok(html.includes(name),'Integrated activity UI handler missing: '+name);
 }
 const current=data.weeks['2026-11-23'];
@@ -107,4 +109,4 @@ console.log('✓ HTML JavaScript syntax valid');
 console.log('✓ Weekly recommendations grounded in PDF evidence');
 console.log('✓ Lesson action handlers present');
 console.log('✓ Four public Google Sheets shortcuts; two sensitive sheet IDs absent');
-console.log('✓ Integrated 상상 / 이야기 lesson suggestions, teacher guides, printable templates and actions verified');
+console.log('✓ Bulky recommendation panel and idea picker hidden; weekly PDFs and playable tools remain');
