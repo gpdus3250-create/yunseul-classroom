@@ -30,7 +30,13 @@ for p in required:
     if not p.exists():raise RuntimeError(f"GPT-SoVITS pretrained model missing: {p}")
 from GPT_SoVITS.TTS_infer_pack.TTS import TTS,TTS_Config
 config={"custom":dict(TTS_Config.default_configs["v2"],device="cpu",is_half=False)}
-tts=TTS(TTS_Config(config))
+resolved=TTS_Config(config)
+# Avoid repository-relative defaults: weights were downloaded under _gptsovits.
+resolved.t2s_weights_path=str(required[0].resolve())
+resolved.vits_weights_path=str(required[1].resolve())
+resolved.bert_base_path=str((model_dir/"chinese-roberta-wwm-ext-large").resolve())
+resolved.cnhuhbert_base_path=str((model_dir/"chinese-hubert-base").resolve())
+tts=TTS(resolved)
 items=[]
 for grade in range(1,15):
     for n,line in enumerate(manifest["grades"][str(grade)],1): items.append((f"g{grade:02d}_{n:02d}",line))
