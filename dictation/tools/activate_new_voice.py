@@ -17,6 +17,7 @@ VOICE_NAMES={
     "MELO": "MeloTTS · 한국어 낭독",
     "COSY3": "CosyVoice 3 · 자연스러운 선생님",
     "GPTSOVITS": "GPT-SoVITS · 선생님 낭독",
+    "WARM1": "다정한 선생님 · 부드러운 억양 (NEW)",
 }
 a=argparse.ArgumentParser()
 a.add_argument("voice",choices=VOICE_NAMES)
@@ -42,7 +43,7 @@ select=html[start:end]
 if f'value="{voice}"' not in select:
     html=html[:end]+f'\n <optgroup label="새 자연스러운 한국어 목소리"><option value="{voice}">{VOICE_NAMES[voice]}</option></optgroup>'+html[end:]
     # Allow persisted voice choice and changing the selection.
-    expression=r"\['F1','M1','F2','M2','S1'(?:,'(?:MELO|COSY3|GPTSOVITS)')*\]"
+    expression=r"\['F1','M1','F2','M2','S1'(?:,'(?:MELO|COSY3|GPTSOVITS|WARM1)')*\]"
     found=list(re.finditer(expression,html))
     if len(found)!=2: raise SystemExit(f"Unexpected recorded-voice allowlist count: {len(found)}")
     def add(m):
