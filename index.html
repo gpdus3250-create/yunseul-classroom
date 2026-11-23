@@ -149,6 +149,81 @@
 .weekly-view-more{display:inline-flex;align-items:center;color:#684fa8;font-size:12px;font-weight:800;background:#f4effe;border:0;border-radius:13px;padding:10px 13px}
 @media(max-width:760px){.weekly-panel{padding:17px 14px;margin-top:13px}.weekly-preview-home object,.weekly-preview-home iframe{height:380px;min-height:380px}.weekly-preview object,.weekly-preview iframe{min-height:380px;height:65vh}.weekly-title{font-size:18px}.weekly-file-actions{width:100%}.weekly-filebar{align-items:flex-start}}
 
+
+/* Printable 1st-grade worksheet — shared by live preview and print window. */
+.ws-theme-switch{display:flex;gap:11px;flex-wrap:wrap;margin:12px 0 8px}
+.ws-theme-choice{display:flex;align-items:center;gap:11px;flex:1;min-width:185px;padding:12px 14px;text-align:left;background:#fff;border:2px solid #e2d9f3;border-radius:17px;color:#574771;cursor:pointer}
+.ws-theme-choice:hover{border-color:#bca5e7;background:#fdfaff}
+.ws-theme-choice.active{border-color:#8868d4;background:#f7f1ff;box-shadow:0 0 0 3px #eae0ff}
+.ws-theme-choice .ws-theme-symbol{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:13px;font-size:25px}
+.ws-theme-choice.cute .ws-theme-symbol{background:#f1dfff;color:#744da8}
+.ws-theme-choice.simple .ws-theme-symbol{background:#f1f1f3;color:#53535b}
+.ws-theme-choice strong{display:block;font-size:14px}
+.ws-theme-choice small{display:block;margin-top:3px;color:#8b8099;font-size:11px}
+.ws-preview-caption{display:flex;justify-content:space-between;gap:10px;color:#857795;font-size:12px;margin:4px 0 13px;flex-wrap:wrap}
+.ws-preview-frame{max-width:760px;margin:auto;background:#f0edf4;padding:13px;border-radius:16px;overflow:hidden}
+.ws-sheet{font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#332c42;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.ws-sheet *{box-sizing:border-box}
+.ws-sheet.ws-preview{width:100%;margin:0 auto;min-height:780px;padding:26px 27px}
+.ws-sheet.ws-print{width:100%;min-height:253mm;padding:10mm 8mm;break-inside:avoid}
+.ws-sheet.ws-cute{border:2px solid #d3baf0;border-radius:21px;background:linear-gradient(180deg,#faf5ff 0,#fff 10%,#fff 93%,#faf5ff 100%)}
+.ws-sheet.ws-cute:before{content:"";position:absolute;top:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,#e9dbff 0 22px,#fff3cd 22px 44px,#d9eaff 44px 66px,#ffe4eb 66px 88px);opacity:.65;pointer-events:none}
+.ws-sheet.ws-simple{border:1px solid #dedee4;border-radius:5px;background:#fff}
+.ws-header{position:relative;flex:none}
+.ws-sheet.ws-cute .ws-header{padding-top:8px}
+.ws-banner{display:flex;align-items:center;justify-content:center;position:relative;text-align:center;min-height:72px;margin:0 0 12px}
+.ws-cute .ws-banner:before{content:"";position:absolute;inset:3px 17%;background:linear-gradient(135deg,#ead8ff,#f7edff);border:2px dashed #aa86dd;border-radius:45% 42% 35% 40%;transform:rotate(-1deg);z-index:0}
+.ws-cute .ws-banner h1{position:relative;z-index:1;text-align:center;font-size:25px;margin:0;color:#604184;letter-spacing:-.7px;line-height:1.3}
+.ws-simple .ws-banner{min-height:49px;justify-content:flex-start;border-bottom:2px solid #55525c;margin-bottom:14px}
+.ws-simple .ws-banner h1{text-align:left;font-size:24px;font-weight:900;color:#282631;margin:0;letter-spacing:-.6px}
+.ws-bunny{width:64px;height:65px;position:absolute;left:11px;bottom:0;z-index:2}
+.ws-bunny svg{width:100%;height:100%}
+.ws-pencil{position:absolute;right:10px;top:5px;font-size:35px;transform:rotate(20deg);z-index:2}
+.ws-simple .ws-bunny,.ws-simple .ws-pencil{display:none}
+.ws-meta{border-radius:13px;padding:10px 13px;display:flex;justify-content:space-between;gap:11px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:800}
+.ws-cute .ws-meta{border:1.5px solid #cbb3eb;background:#fff}
+.ws-simple .ws-meta{border:1px solid #bbb; border-radius:2px}
+.ws-meta .ws-name{white-space:nowrap;letter-spacing:1px}
+.ws-intro{font-size:12px;padding:10px 12px;margin:15px 0 14px;line-height:1.55}
+.ws-cute .ws-intro{border:1px solid #e4d2f8;border-radius:13px;background:#fbf6ff;color:#665083}
+.ws-simple .ws-intro{border-left:3px solid #62606b;background:#f7f7f7;color:#444}
+.ws-intro strong{margin-right:9px}
+.ws-questions{display:grid;align-content:start;gap:10px;flex:1}
+.ws-questions.ws-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ws-questions.ws-one{grid-template-columns:minmax(0,1fr)}
+.ws-q{min-width:0;display:flex;flex-direction:column;gap:9px;padding:13px 13px 12px;break-inside:avoid;page-break-inside:avoid}
+.ws-cute .ws-q{border:1.5px solid #d9c6f1;border-radius:15px;background:#fff}
+.ws-simple .ws-q{border:1px solid #d4d4d6;border-radius:4px}
+.ws-q-head{display:flex;align-items:flex-start;gap:8px}
+.ws-q-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:12px;font-weight:900}
+.ws-cute .ws-q-num{background:#eedfff;color:#7555a2}
+.ws-simple .ws-q-num{background:#efefef;color:#333;border-radius:3px}
+.ws-q-text{font-size:14px;font-weight:750;line-height:1.7;white-space:pre-line;overflow-wrap:anywhere;word-break:keep-all;min-width:0;flex:1}
+.ws-answer-line{font-size:12px;display:flex;align-items:center;gap:8px;color:#8b78a3;margin-top:auto}
+.ws-answer-line:after{content:"";display:block;width:85px;height:12px;border-bottom:1px dotted #b7a5d0}
+.ws-simple .ws-answer-line{color:#555}
+.ws-simple .ws-answer-line:after{border-bottom-color:#aaa}
+.ws-writing-lines{display:grid;gap:13px;margin-top:auto}
+.ws-writing-lines i{display:block;height:12px;border-bottom:1px dotted #baa9d2}
+.ws-simple .ws-writing-lines i{border-bottom:1px solid #aaa}
+.ws-kind-math .ws-q{min-height:112px}
+.ws-kind-pattern .ws-q{min-height:118px}
+.ws-kind-korean .ws-q{min-height:145px}
+.ws-kind-writing .ws-q{min-height:168px}
+.ws-kind-math .ws-q-text{font-size:18px}
+.ws-kind-pattern .ws-q-text{font-size:14px}
+.ws-kind-korean .ws-q-text{font-size:13px;line-height:2}
+.ws-kind-writing .ws-q-text{font-size:15px}
+.ws-foot{flex:none;display:flex;align-items:center;justify-content:space-between;margin-top:17px;padding:8px 3px 0;border-top:1px dashed #ded2ec;font-size:10px;color:#9988b0}
+.ws-simple .ws-foot{border-top:1px solid #ddd;color:#777}
+.ws-answers .ws-q{min-height:46px;padding:9px}
+.ws-answers .ws-q-text{font-size:13px}
+.ws-answers .ws-questions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.ws-answers .ws-q-num{width:23px;height:23px}
+.ws-print.ws-sheet{border-radius:8px}
+@media(max-width:520px){.ws-sheet.ws-preview{padding:17px 13px;min-height:580px}.ws-banner{min-height:55px}.ws-cute .ws-banner h1{font-size:19px}.ws-simple .ws-banner h1{font-size:19px}.ws-bunny{width:43px;height:46px}.ws-pencil{font-size:25px}.ws-q{padding:9px 8px}.ws-q-text{font-size:12px}.ws-kind-math .ws-q-text{font-size:14px}.ws-meta{font-size:10px}.ws-q-num{width:20px;height:20px;font-size:10px}.ws-questions{gap:7px}.ws-intro{margin:12px 0}}
+@media print{@page{size:A4;margin:12mm}html,body{background:#fff!important}.ws-print.ws-sheet{border-width:1px;min-height:271mm;padding:9mm 8mm;break-inside:avoid;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important}.ws-print.ws-sheet:last-of-type{break-after:auto;page-break-after:auto}.ws-print .ws-banner{min-height:18mm;margin-bottom:3mm}.ws-print .ws-meta{padding:2.5mm 3mm}.ws-print .ws-intro{margin:4mm 0}.ws-print .ws-questions{gap:2.6mm}.ws-print .ws-q{padding:3mm 3.5mm}.ws-print.ws-kind-math .ws-q{min-height:25mm}.ws-print.ws-kind-pattern .ws-q{min-height:27mm}.ws-print.ws-kind-korean .ws-q{min-height:32mm}.ws-print.ws-kind-writing .ws-q{min-height:55mm}.ws-print .ws-q-text{font-size:11pt}.ws-print.ws-kind-math .ws-q-text{font-size:13pt}.ws-print .ws-writing-lines{gap:4mm}.ws-print .ws-foot{margin-top:4mm}.ws-print.ws-answers .ws-q{min-height:12mm;padding:2mm}.ws-sheet.ws-print{width:100%}}
+
 </style>
 </head>
 <body>
@@ -185,7 +260,7 @@ const TOOLS=[
 const DEFAULT={settings:{school:'인천윤슬초등학교',grade:1,room:6,teacher:''},students:[],customReading:{syllable:[],word:[],short:[],long:[]},tasks:[],ideas:[],savedPrompts:[],mediaDocs:[],fitness:[],books:[],gameQuestions:[]};
 function parseState(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')return {...structuredClone(DEFAULT),...v,settings:{...DEFAULT.settings,...(v.settings||{})},customReading:{...DEFAULT.customReading,...(v.customReading||{})}};}catch(e){console.warn('저장된 자료를 읽을 수 없습니다.',e)}return structuredClone(DEFAULT)}
 let db=parseState();
-const ui={view:'home',worksheet:{kind:'math',n:10,difficulty:'normal',items:[],answers:false},reading:{level:'word',index:0,score:0,result:null,options:[]},games:{mode:'random',winner:'',teams:[],oxIndex:0,oxScore:0,oxResult:null,bingo:[],marked:[],speedWord:0,speedOn:false,timeLeft:30,wordIndex:0,wordResult:null,wordOptions:[]},writing:{category:'all',selected:null},math:{category:'mixed',score:0,count:0,problem:null,result:null,hint:false},plannerFilter:'all',media:{mode:'news',draft:'',recording:false},fitnessEdit:null,design:{type:'coupon'},booksFilter:'all'};
+const ui={view:'home',worksheet:{kind:'math',n:10,difficulty:'normal',items:[],answers:false,theme:worksheetSavedTheme()},reading:{level:'word',index:0,score:0,result:null,options:[]},games:{mode:'random',winner:'',teams:[],oxIndex:0,oxScore:0,oxResult:null,bingo:[],marked:[],speedWord:0,speedOn:false,timeLeft:30,wordIndex:0,wordResult:null,wordOptions:[]},writing:{category:'all',selected:null},math:{category:'mixed',score:0,count:0,problem:null,result:null,hint:false},plannerFilter:'all',media:{mode:'news',draft:'',recording:false},fitnessEdit:null,design:{type:'coupon'},booksFilter:'all'};
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 const safe=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -546,8 +621,100 @@ function makeQuestions(kind,n,difficulty){let items=[];let max=difficulty==='eas
 else if(kind==='pattern'){let seed=rnd(1,6),step=rnd(1,difficulty==='hard'?4:2),sequence=Array.from({length:5},(_,j)=>seed+j*step);let missing=rnd(1,4);let correct=sequence[missing];sequence[missing]='□';items.push({text:`규칙을 찾아 빈칸에 알맞은 수를 쓰세요.  ${sequence.join('  →  ')}`,answer:String(correct)})}
 else if(kind==='korean'){const [correct,wrong]=KOREAN_ITEMS[i%KOREAN_ITEMS.length];const flip=Math.random()>.5;const opts=flip?[wrong,correct]:[correct,wrong];items.push({text:`바르게 띄어 쓴 문장에 ○표 하세요.\n  ① ${opts[0]}\n  ② ${opts[1]}`,answer:flip?'②':'①'})}
 else {items.push({text:`${WRITE_TOPICS[i%WRITE_TOPICS.length]}에 대해 두세 문장으로 써 보세요.`,answer:'자유 응답'})}}return items}
-function renderWorksheet(){const w=ui.worksheet;let list=w.items.map((q,i)=>`<li style="white-space:pre-line"><b>${i+1}.</b> ${safe(q.text)} ${['math','pattern'].includes(w.kind)?'<span class="answer-space"></span>':''}</li>`).join('');return heading('📝','학습지 자동 제작소','난이도와 문항 수를 정하고 A4 학습지를 출력해요.')+shell('학습지 설정',`<div class="form-row">${hField('종류',`<select name="worksheet-kind">${selectOptions([['math','덧셈·뺄셈'],['pattern','규칙 찾기'],['korean','국어 띄어쓰기'],['writing','문장 쓰기']],w.kind)}</select>`)}${hField('난이도',`<select name="worksheet-difficulty">${selectOptions([['easy','쉬움'],['normal','보통'],['hard','도전']],w.difficulty)}</select>`)}${hField('문제 수',`<select name="worksheet-count">${selectOptions([[10,'10문제'],[20,'20문제'],[30,'30문제'],[40,'40문제']],w.n)}</select>`)}<button class="btn" data-act="worksheet-generate">✨ 새 학습지 만들기</button></div><p class="small-hint">문항은 프로그램 안의 학습 예시와 규칙에 따라 만들어집니다. 중요한 평가는 교사가 검토한 뒤 사용해 주세요.</p>`)+shell('인쇄 미리보기',w.items.length?`<div class="paper-preview"><div class="paper-meta"><span>${safe(db.settings.school||'우리 학교')} · ${safe(db.settings.grade)}학년 ${safe(db.settings.room)}반</span><span>이름: (　　　　　　　)</span></div><div class="hr"></div><div class="paper-title">${{math:'즐거운 덧셈·뺄셈',pattern:'재미있는 규칙 찾기',korean:'바른 문장 찾기',writing:'생각을 문장으로'}[w.kind]} 🐰</div><ol class="questions" style="list-style:none;padding-left:0">${list}</ol></div><div class="btn-group" style="margin-top:18px"><button class="btn" data-act="worksheet-print">🖨️ 학습지 인쇄 / PDF 저장</button><button class="btn outline" data-act="worksheet-answer">정답표 보기</button></div>${w.answers?`<div class="result">${w.items.map((q,i)=>`${i+1}. ${safe(q.answer)}`).join('　 /　 ')}</div>`:''}`:blank('설정을 고르고 「새 학습지 만들기」를 눌러 주세요.'))}
-function printWorksheet(){const w=ui.worksheet;if(!w.items.length)return;const title={math:'덧셈·뺄셈',pattern:'규칙 찾기',korean:'바른 문장 찾기',writing:'생각을 문장으로'}[w.kind]+' 학습지';const head=`<div class="meta"><span>${safe(db.settings.school||'우리 학교')} · ${safe(db.settings.grade)}학년 ${safe(db.settings.room)}반</span><span>번호 (　　) 이름 (　　　　　　　)</span></div>`;const qs=`<h1>🌷 ${safe(title)}</h1>${head}<ol class="questions">${w.items.map(q=>`<li style="white-space:pre-line">${safe(q.text)} ${['math','pattern'].includes(w.kind)?'<span class="answer-space"></span>':''}</li>`).join('')}</ol>`;const as=`<div class="pagebreak"><h1>${safe(title)} · 정답표</h1>${head}<ol class="questions">${w.items.map(q=>`<li>${safe(q.answer)}</li>`).join('')}</ol></div>`;printHTML(title,qs+as)}
+
+const WORKSHEET_PRINT_CSS="\n/* Printable 1st-grade worksheet — shared by live preview and print window. */\n.ws-theme-switch{display:flex;gap:11px;flex-wrap:wrap;margin:12px 0 8px}\n.ws-theme-choice{display:flex;align-items:center;gap:11px;flex:1;min-width:185px;padding:12px 14px;text-align:left;background:#fff;border:2px solid #e2d9f3;border-radius:17px;color:#574771;cursor:pointer}\n.ws-theme-choice:hover{border-color:#bca5e7;background:#fdfaff}\n.ws-theme-choice.active{border-color:#8868d4;background:#f7f1ff;box-shadow:0 0 0 3px #eae0ff}\n.ws-theme-choice .ws-theme-symbol{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:13px;font-size:25px}\n.ws-theme-choice.cute .ws-theme-symbol{background:#f1dfff;color:#744da8}\n.ws-theme-choice.simple .ws-theme-symbol{background:#f1f1f3;color:#53535b}\n.ws-theme-choice strong{display:block;font-size:14px}\n.ws-theme-choice small{display:block;margin-top:3px;color:#8b8099;font-size:11px}\n.ws-preview-caption{display:flex;justify-content:space-between;gap:10px;color:#857795;font-size:12px;margin:4px 0 13px;flex-wrap:wrap}\n.ws-preview-frame{max-width:760px;margin:auto;background:#f0edf4;padding:13px;border-radius:16px;overflow:hidden}\n.ws-sheet{font-family:\"Apple SD Gothic Neo\",\"Malgun Gothic\",sans-serif;color:#332c42;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden}\n.ws-sheet *{box-sizing:border-box}\n.ws-sheet.ws-preview{width:100%;margin:0 auto;min-height:780px;padding:26px 27px}\n.ws-sheet.ws-print{width:100%;min-height:253mm;padding:10mm 8mm;break-inside:avoid}\n.ws-sheet.ws-cute{border:2px solid #d3baf0;border-radius:21px;background:linear-gradient(180deg,#faf5ff 0,#fff 10%,#fff 93%,#faf5ff 100%)}\n.ws-sheet.ws-cute:before{content:\"\";position:absolute;top:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,#e9dbff 0 22px,#fff3cd 22px 44px,#d9eaff 44px 66px,#ffe4eb 66px 88px);opacity:.65;pointer-events:none}\n.ws-sheet.ws-simple{border:1px solid #dedee4;border-radius:5px;background:#fff}\n.ws-header{position:relative;flex:none}\n.ws-sheet.ws-cute .ws-header{padding-top:8px}\n.ws-banner{display:flex;align-items:center;justify-content:center;position:relative;text-align:center;min-height:72px;margin:0 0 12px}\n.ws-cute .ws-banner:before{content:\"\";position:absolute;inset:3px 17%;background:linear-gradient(135deg,#ead8ff,#f7edff);border:2px dashed #aa86dd;border-radius:45% 42% 35% 40%;transform:rotate(-1deg);z-index:0}\n.ws-cute .ws-banner h1{position:relative;z-index:1;text-align:center;font-size:25px;margin:0;color:#604184;letter-spacing:-.7px;line-height:1.3}\n.ws-simple .ws-banner{min-height:49px;justify-content:flex-start;border-bottom:2px solid #55525c;margin-bottom:14px}\n.ws-simple .ws-banner h1{text-align:left;font-size:24px;font-weight:900;color:#282631;margin:0;letter-spacing:-.6px}\n.ws-bunny{width:64px;height:65px;position:absolute;left:11px;bottom:0;z-index:2}\n.ws-bunny svg{width:100%;height:100%}\n.ws-pencil{position:absolute;right:10px;top:5px;font-size:35px;transform:rotate(20deg);z-index:2}\n.ws-simple .ws-bunny,.ws-simple .ws-pencil{display:none}\n.ws-meta{border-radius:13px;padding:10px 13px;display:flex;justify-content:space-between;gap:11px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:800}\n.ws-cute .ws-meta{border:1.5px solid #cbb3eb;background:#fff}\n.ws-simple .ws-meta{border:1px solid #bbb; border-radius:2px}\n.ws-meta .ws-name{white-space:nowrap;letter-spacing:1px}\n.ws-intro{font-size:12px;padding:10px 12px;margin:15px 0 14px;line-height:1.55}\n.ws-cute .ws-intro{border:1px solid #e4d2f8;border-radius:13px;background:#fbf6ff;color:#665083}\n.ws-simple .ws-intro{border-left:3px solid #62606b;background:#f7f7f7;color:#444}\n.ws-intro strong{margin-right:9px}\n.ws-questions{display:grid;align-content:start;gap:10px;flex:1}\n.ws-questions.ws-two{grid-template-columns:repeat(2,minmax(0,1fr))}\n.ws-questions.ws-one{grid-template-columns:minmax(0,1fr)}\n.ws-q{min-width:0;display:flex;flex-direction:column;gap:9px;padding:13px 13px 12px;break-inside:avoid;page-break-inside:avoid}\n.ws-cute .ws-q{border:1.5px solid #d9c6f1;border-radius:15px;background:#fff}\n.ws-simple .ws-q{border:1px solid #d4d4d6;border-radius:4px}\n.ws-q-head{display:flex;align-items:flex-start;gap:8px}\n.ws-q-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:12px;font-weight:900}\n.ws-cute .ws-q-num{background:#eedfff;color:#7555a2}\n.ws-simple .ws-q-num{background:#efefef;color:#333;border-radius:3px}\n.ws-q-text{font-size:14px;font-weight:750;line-height:1.7;white-space:pre-line;overflow-wrap:anywhere;word-break:keep-all;min-width:0;flex:1}\n.ws-answer-line{font-size:12px;display:flex;align-items:center;gap:8px;color:#8b78a3;margin-top:auto}\n.ws-answer-line:after{content:\"\";display:block;width:85px;height:12px;border-bottom:1px dotted #b7a5d0}\n.ws-simple .ws-answer-line{color:#555}\n.ws-simple .ws-answer-line:after{border-bottom-color:#aaa}\n.ws-writing-lines{display:grid;gap:13px;margin-top:auto}\n.ws-writing-lines i{display:block;height:12px;border-bottom:1px dotted #baa9d2}\n.ws-simple .ws-writing-lines i{border-bottom:1px solid #aaa}\n.ws-kind-math .ws-q{min-height:112px}\n.ws-kind-pattern .ws-q{min-height:118px}\n.ws-kind-korean .ws-q{min-height:145px}\n.ws-kind-writing .ws-q{min-height:168px}\n.ws-kind-math .ws-q-text{font-size:18px}\n.ws-kind-pattern .ws-q-text{font-size:14px}\n.ws-kind-korean .ws-q-text{font-size:13px;line-height:2}\n.ws-kind-writing .ws-q-text{font-size:15px}\n.ws-foot{flex:none;display:flex;align-items:center;justify-content:space-between;margin-top:17px;padding:8px 3px 0;border-top:1px dashed #ded2ec;font-size:10px;color:#9988b0}\n.ws-simple .ws-foot{border-top:1px solid #ddd;color:#777}\n.ws-answers .ws-q{min-height:46px;padding:9px}\n.ws-answers .ws-q-text{font-size:13px}\n.ws-answers .ws-questions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}\n.ws-answers .ws-q-num{width:23px;height:23px}\n.ws-print.ws-sheet{border-radius:8px}\n@media(max-width:520px){.ws-sheet.ws-preview{padding:17px 13px;min-height:580px}.ws-banner{min-height:55px}.ws-cute .ws-banner h1{font-size:19px}.ws-simple .ws-banner h1{font-size:19px}.ws-bunny{width:43px;height:46px}.ws-pencil{font-size:25px}.ws-q{padding:9px 8px}.ws-q-text{font-size:12px}.ws-kind-math .ws-q-text{font-size:14px}.ws-meta{font-size:10px}.ws-q-num{width:20px;height:20px;font-size:10px}.ws-questions{gap:7px}.ws-intro{margin:12px 0}}\n@media print{@page{size:A4;margin:12mm}html,body{background:#fff!important}.ws-print.ws-sheet{border-width:1px;min-height:271mm;padding:9mm 8mm;break-inside:avoid;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important}.ws-print.ws-sheet:last-of-type{break-after:auto;page-break-after:auto}.ws-print .ws-banner{min-height:18mm;margin-bottom:3mm}.ws-print .ws-meta{padding:2.5mm 3mm}.ws-print .ws-intro{margin:4mm 0}.ws-print .ws-questions{gap:2.6mm}.ws-print .ws-q{padding:3mm 3.5mm}.ws-print.ws-kind-math .ws-q{min-height:25mm}.ws-print.ws-kind-pattern .ws-q{min-height:27mm}.ws-print.ws-kind-korean .ws-q{min-height:32mm}.ws-print.ws-kind-writing .ws-q{min-height:55mm}.ws-print .ws-q-text{font-size:11pt}.ws-print.ws-kind-math .ws-q-text{font-size:13pt}.ws-print .ws-writing-lines{gap:4mm}.ws-print .ws-foot{margin-top:4mm}.ws-print.ws-answers .ws-q{min-height:12mm;padding:2mm}.ws-sheet.ws-print{width:100%}}\n";
+const WS_THEME_KEY='yunseul_ws_theme_v2';
+function worksheetSavedTheme(){
+ try{return localStorage.getItem(WS_THEME_KEY)==='simple'?'simple':'cute'}catch(e){return 'cute'}
+}
+const WS_BUNNY='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 76" aria-hidden="true"><path d="M17 40 C9 14 12 2 23 5 C31 8 34 27 33 36 C42 18 48 1 59 7 C67 14 59 33 50 42" fill="#fff" stroke="#906db8" stroke-width="2.5"/><path d="M22 13 Q26 26 27 33 M54 14 Q48 24 44 34" stroke="#f6c4d8" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse cx="36" cy="54" rx="30" ry="22" fill="#fff" stroke="#906db8" stroke-width="2.5"/><path d="M22 52 q3 -5 6 0 M43 52 q3 -5 6 0" stroke="#5e4771" stroke-linecap="round" stroke-width="2.6" fill="none"/><circle cx="19" cy="59" r="5" fill="#ffc3d3"/><circle cx="54" cy="59" r="5" fill="#ffc3d3"/><path d="M32 60 q4 5 8 0" stroke="#cd789d" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+function worksheetTitle(kind){
+ return ({math:'즐거운 덧셈과 뺄셈',pattern:'반짝반짝 규칙 찾기',korean:'바른 문장 찾기',writing:'생각을 문장으로'})[kind]||'우리 반 학습지';
+}
+function worksheetPageSize(kind){return ({math:10,pattern:8,korean:6,writing:3})[kind]||10}
+function worksheetQuestionText(q,kind){
+ if(kind==='pattern'){
+  const parts=String(q.text||'').split('  ');
+  return parts.length>1?parts.slice(1).join('  '):String(q.text||'');
+ }
+ return String(q.text||'');
+}
+function worksheetSheetMarkup(w,items,start,totalPages,pageNo,answerKey,forPrint){
+ const theme=w.theme==='simple'?'simple':'cute';
+ const isTwo=!answerKey&&(w.kind==='math'||w.kind==='pattern');
+ const columns=answerKey||isTwo?'ws-two':'ws-one';
+ const title=answerKey?'정답 확인':worksheetTitle(w.kind);
+ const classLine=safe(db.settings.grade||1)+'학년 (   )반 (   )번';
+ const safeItems=items.map(function(q,index){
+  const num=start+index+1;
+  const text=answerKey?String(q.answer):worksheetQuestionText(q,w.kind);
+  const answer=answerKey?'':(
+   (w.kind==='math'||w.kind==='pattern')?'<div class="ws-answer-line">답</div>':
+   w.kind==='writing'?'<div class="ws-writing-lines"><i></i><i></i><i></i></div>':''
+  );
+  return '<div class="ws-q"><div class="ws-q-head"><span class="ws-q-num">'+num+'</span><span class="ws-q-text">'+safe(text)+'</span></div>'+answer+'</div>';
+ }).join('');
+ const intro=answerKey?'선생님이 확인하는 정답표입니다.':
+  w.kind==='math'?'식을 살펴보고 알맞은 답을 써 보세요.':
+  w.kind==='pattern'?'규칙을 찾아 빈칸에 알맞은 수를 써 보세요.':
+  w.kind==='korean'?'바르게 띄어 쓴 문장을 찾아 ○표 하세요.':
+  '내 생각을 떠올리고 두세 문장으로 써 보세요.';
+ const className='ws-sheet ws-'+theme+' ws-kind-'+w.kind+(answerKey?' ws-answers':'')+(forPrint?' ws-print':' ws-preview');
+ return '<section class="'+className+'">'+
+   '<div class="ws-header"><div class="ws-banner">'+
+   (theme==='cute'?'<span class="ws-bunny">'+WS_BUNNY+'</span><span class="ws-pencil" aria-hidden="true">✏️</span>':'')+
+   '<h1>'+safe(title)+'</h1></div>'+
+   '<div class="ws-meta"><span>'+classLine+'</span><span class="ws-name">이름 (　　　　　　　)</span></div></div>'+
+   '<div class="ws-intro"><strong>'+(theme==='cute'?'🌟 오늘의 활동':'활동')+'</strong>'+safe(intro)+'</div>'+
+   '<div class="ws-questions '+columns+'">'+safeItems+'</div>'+
+   '<div class="ws-foot"><span>'+(theme==='cute'?'♡ 우리 반의 반짝이는 배움 ♡':'우리 반 학습지')+'</span><span>'+pageNo+' / '+totalPages+'</span></div></section>';
+}
+function worksheetOutputPages(w){
+ const per=worksheetPageSize(w.kind);
+ const total=Math.ceil(w.items.length/per);
+ const pages=[];
+ for(let i=0;i<total;i++){
+  pages.push(worksheetSheetMarkup(w,w.items.slice(i*per,(i+1)*per),i*per,total,i+1,false,true));
+ }
+ if(w.kind!=='writing'){
+  const answerPer=30,totalAns=Math.ceil(w.items.length/answerPer);
+  for(let i=0;i<totalAns;i++){
+   pages.push(worksheetSheetMarkup(w,w.items.slice(i*answerPer,(i+1)*answerPer),i*answerPer,totalAns,i+1,true,true));
+  }
+ }
+ return pages;
+}
+function worksheetThemeChooser(w){
+ return '<div class="ws-theme-switch" role="group" aria-label="학습지 디자인 선택">'+
+  '<button type="button" class="ws-theme-choice cute '+(w.theme==='cute'?'active':'')+'" data-act="worksheet-theme" data-id="cute" aria-pressed="'+(w.theme==='cute')+'"><span class="ws-theme-symbol">🐰</span><span><strong>귀여운 연보라</strong><small>토끼 · 구름 · 둥근 카드</small></span></button>'+
+  '<button type="button" class="ws-theme-choice simple '+(w.theme==='simple'?'active':'')+'" data-act="worksheet-theme" data-id="simple" aria-pressed="'+(w.theme==='simple')+'"><span class="ws-theme-symbol">▤</span><span><strong>심플한 디자인</strong><small>흑백 인쇄 · 잉크 절약</small></span></button></div>';
+}
+function renderWorksheet(){
+ const w=ui.worksheet;
+ const pageSize=worksheetPageSize(w.kind);
+ const pages=Math.ceil(w.items.length/pageSize);
+ const answerPages=w.kind==='writing'?0:Math.ceil(w.items.length/30);
+ return heading('📝','학습지 자동 제작소','같은 문제도 원하는 디자인으로 바꾸고 미리 본 뒤 인쇄해요.')+
+ shell('학습지 설정','<div class="form-row">'+
+ hField('종류','<select name="worksheet-kind">'+selectOptions([['math','덧셈·뺄셈'],['pattern','규칙 찾기'],['korean','국어 띄어쓰기'],['writing','문장 쓰기']],w.kind)+'</select>')+
+ hField('난이도','<select name="worksheet-difficulty">'+selectOptions([['easy','쉬움'],['normal','보통'],['hard','도전']],w.difficulty)+'</select>')+
+ hField('문제 수','<select name="worksheet-count">'+selectOptions([[10,'10문제'],[20,'20문제'],[30,'30문제'],[40,'40문제']],w.n)+'</select>')+
+ '<button class="btn" data-act="worksheet-generate">✨ 새 학습지 만들기</button></div>'+
+ '<div style="margin-top:15px"><strong>🎨 인쇄 디자인 선택</strong>'+worksheetThemeChooser(w)+'</div>'+
+ '<p class="small-hint">디자인을 바꿔도 이미 생성한 문제는 그대로 유지돼요. 실제 인쇄/PDF에도 선택한 디자인이 적용돼요.</p>')+
+ shell('A4 인쇄 미리보기',w.items.length?
+ '<div class="ws-preview-caption"><span>1쪽 미리보기 · '+w.items.length+'문제</span><span>학습지 '+pages+'쪽'+(answerPages?' + 정답표 '+answerPages+'쪽':'')+'</span></div>'+
+ '<div class="ws-preview-frame">'+worksheetSheetMarkup(w,w.items.slice(0,pageSize),0,pages,1,false,false)+'</div>'+
+ '<div class="btn-group" style="margin-top:18px"><button class="btn" data-act="worksheet-print">🖨️ 선택한 디자인으로 인쇄 / PDF 저장</button><button class="btn outline" data-act="worksheet-answer">정답표 보기</button></div>'+
+ (w.answers?'<div class="result">'+w.items.map((q,i)=>(i+1)+'. '+safe(q.answer)).join('　 /　 ')+'</div>':'')
+ :blank('설정을 고르고 「새 학습지 만들기」를 눌러 주세요.'));
+}
+function printWorksheet(){
+ const w=ui.worksheet;
+ if(!w.items.length)return;
+ const body='<style>'+WORKSHEET_PRINT_CSS+'</style>'+worksheetOutputPages(w).join('');
+ printHTML(worksheetTitle(w.kind)+' 학습지',body);
+}
 
 // 2. 읽기 왕국
 const READING_POOLS={syllable:['가','나','다','라','마','바','사','아','자','차','카','타','파','하','고','무','비','해'],word:['학교','친구','사과','나무','바다','꽃밭','구름','토끼','연필','우산','무지개','공원','강아지','선생님','놀이터'],short:['나는 밥을 먹어요.','친구와 함께 놀아요.','하늘이 참 맑아요.','새가 노래를 불러요.','강아지가 달려가요.','우산을 꼭 챙겨요.','책을 소리 내어 읽어요.','엄마와 산책을 해요.','오늘은 기분이 좋아요.'],long:['친구가 넘어져서 손을 잡아 주었어요.','우리 반 친구들과 함께 나무를 심었어요.','나는 도서관에서 재미있는 책을 빌렸어요.','비가 그치자 하늘에 예쁜 무지개가 떴어요.','아침에 일어나 창문을 열고 바람을 느꼈어요.','우리는 서로 다른 생각을 존중할 수 있어요.']};
@@ -692,6 +859,7 @@ case'weekly-pick':weeklyState.selectedWeek=id;render();break;
 case'weekly-save-url':weeklySaveLink();break;
 case'weekly-delete':weeklyRemove();break;
 case'worksheet-generate':{const w=ui.worksheet;w.kind=attr('worksheet-kind');w.n=Number(attr('worksheet-count'));w.difficulty=attr('worksheet-difficulty');w.items=makeQuestions(w.kind,w.n,w.difficulty);w.answers=false;render();toast(`${w.n}문제 학습지를 만들었어요!`);break}
+case'worksheet-theme':if(id==='cute'||id==='simple'){ui.worksheet.theme=id;try{localStorage.setItem(WS_THEME_KEY,id)}catch(e){}render();}break;
 case'worksheet-print':printWorksheet();break;
 case'worksheet-answer':ui.worksheet.answers=!ui.worksheet.answers;render();break;
 case'reading-level':ui.reading.level=id;readingQuestion(true);render();break;
