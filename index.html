@@ -738,7 +738,7 @@ function worksheetRerollOne(index){
  const used=new Set(w.items.filter((_,i)=>i!==index).map(x=>x.text));
  let next=null;
  for(let i=0;i<35;i++){
-  next=w.kind==='math'?worksheetMathQuestion(w,q.mode==='word'?'word':'equation',used):
+  next=w.kind==='math'?worksheetMathQuestion(w,worksheetQuestionMode(q,'math')==='word'?'word':'equation',used):
    worksheetNewQuestion(w.kind,w.difficulty,w,used,index+i);
   if(next&&!used.has(next.text)&&next.text!==q.text)break;
  }
@@ -1155,6 +1155,60 @@ case'worksheet-generate':{
  break;
 }
 case'worksheet-theme':if(id==='cute'||id==='simple'){ui.worksheet.theme=id;try{localStorage.setItem(WS_THEME_KEY,id)}catch(e){}render();}break;
+case'worksheet-reroll':{
+ const i=Number(id);if(Number.isInteger(i)&&i>=0)worksheetRerollOne(i);break;
+}
+case'worksheet-edit':{
+ const i=Number(id),w=ui.worksheet;
+ if(!Number.isInteger(i)||!w.items[i])break;
+ w.editIndex=w.editIndex===i?null:i;render();
+ if(w.editIndex===i)requestAnimationFrame(()=>document.getElementById('ws-edit-text-'+i)?.focus({preventScroll:true}));
+ break;
+}
+case'worksheet-save-one':{
+ const i=Number(id),w=ui.worksheet;
+ const question=w.items[i];
+ if(!Number.isInteger(i)||!question)break;
+ const questionEl=document.getElementById('ws-edit-text-'+i);
+ const answerEl=document.getElementById('ws-edit-answer-'+i);
+ if(!questionEl||!answerEl)break;
+ const newText=questionEl.value.trim(),newAnswer=answerEl.value.trim();
+ if(!newText){toast('문제 내용을 입력해 주세요.');questionEl.focus();break;}
+ if(w.kind!=='writing'&&!newAnswer){toast('정답을 입력해 주세요.');answerEl.focus();break;}
+ if(newText.length>450){toast('문제가 너무 길어요. 450글자 이하로 정리해 주세요.');break;}
+ question.text=newText;
+ question.answer=newAnswer||'자유 응답';
+ question.edited=true;
+ question.mode=worksheetQuestionMode(question,w.kind);
+ w.answers=false;w.editIndex=null;
+ render();toast((i+1)+'번 문제를 수정했어요.');
+ break;
+}
+case'worksheet-remove':{
+ const i=Number(id),w=ui.worksheet;
+ if(!Number.isInteger(i)||i<0||i>=w.items.length)break;
+ w.items.splice(i,1);w.n=w.items.length;w.previewPage=0;w.editIndex=null;w.answers=false;
+ render();toast((i+1)+'번 문제를 삭제했어요.');
+ break;
+}
+case'worksheet-add':{
+ const w=ui.worksheet;
+ if(w.items.length>=40){toast('한 번에 최대 40문제까지 만들 수 있어요.');break}
+ const used=new Set(w.items.map(x=>x.text));
+ const wordCount=w.kind==='math'?w.items.filter(q=>worksheetQuestionMode(q,'math')==='word').length:0;
+ const desired=w.kind==='math'?Math.round((w.items.length+1)*w.wordRatio/10):0;
+ let next=w.kind==='math'?worksheetMathQuestion(w,wordCount<desired?'word':'equation',used):
+  worksheetNewQuestion(w.kind,w.difficulty,w,used,w.items.length);
+ if(!next){toast('이 조건으로 문제를 만들 수 없어요. 설정을 바꿔 주세요.');break;}
+ w.items.push(next);w.n=w.items.length;w.previewPage=worksheetPaginate(w).length-1;w.answers=false;render();
+ toast('문제를 하나 추가했어요.');
+ break;
+}
+case'worksheet-preview-page':{
+ const i=Number(id),w=ui.worksheet;
+ if(Number.isInteger(i)&&i>=0&&i<worksheetPaginate(w).length){w.previewPage=i;render();}
+ break;
+}
 case'worksheet-print':printWorksheet();break;
 case'worksheet-answer':ui.worksheet.answers=!ui.worksheet.answers;render();break;
 case'reading-level':ui.reading.level=id;readingQuestion(true);render();break;
@@ -1220,7 +1274,27 @@ default:console.warn('알 수 없는 버튼',name)
 }}
 
 document.addEventListener('click',e=>{const dest=e.target.closest('[data-view]');if(dest){e.preventDefault();navigate(dest.dataset.view);return}const btn=e.target.closest('[data-act]');if(btn){e.preventDefault();try{action(btn.dataset.act,btn.dataset.id??btn.dataset.answer??'')}catch(ex){console.error(ex);toast('작동 중 문제가 발생했어요. 화면을 새로고침해 주세요.')}}});
+document.addEventListener('input',e=>{
+ const el=e.target;
+ if(el.name==='worksheet-word-ratio'){
+  const ratio=Math.max(0,Math.min(10,Number(el.value)||0));
+  ui.worksheet.wordRatio=ratio;
+  const target=document.getElementById('ws-ratio-text');
+  if(target)target.textContent='계산식 '+(10-ratio)+' : 문장제 '+ratio;
+ }
+});
 document.addEventListener('change',async e=>{const el=e.target;
+if(el.name==='worksheet-kind'){
+ const w=ui.worksheet;
+ if(w.kind!==el.value){w.kind=el.value;w.items=[];w.n=10;w.previewPage=0;w.editIndex=null;w.answers=false;render();}
+ return;
+}
+if(el.name==='worksheet-purpose'){
+ ui.worksheet.purpose=el.value;ui.worksheet.previewPage=0;render();return;
+}
+if(el.name==='worksheet-page-mode'){
+ ui.worksheet.pageMode=el.value;ui.worksheet.previewPage=0;render();return;
+}
 if(el.id==='weekly-file'&&el.files?.[0]){await weeklyHandleFile(el.files[0]);return}
 if(el.id==='weekly-date-picker'&&el.value){weeklyState.selectedWeek=weeklyWeek(new Date(el.value+'T12:00:00+09:00'));render();return}
 if(el.dataset.change==='task-toggle'){const task=db.tasks.find(t=>t.id===el.dataset.id);if(task){task.done=el.checked;save();render()}}
