@@ -644,7 +644,7 @@ function worksheetSheetMarkup(w,items,start,totalPages,pageNo,answerKey,forPrint
  const isTwo=!answerKey&&(w.kind==='math'||w.kind==='pattern');
  const columns=answerKey||isTwo?'ws-two':'ws-one';
  const title=answerKey?'정답 확인':worksheetTitle(w.kind);
- const classLine=safe(db.settings.grade||1)+'학년 (   )반 (   )번';
+ const classLine=safe(db.settings.grade||1)+'학년 (<span style="display:inline-block;width:19mm;height:1em;vertical-align:-.12em"></span>)반 (<span style="display:inline-block;width:13mm;height:1em;vertical-align:-.12em"></span>)번';
  const safeItems=items.map(function(q,index){
   const num=start+index+1;
   const text=answerKey?String(q.answer):worksheetQuestionText(q,w.kind);
