@@ -27,8 +27,7 @@ with tempfile.NamedTemporaryFile(mode="w",suffix=".js",encoding="utf-8") as f:
 from melo.api import TTS
 import soundfile as sf
 model=TTS(language="KR",device="cpu")
-speaker=model.hps.data.spk2id.get("KR")
-if speaker is None: speaker=next(iter(model.hps.data.spk2id.values()))
+speaker=model.hps.data.spk2id["KR"]
 out=ROOT/"voice"/"MELO"
 out.mkdir(parents=True,exist_ok=True)
 sentences=[]
