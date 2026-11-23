@@ -133,7 +133,7 @@ assert.ok(simple.includes('ws-sheet ws-simple'),'Simple sheet preview missing');
 assert.ok(!simple.includes('<span class="ws-bunny">'),'Simple design should omit illustration');
 vm.runInContext('printWorksheet()',wsContext,{timeout:1000});
 assert.ok(wsContext.lastPrinted.body.includes('ws-sheet ws-simple'),'Printable simple design missing');
-assert.equal((wsContext.lastPrinted.body.match(/ws-purpose-class ws-print"/g)||[]).length,2,
+assert.equal((wsContext.lastPrinted.body.match(/ws-purpose-class(?: ws-continuation)? ws-print"/g)||[]).length,2,
   'Auto mode must split 11 equations across two student pages');
 assert.ok(wsContext.lastPrinted.body.includes('ws-answers'),'Printable answer key missing');
 wsObj.theme='cute';wsObj.pageMode='one';wsObj.wordRatio=2;
