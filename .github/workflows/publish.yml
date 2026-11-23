@@ -18,8 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check homepage script and weekly lesson recommendations
-        run: node scripts/site_smoke.cjs
+      - name: Check homepage and dictation app scripts
+        run: |
+          node scripts/site_smoke.cjs
+          node scripts/dictation_smoke.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
