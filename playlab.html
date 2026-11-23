@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8f74d6">
+<title>상상·이야기 게임랜드 | 우리 반 놀이터</title>
+<style>
+:root{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;color:#46395e;background:#f9f6ff;--purple:#8062cb;--line:#e4d9f8;--shadow:0 12px 32px #654a9816}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 90% 3%,#fff0b8 0,transparent 22%),radial-gradient(circle at 2% 20%,#ede3ff 0,transparent 34%),#f9f6ff}button,a{font:inherit}button{cursor:pointer}a{color:inherit}button:focus-visible,a:focus-visible{outline:3px solid #f4bd56;outline-offset:3px}.shell{max-width:1120px;margin:auto;padding:20px 22px 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0 24px}.back{color:#7153a5;text-decoration:none;background:white;border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:13px;font-weight:900}.tag{background:#f4eaff;color:#7d5bb4;border-radius:30px;padding:8px 12px;font-size:12px;font-weight:800}h1,h2,h3,p{margin:0}h1{font-size:clamp(27px,5vw,43px);letter-spacing:-1.7px;color:#5b3c90}h2{font-size:clamp(21px,3vw,30px);color:#61469b;letter-spacing:-.7px}h3{font-size:19px;color:#684a9d}p{line-height:1.6}.subtitle{font-size:14px;color:#817395;margin:9px 0 19px}.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:24px 0}.tab{border:1px solid #e0d4f6;border-radius:18px;background:white;color:#70568e;padding:15px 5px;font-size:12px;font-weight:850;box-shadow:0 4px 12px #8775a80b}.tab strong{display:block;font-size:24px;margin-bottom:5px}.tab.active{border-color:#8f75d7;background:#8466cc;color:white;box-shadow:0 8px 23px #7658c43d}.card{background:#fff;border-radius:27px;border:1px solid #e9dff8;box-shadow:var(--shadow);padding:26px;margin:17px 0}.game-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}.game-head p{font-size:13px;color:#8b7a9c;margin-top:6px}.score{display:inline-flex;align-items:center;gap:6px;background:#fff3d8;color:#865c13;border-radius:50px;padding:9px 15px;font-size:13px;font-weight:900}.question{background:linear-gradient(130deg,#f5efff,#fcfaff);border:1px solid #e9ddff;border-radius:24px;padding:27px 20px;text-align:center;margin:20px 0;font-size:clamp(23px,4vw,33px);font-weight:850;line-height:1.5;min-height:130px;display:grid;place-items:center}.answers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.answer{background:#fff;border:2px solid #e7def8;border-radius:18px;min-height:105px;padding:16px;font-size:clamp(15px,2vw,20px);font-weight:850;color:#685287}.answer:hover:not(:disabled){background:#f7f1ff;border-color:#b69aee}.answer:disabled{cursor:default}.answer.correct{background:#e7faef;border-color:#7dc999;color:#277049}.answer.wrong{background:#fff0f0;border-color:#edacaa;color:#a0454c}.feedback{min-height:55px;margin:17px 0 6px;font-size:18px;font-weight:850;text-align:center;color:#7955ae}.buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:18px 0 0}.btn{border:0;background:#8062cc;color:white;border-radius:15px;padding:14px 22px;font-size:15px;font-weight:900;min-height:49px}.btn:hover{background:#7151bc}.btn.secondary{background:#f0eaff;color:#7759b1}.btn.cream{background:#fff0ce;color:#88611c}.toolset{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0}.tool{border:2px solid #e4dbf4;border-radius:14px;padding:10px 14px;background:white;font-size:15px;font-weight:800;color:#6b538c;min-width:81px}.tool.active{background:#eae2fc;border-color:#9776d3}.tool span{display:block;font-size:29px;margin-bottom:3px}.playground{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:720px;margin:auto;background:linear-gradient(120deg,#e9f9e4,#def8ee);border:5px solid #a1d99c;border-radius:28px;padding:16px;min-height:330px}.tile{background:#ffffffb2;border:2px dashed #add0aa;border-radius:14px;aspect-ratio:1/1;display:grid;place-items:center;font-size:clamp(22px,4vw,46px)}.tile:hover{background:white}.small{font-size:12px;color:#867696}.center{text-align:center}.spotlight{font-size:clamp(22px,3vw,32px);font-weight:900;line-height:1.5;text-align:center;padding:30px 20px;background:linear-gradient(130deg,#f9f1ff,#fff8df);border-radius:22px;min-height:135px;margin:17px 0}.reels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:21px 0}.reel{background:#f8f4ff;border:2px solid #e7dff6;border-radius:19px;padding:17px 8px;text-align:center;min-height:140px}.reel small{display:block;color:#8d7c9e;font-size:12px;font-weight:750}.reel div{font-size:clamp(17px,2.5vw,26px);font-weight:900;margin:12px 0;color:#62459e}.reel button{background:white;color:#6e56ad;border:1px solid #dbccf3;border-radius:10px;padding:8px 13px;font-size:12px;font-weight:850}.story-panel{max-width:820px;margin:20px auto;background:#faf7ff;border:2px solid #e7dbfb;padding:25px;border-radius:20px;font-size:clamp(19px,2.8vw,26px);line-height:2;color:#4e3a73}.story-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.story-choice{border:2px solid #e1d6f5;background:white;color:#694c94;border-radius:18px;padding:20px 10px;font-weight:850;min-height:90px;font-size:16px}.story-choice:hover{background:#f7f1ff}.story-label{font-weight:900;font-size:13px;color:#896bb2}.draw-wrap{background:white;border:3px solid #e1d5fa;border-radius:20px;padding:10px;max-width:840px;margin:18px auto}.draw-wrap canvas{display:block;width:100%;height:330px;touch-action:none;border-radius:13px;cursor:crosshair}.pill{display:inline-block;background:#f6f0ff;border-radius:25px;padding:7px 13px;color:#785aaa;font-size:12px;font-weight:800}.train-stop{background:#f4edff;border-radius:20px;min-height:170px;display:grid;place-items:center;text-align:center;margin:20px 0;padding:20px}.train-stop .emoji{font-size:58px}.train-stop .action{font-size:clamp(25px,4vw,38px);font-weight:900;color:#5b4390;margin-top:7px}.train-rails{text-align:center;font-size:32px;letter-spacing:7px;overflow:hidden}.footer{margin-top:22px;text-align:center;color:#9387a5;font-size:11px;line-height:1.6}.confetti{font-size:32px;animation:bounce .45s ease-out}@keyframes bounce{0%{transform:scale(.7)}60%{transform:scale(1.2)}100%{transform:scale(1)}}.hidden{display:none!important}
+@media(max-width:850px){.tabs{grid-template-columns:repeat(3,1fr)}.card{padding:18px}.answers,.story-choices{grid-template-columns:1fr}.answer,.story-choice{min-height:67px}.reels{grid-template-columns:1fr}.reel{min-height:105px}.tool{min-width:60px}.draw-wrap canvas{height:280px}}
+@media print{body{background:white!important}.top,.tabs,.game-head p,.buttons,.toolset,.footer,.hide-print,.back{display:none!important}.card{box-shadow:none;border:0;padding:5px}.playground{print-color-adjust:exact;-webkit-print-color-adjust:exact}.shell{max-width:100%;padding:0}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="top"><a class="back" href="./">← 우리 반 놀이터</a><span class="tag">🐰 1학년 전자칠판 · 아이패드 게임</span></header>
+<h1>🎪 상상 · 이야기 게임랜드</h1>
+<p class="subtitle">설명은 짧게! 버튼을 누르면 바로 시작하는 우리 반 참여형 수업 놀이 💜</p>
+<nav class="tabs" aria-label="게임 선택" id="tabs">
+<button class="tab" data-mode="safety"><strong>🕵️</strong>안전 탐정</button>
+<button class="tab" data-mode="builder"><strong>🛝</strong>놀이터 꾸미기</button>
+<button class="tab" data-mode="roulette"><strong>🎲</strong>놀이 발명기</button>
+<button class="tab" data-mode="story"><strong>📖</strong>이야기 만들기</button>
+<button class="tab" data-mode="path"><strong>✍️</strong>선 따라 그리기</button>
+<button class="tab" data-mode="train"><strong>🚂</strong>협동 기차</button>
+</nav>
+<div class="card" id="stage" aria-live="polite"></div>
+<p class="footer">학교의 주간학습안내에 확인된 「상상 1-2」·「이야기 1-2」 활동에서 착안한 별도 창작 게임이에요.<br>교과서의 실제 문항을 그대로 복제하지 않았으며, 학생 정보는 저장하거나 전송하지 않아요.</p>
+</main>
+<script>
+"use strict";
+const S=document.getElementById("stage");
+const state={mode:"safety",safe:{order:[],index:0,score:0,choice:-1},builder:{tool:0,board:Array(20).fill(""),theme:0},roulette:{indexes:[0,0,0],spins:0},story:{stage:0,parts:[],round:0},path:{index:0,points:[],drawing:false,visited:new Set(),success:false},train:{index:0,started:false}};
+const chooseOne=a=>a[Math.floor(Math.random()*a.length)];
+const random=n=>Math.floor(Math.random()*n);
+const safeText=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=random(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;}
+const safety=[
+{q:"교실 바닥에 물이 쏟아졌어요. 어떻게 할까요?",opts:["뛰어서 건너가요","선생님께 알리고 조심해요","친구를 밀어요"],a:1,why:"미끄러질 수 있으니 주변에 알리고 천천히 움직여요."},
+{q:"친구가 놀이터에서 넘어졌어요.",opts:["괜찮은지 물어보고 어른께 알려요","웃으며 놀려요","모른 척 지나가요"],a:0,why:"다친 친구를 돕고 선생님께 알려요."},
+{q:"복도에서 친구와 마주쳤어요.",opts:["복도에서 달리기 경주를 해요","세게 밀고 지나가요","천천히 걸으며 비켜요"],a:2,why:"복도에서는 뛰지 않고 안전하게 걸어요."},
+{q:"그네를 타는 친구 옆을 지나가요.",opts:["그네 앞을 가로질러요","그네에서 떨어져 돌아가요","그네를 잡아 멈춰요"],a:1,why:"움직이는 그네 가까이 가면 부딪힐 수 있어요."},
+{q:"가위가 책상 아래로 떨어졌어요.",opts:["손잡이를 잡고 안전하게 주워요","발로 차요","끝을 잡고 흔들어요"],a:0,why:"가위는 날카로운 부분을 피하고 안전하게 다뤄요."},
+{q:"높은 곳에 장난감이 있어요.",opts:["의자를 쌓아 올라가요","친구 어깨에 올라타요","선생님께 도움을 요청해요"],a:2,why:"무리하게 올라가면 넘어질 수 있어요."},
+{q:"운동장 바닥이 얼어 미끄러워요.",opts:["천천히 안전한 곳으로 이동해요","발을 구르며 뛰어요","친구를 잡아당겨요"],a:0,why:"얼어 있는 곳에서는 천천히 이동하고 뛰지 않아요."},
+{q:"친구가 싫다고 했는데 계속 놀리면?",opts:["장난이니까 계속해요","그만두고 친구의 마음을 들어요","친구 탓을 해요"],a:1,why:"친구의 싫다는 말을 존중해야 해요."},
+{q:"게임을 하다 친구와 부딪힐 것 같아요.",opts:["더 빠르게 달려요","눈을 감고 가요","멈추고 친구와 간격을 둬요"],a:2,why:"사람 사이의 간격을 두고 속도를 조절해요."},
+{q:"놀이터에서 낯선 물건을 발견했어요.",opts:["함부로 만지지 않고 어른께 알려요","가져가서 분해해요","친구에게 던져요"],a:0,why:"모르는 물건을 함부로 만지지 않아요."},
+{q:"교실에서 화가 날 때는?",opts:["물건을 던져요","말로 감정을 알리고 도움을 구해요","친구를 밀어요"],a:1,why:"감정을 안전한 말로 표현하고 도움을 요청해요."},
+{q:"친구가 놀이에 끼지 못하고 있어요.",opts:["규칙을 알려 주고 함께할 방법을 찾아요","못하게 막아요","친구를 놀려요"],a:0,why:"모두가 즐길 수 있는 놀이가 더 좋아요."}
+];
+const props=[["🛝","미끄럼틀"],["🎠","회전놀이"],["🌳","나무"],["🌼","꽃밭"],["🏰","성"],["🪑","쉼터"],["🧩","놀이판"],["⚽","운동장"],["🚰","물"],["🪁","연"],["🚫","지우개"]];
+const themes=["🌈 무지개 놀이터","🐰 토끼 놀이터","🪐 우주 놀이터","🏝️ 바다 놀이터","🌙 달빛 놀이터","🏰 동화 나라"];
+const reels=[["교실","운동장","비밀 섬","우주선","구름 위","작은 숲"],["종이 1장","몸짓","짝 친구","손뼉","숫자 카드","제자리에서"],["서로 도와야 성공","말하지 않고 하기","차례대로 하기","세 번 안에 완성","모두 함께 성공","이야기를 만들어 하기"]];
+const storySets=[["🐰 토끼","🐶 강아지","🦊 여우","🧒 어린이","🐻 곰","🐱 고양이"],["🏫 우리 학교","🌙 달빛 숲","🏰 구름 성","🚂 기차역","🏖️ 모래사장","🌌 별나라"],["반짝이는 문을 발견했어요.","친구의 보물을 찾았어요.","신기한 소리를 들었어요.","길을 잃은 별을 만났어요.","움직이는 그림을 보았어요.","하늘에서 편지를 받았어요."],["친구에게 도움을 부탁했어요.","조심조심 단서를 찾았어요.","함께 새로운 방법을 생각했어요.","용기를 내어 말을 걸었어요.","서로의 생각을 들어 보았어요.","새로운 길을 만들어 보았어요."]];
+const storyPrompts=["주인공을 골라 봐요!","어디에서 이야기가 시작될까요?","어떤 일이 생길까요?","주인공은 어떻게 할까요?"];
+const trainStops=[
+{emoji:"🚦",action:"출발할까요?",desc:"친구들과 간격을 두고 제자리에서 천천히 걸어요."},
+{emoji:"🐢",action:"거북이역",desc:"아주 천천히! 천천히 네 걸음 걷기."},
+{emoji:"👏",action:"손뼉역",desc:"손뼉을 짝! 짝! 세 번 치기."},
+{emoji:"🤫",action:"조용한역",desc:"아무 말 없이 손가락으로 한 곳 가리키기."},
+{emoji:"🌬️",action:"바람역",desc:"두 팔을 벌리고 흔들기. 서로 부딪치지 않게!" },
+{emoji:"🌳",action:"나무역",desc:"나무처럼 서서 팔을 위로 쭉 뻗기."},
+{emoji:"🎈",action:"풍선역",desc:"풍선처럼 몸을 크게 만들었다가 작게 만들기."},
+{emoji:"🚉",action:"도착역",desc:"모두 멈추고 서로에게 수고했다고 말해요!"}
+];
+function gameHead(emoji,title,sub,extra){
+ return '<div class="game-head"><div><h2>'+emoji+' '+title+'</h2><p>'+sub+'</p></div>'+ (extra||'')+'</div>';
+}
+function render(){
+ const mode=state.mode;
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
+ if(mode==="safety")renderSafety();
+ if(mode==="builder")renderBuilder();
+ if(mode==="roulette")renderRoulette();
+ if(mode==="story")renderStory();
+ if(mode==="path")renderPath();
+ if(mode==="train")renderTrain();
+}
+function setMode(mode){
+ if(!Object.prototype.hasOwnProperty.call(state,mode))mode="safety";
+ state.mode=mode;
+ if(location.hash!=="#"+mode)history.replaceState(null,"","#"+mode);
+ render();
+}
+function renderSafety(){
+ const st=state.safe;
+ if(!st.order.length)st.order=shuffle(safety.map((_,i)=>i));
+ if(st.index>=st.order.length){
+   S.innerHTML=gameHead("🏆","안전 탐정 임무 완료!","우리 반이 함께 안전한 선택을 했어요!")+'<div class="spotlight">🎉 탐정 별 '+st.score+'개 / '+st.order.length+'개!</div><div class="buttons"><button class="btn" data-action="safety-reset">🔄 새 도전</button></div>';return;
+ }
+ const q=safety[st.order[st.index]],done=st.choice>=0;
+ const opts=q.opts.map((x,i)=>'<button class="answer '+(done?(i===q.a?"correct":i===st.choice?"wrong":""):"")+'" data-action="safe-answer" data-choice="'+i+'" '+(done?"disabled":"")+'>'+(i+1)+'. '+safeText(x)+'</button>').join("");
+ const note=done?'<div class="feedback '+(st.choice===q.a?"confetti":"")+'">'+(st.choice===q.a?"🌟 정답! 안전 탐정 성공!":"🌷 다시 생각해도 괜찮아!")+'<p class="small">'+safeText(q.why)+'</p></div>':'<div class="feedback">친구들과 정답을 이야기한 다음 하나를 눌러요!</div>';
+ S.innerHTML=gameHead("🕵️","안전 탐정","그림이 없어도 상황을 듣고 생각하는 3지선다 안전 게임",'<div class="score">⭐ '+st.score+'개 · '+(st.index+1)+'/'+st.order.length+'</div>')+'<div class="question">'+safeText(q.q)+'</div><div class="answers">'+opts+'</div>'+note+(done?'<div class="buttons"><button class="btn" data-action="safety-next">다음 사건 ➜</button></div>':'') ;
+}
+function renderBuilder(){
+ const b=state.builder;
+ const toolbar=props.map((p,i)=>'<button class="tool '+(b.tool===i?"active":"")+'" data-action="builder-tool" data-choice="'+i+'"><span>'+p[0]+'</span>'+p[1]+'</button>').join("");
+ const board=b.board.map((x,i)=>'<button class="tile" data-action="builder-place" data-choice="'+i+'" aria-label="'+(i+1)+'번 자리">'+(x||"＋")+'</button>').join("");
+ S.innerHTML=gameHead("🛝","꿈의 놀이터 꾸미기","아래 도구를 고르고 빈 칸을 눌러 우리 반 놀이터를 만들어요!",'<span class="pill">🏗️ '+b.board.filter(Boolean).length+'개 설치</span>')+'<div class="spotlight" style="min-height:75px;padding:15px">'+themes[b.theme]+'</div><div class="toolset hide-print">'+toolbar+'</div><div class="playground">'+board+'</div><div class="buttons hide-print"><button class="btn secondary" data-action="builder-theme">🎲 놀이터 주제 바꾸기</button><button class="btn cream" data-action="builder-clear">↩️ 처음부터</button><button class="btn" data-action="print">🖨️ 우리 놀이터 출력</button></div><p class="center small" style="margin-top:10px">💡 어떤 시설이 필요하고, 어디에 두면 안전할지 친구들과 이야기해 보세요.</p>';
+}
+function renderRoulette(){
+ const st=state.roulette;
+ const box=reels.map((arr,i)=>'<div class="reel"><small>'+(["장소","준비물","특별 규칙"][i])+'</small><div>'+safeText(arr[st.indexes[i]])+'</div><button data-action="reel-one" data-choice="'+i+'">🎲 이것만 바꾸기</button></div>').join("");
+ S.innerHTML=gameHead("🎲","우리 반 놀이 발명기","세 가지 조건을 섞어서 아무도 해 본 적 없는 놀이를 발명해요!",'<span class="pill">🔄 '+st.spins+'번 뽑기</span>')+'<div class="reels">'+box+'</div><div class="spotlight">💡 '+safeText(reels[0][st.indexes[0]])+'에서 <b>'+safeText(reels[1][st.indexes[1]])+'</b>을(를) 사용해<br><b>'+safeText(reels[2][st.indexes[2]])+'</b> 놀이를 만들어 보세요!</div><div class="buttons"><button class="btn" data-action="reel-all">🎰 새로운 미션 뽑기!</button><button class="btn secondary" data-action="print">🖨️ 미션 출력</button></div><p class="center small" style="margin-top:10px">우리 모둠만의 놀이 이름·규칙 한 가지를 생각해 보세요. 정답은 없어요!</p>';
+}
+function renderStory(){
+ const st=state.story;
+ if(st.stage>=4){
+  const p=st.parts;
+  const story=p[0]+'가 '+p[1]+'에 갔어요.\n그곳에서 '+p[2]+'\n그래서 '+p[3]+'\n그리고 친구들과 즐겁게 돌아왔어요.';
+  S.innerHTML=gameHead("📚","우리 반 이야기 완성!","학생들이 만든 네 장의 선택 카드로 이야기를 이어 봐요.",'<span class="score">⭐ 이야기 완성</span>')+'<div class="story-panel" style="white-space:pre-wrap">'+safeText(story)+'</div><div class="buttons"><button class="btn" data-action="story-speak">🔊 이야기 읽어 주기</button><button class="btn secondary" data-action="story-reset">📖 새 이야기 만들기</button><button class="btn cream" data-action="print">🖨️ 출력</button></div>';return;
+ }
+ const i=st.stage;
+ const prompt=storyPrompts[i], choices=shuffle(storySets[i]).slice(0,3);
+ const previous=st.parts.length?'<div class="story-panel" style="font-size:18px">'+st.parts.map(safeText).join(' → ')+'</div>':'';
+ S.innerHTML=gameHead("📖","우리 반 이야기 만들기","모두 이야기하고 하나를 골라 봐요. 4번 선택하면 우리 반 이야기가 완성돼요!",'<span class="pill">✍️ '+(i+1)+' / 4장</span>')+previous+'<div class="question">'+prompt+'</div><div class="story-choices">'+choices.map(x=>'<button class="story-choice" data-action="story-choice" data-value="'+safeText(x)+'">'+safeText(x)+'</button>').join("")+'</div><div class="buttons"><button class="btn secondary" data-action="story-shuffle">🎲 다른 카드 보기</button>'+(i>0?'<button class="btn cream" data-action="story-back">↶ 이전 선택</button>':'')+'</div>';
+}
+const pathShapes=[
+ {name:"🌈 꼬불꼬불 길",fn:t=>[.1+.8*t,.5+.22*Math.sin(t*2*Math.PI*2)]},
+ {name:"⛰️ 지그재그 길",fn:t=>[.1+.8*t,.18+.65*(Math.abs(((t*3)%1)*2-1))]},
+ {name:"🌊 물결 길",fn:t=>[.1+.8*t,.5+.3*Math.sin(t*2*Math.PI*3)]},
+ {name:"🌼 뱀처럼 구불구불",fn:t=>[.1+.8*t,.5+.17*Math.sin(t*2*Math.PI*4)]}
+];
+function pathCoords(shape,rect){
+ const c=[];for(let i=0;i<=120;i++){const [x,y]=shape.fn(i/120);c.push([x*rect.width,y*rect.height]);}return c;
+}
+function setupPathCanvas(){
+ const c=document.getElementById("path-canvas");if(!c)return;
+ const r=c.getBoundingClientRect(),ratio=Math.min(devicePixelRatio||1,2);
+ c.width=Math.round(r.width*ratio);c.height=Math.round(r.height*ratio);
+ const ctx=c.getContext("2d");ctx.setTransform(ratio,0,0,ratio,0,0);
+ const pts=pathCoords(pathShapes[state.path.index],r);state.path.points=pts;
+ function line(path,color,width,dash=[]){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineJoin="round";ctx.lineCap="round";ctx.setLineDash(dash);ctx.beginPath();path.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.restore();}
+ ctx.clearRect(0,0,r.width,r.height);ctx.fillStyle="#fcfbff";ctx.fillRect(0,0,r.width,r.height);
+ line(pts,"#e3d2ff",37);line(pts,"#9571d8",7,[11,12]);
+ ctx.fillStyle="#61b976";ctx.beginPath();ctx.arc(pts[0][0],pts[0][1],17,0,7);ctx.fill();
+ ctx.fillStyle="#f6ac65";ctx.beginPath();ctx.arc(pts[pts.length-1][0],pts[pts.length-1][1],17,0,7);ctx.fill();
+ if(state.path.trace&&state.path.trace.length>1)line(state.path.trace,"#f098b4",6);
+}
+function renderPath(){
+ const st=state.path;
+ st.visited=new Set();st.trace=[];st.drawing=false;st.success=false;
+ S.innerHTML=gameHead("✍️","손끝으로 선 따라가기","아이패드 손가락이나 전자칠판 펜으로 점선을 따라 출발점부터 끝점까지!",'<span class="pill">길 '+(st.index+1)+' / '+pathShapes.length+'</span>')+'<div class="draw-wrap"><canvas id="path-canvas" role="img" aria-label="선 따라 그리기 활동 캔버스"></canvas></div><p class="feedback" id="path-result" style="min-height:34px">🟢 초록색 시작점에서 주황색 도착점까지 그려 보세요!</p><div class="buttons"><button class="btn secondary" data-action="path-reset">↩️ 다시 그리기</button><button class="btn" data-action="path-next">다음 길 ➜</button></div><p class="center small">💡 실제 바닥의 선을 따라 걷기 전, 화면에서 경로를 손가락으로 탐험해요.</p>';
+ requestAnimationFrame(setupPathCanvas);
+}
+function drawPoint(e){
+ const c=document.getElementById("path-canvas");if(!c)return;
+ const r=c.getBoundingClientRect();const p=[e.clientX-r.left,e.clientY-r.top];
+ if(!state.path.drawing)return;
+ const prev=state.path.trace.at(-1);
+ state.path.trace.push(p);
+ let nearest=0,dist=Infinity;
+ state.path.points.forEach((pt,i)=>{const d=(pt[0]-p[0])**2+(pt[1]-p[1])**2;if(d<dist){dist=d;nearest=i}});
+ if(dist<35**2)state.path.visited.add(nearest);
+ const ratio=c.width/r.width,ctx=c.getContext("2d");
+ ctx.save();ctx.setTransform(ratio,0,0,ratio,0,0);ctx.strokeStyle="#ef92b5";ctx.lineWidth=6;ctx.lineCap="round";
+ if(prev){ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();}
+ ctx.restore();
+}
+function stopPath(){
+ const st=state.path;if(!st.drawing)return;st.drawing=false;
+ const covered=st.visited.size/(st.points.length);
+ const first=st.visited.has(0)||st.visited.has(1)||st.visited.has(2);
+ const last=[118,119,120].some(i=>st.visited.has(i));
+ const good=covered>=.63&&first&&last;
+ st.success=good;
+ const el=document.getElementById("path-result");
+ if(el)el.textContent=good?"🌟 완주 성공! 새로운 길에도 도전해 봐요!":"🌷 좋아요! 출발부터 도착까지 점선을 더 길게 따라가 보세요.";
+}
+function renderTrain(){
+ const st=state.train;
+ const stop=trainStops[st.index];
+ const show=st.started;
+ S.innerHTML=gameHead("🚂","협동 기차 신호게임","선생님이 버튼을 누르면 새로운 정거장 미션! 모두 제자리에서 안전하게 따라 해요.",'<span class="pill">🚉 '+(st.index+1)+'번 정거장</span>')+'<div class="train-rails">🚂🚃🚃🚃</div><div class="train-stop"><div><div class="emoji">'+(show?stop.emoji:"🎫")+'</div><div class="action">'+(show?safeText(stop.action):"출발 준비!")+'</div><p>'+ (show?safeText(stop.desc):"누구나 움직일 수 있는 방법으로 함께 참여해요.")+'</p></div></div><div class="buttons"><button class="btn" data-action="train-next">'+(show?"🚉 다음 정거장!":"🚦 기차 출발!")+'</button><button class="btn secondary" data-action="train-random">🎲 깜짝 정거장</button><button class="btn cream" data-action="train-reset">↩️ 출발역으로</button></div><p class="center small" style="margin-top:12px">충돌하지 않도록 간격을 유지해요. 이동이 어려우면 앉아서 팔이나 손으로 미션에 참여해도 좋아요.</p>';
+}
+document.addEventListener("click",e=>{
+ const tab=e.target.closest("[data-mode]");if(tab){setMode(tab.dataset.mode);return;}
+ const b=e.target.closest("[data-action]");if(!b)return;
+ const a=b.dataset.action,choice=Number(b.dataset.choice);
+ if(a==="safe-answer"){const st=state.safe;if(st.choice>=0)return;st.choice=choice;if(safety[st.order[st.index]].a===choice)st.score++;render();}
+ if(a==="safety-next"){state.safe.choice=-1;state.safe.index++;render();}
+ if(a==="safety-reset"){state.safe={order:shuffle(safety.map((_,i)=>i)),index:0,score:0,choice:-1};render();}
+ if(a==="builder-tool"){state.builder.tool=choice;render();}
+ if(a==="builder-place"){state.builder.board[choice]=props[state.builder.tool][0]==="🚫"?"":props[state.builder.tool][0];render();}
+ if(a==="builder-theme"){state.builder.theme=(state.builder.theme+1)%themes.length;render();}
+ if(a==="builder-clear"){state.builder.board=Array(20).fill("");render();}
+ if(a==="reel-all"){state.roulette.indexes=reels.map(x=>random(x.length));state.roulette.spins++;render();}
+ if(a==="reel-one"){state.roulette.indexes[choice]=(state.roulette.indexes[choice]+1+random(reels[choice].length-1))%reels[choice].length;state.roulette.spins++;render();}
+ if(a==="story-choice"){state.story.parts.push(b.dataset.value);state.story.stage++;render();}
+ if(a==="story-shuffle"){render();}
+ if(a==="story-reset"){state.story={stage:0,parts:[],round:state.story.round+1};render();}
+ if(a==="story-back"){state.story.stage--;state.story.parts.pop();render();}
+ if(a==="story-speak"){const text=document.querySelector(".story-panel")?.textContent||"";if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=.85;speechSynthesis.speak(u);}}
+ if(a==="path-reset"){render();}
+ if(a==="path-next"){state.path.index=(state.path.index+1)%pathShapes.length;render();}
+ if(a==="train-next"){state.train.started=true;state.train.index=(state.train.index+1)%trainStops.length;render();}
+ if(a==="train-random"){state.train.started=true;state.train.index=1+random(trainStops.length-2);render();}
+ if(a==="train-reset"){state.train={index:0,started:false};render();}
+ if(a==="print")window.print();
+});
+document.addEventListener("pointerdown",e=>{if(e.target?.id!=="path-canvas")return;state.path.drawing=true;state.path.visited=new Set();state.path.trace=[];setupPathCanvas();try{e.target.setPointerCapture(e.pointerId)}catch(_){}drawPoint(e);});
+document.addEventListener("pointermove",e=>{if(e.target?.id==="path-canvas"&&state.path.drawing)drawPoint(e)});
+document.addEventListener("pointerup",e=>{if(e.target?.id==="path-canvas")stopPath();});
+document.addEventListener("pointercancel",e=>{if(e.target?.id==="path-canvas")stopPath();});
+window.addEventListener("hashchange",()=>setMode(location.hash.slice(1)));
+window.addEventListener("resize",()=>{if(state.mode==="path")setupPathCanvas();});
+setMode(location.hash.slice(1)||"safety");
+</script>
+</body>
+</html>
