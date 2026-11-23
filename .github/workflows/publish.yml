@@ -22,6 +22,7 @@ jobs:
         run: |
           node scripts/site_smoke.cjs
           node scripts/dictation_smoke.cjs
+          node scripts/dictation_together_smoke.cjs
           node scripts/dictation_voice_lock.cjs
           node scripts/dictation_voice_lock38.cjs
           node scripts/dictation_voice_s1.cjs
