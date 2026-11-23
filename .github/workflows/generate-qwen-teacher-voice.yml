@@ -1,0 +1,94 @@
+name: Generate Sohee teacher voice (all 140 dictation phrases)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - dictation/generate_qwen_teacher_voice.py
+      - .github/workflows/generate-qwen-teacher-voice.yml
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: generate-sohee-teacher-voice
+  cancel-in-progress: false
+jobs:
+  render:
+    name: Korean narration shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify frozen 37.0 and 38.0 original audio
+        run: |
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU speech model
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-tts soundfile imageio-ffmpeg
+      - name: Synthesize new Korean-native teacher voice
+        run: python -u dictation/generate_qwen_teacher_voice.py --shard ${{ matrix.shard }} --shards 8
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sohee-shard-${{ matrix.shard }}
+          path: dictation/voice/S1/*.mp3
+          if-no-files-found: error
+          retention-days: 5
+  publish-audio:
+    name: Safely merge new voice clips while preserving original four voices
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sohee-shard-*
+          path: dictation/voice/S1
+          merge-multiple: true
+      - name: Verify all audio files and frozen originals
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("dictation")
+          manifest=json.loads((root/"voice-manifest.json").read_text(encoding="utf-8"))
+          expected={f"g{g:02d}_{i:02d}.mp3" for g in range(1,15) for i in range(1,11)}
+          expected.update(k+".mp3" for k in manifest["extras"])
+          files={f.name for f in (root/"voice"/"S1").glob("*.mp3")}
+          assert len(files)==172,(len(files),sorted(expected-files))
+          assert files==expected,(sorted(expected-files),sorted(files-expected))
+          for f in (root/"voice"/"S1").glob("*.mp3"):
+              assert f.stat().st_size>2000,(f,f.stat().st_size)
+          print("Verified complete 172-piece Korean-native Sohee voice pack.",flush=True)
+          PY
+          node scripts/dictation_voice_lock.cjs
+          node scripts/dictation_voice_lock38.cjs
+      - name: Commit only new Sohee voice files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dictation/voice/S1
+          if git diff --cached --quiet; then
+            echo "All audio files already present"
+          else
+            git commit -m "Add separate native Korean Sohee teacher voice pack"
+            git pull --rebase origin main
+            node scripts/dictation_voice_lock.cjs
+            node scripts/dictation_voice_lock38.cjs
+            git push origin HEAD:main
+          fi
+      - name: Republish website without changing old voices
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --ref main
