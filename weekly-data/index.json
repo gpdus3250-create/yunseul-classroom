@@ -1,7 +1,7 @@
 {
-  "status": "not_connected",
-  "checked_at": null,
+  "status": "error",
+  "checked_at": "2026-11-23T07:40:09.117022+00:00",
   "board_url": "https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&m=020901&s=yunseul",
   "items": [],
-  "message": "학교 게시판 자동 수집은 아직 연결 및 검증 전입니다."
+  "message": "404 Client Error: Not Found for url: https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=317890&lev=0&m=020901&viewBoardID=317890"
 }
