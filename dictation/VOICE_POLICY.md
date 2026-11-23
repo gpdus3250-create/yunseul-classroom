@@ -12,6 +12,25 @@
 - 자동 보호 검사: `node scripts/dictation_voice_lock.cjs`
 - GitHub Pages 게시 워크플로와 음성 생성 워크플로 모두 원본 불변 검사를 실행함
 
+## 절대 변경 금지 — 38.0 원본 AI 목소리
+
+- `dictation/voice/F2/*.mp3`: 38.0 여성 선생님 목소리 — **수정/교체/삭제/재생성 금지**
+- `dictation/voice/M2/*.mp3`: 38.0 남성 선생님 목소리 — **수정/교체/삭제/재생성 금지**
+- 각각 172개, 총 344개의 38.0 원본 MP3
+- 38.0 고정 원본: `dictation/voice-lock-38.json`
+- 38.0 자동 보호 검사: `node scripts/dictation_voice_lock38.cjs`
+
+**37.0 및 38.0 네 목소리 전체 688개 MP3는 후속 수정에서도 반드시 보존**한다. 새로운 목소리는 별도의 폴더에 독립적으로 생성한다.
+
+## 새로운 한국어 전용 음성 실험 — Sohee (S1)
+
+- 생성 엔진: Qwen3-TTS-12Hz-0.6B-CustomVoice, 한국어 전용 Sohee 화자
+- 실험 샘플: `dictation/voice-candidates/S1` (기존 목소리와 별도)
+- 완성 음성: `dictation/voice/S1` (전체 140문항 + 32개 시험 안내)
+- S1은 기존 Supertonic 음성을 속도만 바꾼 것이 아니라 완전히 다른 AI 엔진의 새 음성이다
+- Qwen3-TTS 모델 라이선스: Apache-2.0
+- 실제 한국어 발음과 자연스러움은 교사가 듣고 평가할 것. 더 좋다는 주장은 검증 없이 하지 말 것.
+
 ## 더 자연스러운 선생님 음성을 추가할 때
 
 - F1/M1의 기존 파일 경로·내용·목소리 선택지를 변경하지 말 것
