@@ -49,12 +49,17 @@ def posts_from(html, year):
             week = week_of(title, year)
             if not week:
                 continue
-            raw = " ".join([a.get("href", ""), a.get("onclick", ""), str(row)])
-            match = re.search(r"(?:boardSeq|board_seq)\s*(?:=|:)\s*['\"]?(\d{4,15})", raw, re.I)
-            if not match:
-                match = re.search(r"(?:fn_?view|go_?view|view_?board|fn_?detail)\s*\([^)]*?(\d{4,15})", raw, re.I)
-            if match:
-                url = ROOT + "/boardCnts/updateCnt.do?" + urlencode({"action":"view", "boardID":BOARD, "boardSeq":match.group(1), "lev":"0", "m":MENU, "viewBoardID":BOARD})
+            # School links often call fnView(boardID, boardSeq). The first
+            # argument is the 6-digit board ID, not the 8-digit post ID.
+            # Never confuse the board ID with a post ID.
+            raw = " ".join([str(a.get("href", "")), str(a.get("onclick", "")),
+                            str(a.get("data-url", "")), str(row.get("onclick", ""))])
+            match = re.search(r"(?:boardSeq|board_seq)\s*(?:=|:)\s*['\"]?(\d{7,15})", raw, re.I)
+            candidates = [x for x in re.findall(r"(?<!\d)\d{7,12}(?!\d)", raw)
+                          if x != BOARD and not (x.startswith("20") and len(x) == 8)]
+            seq = match.group(1) if match else (candidates[0] if candidates else None)
+            if seq:
+                url = ROOT + "/boardCnts/updateCnt.do?" + urlencode({"action":"view", "boardID":BOARD, "boardSeq":seq, "lev":"0", "m":MENU, "viewBoardID":BOARD})
             else:
                 href = a.get("href", "")
                 url = urljoin(ROOT, href) if href and not href.startswith(("javascript:", "#")) else ""
@@ -127,6 +132,24 @@ def main():
         if response.encoding in (None,"ISO-8859-1"):
             response.encoding = response.apparent_encoding
         posts = posts_from(response.text, dt.date.today().year)
+        # Public listing diagnostics: only post titles + link attributes, never student information.
+        soup = BeautifulSoup(response.text, "html.parser")
+        samples = []
+        for row in soup.select("tr"):
+            for anchor in row.select("a"):
+                label = anchor.get_text(" ", strip=True)
+                if re.search(r"1\s*학년", label) and re.search(r"\d{1,2}\s*월", label):
+                    samples.append({"title":label[:100], "href":anchor.get("href","")[:200],
+                                    "onclick":anchor.get("onclick","")[:200],
+                                    "row_onclick":row.get("onclick","")[:200]})
+                if len(samples) >= 4:
+                    break
+            if len(samples) >= 4:
+                break
+        (out / "parser-diagnostics.json").write_text(
+            json.dumps({"candidates":samples,"parsed_posts":posts[:4],
+                        "total_linked_posts":len(posts)},ensure_ascii=False,indent=2),
+            encoding="utf-8")
         if not posts:
             raise ValueError("공개 게시판에서 날짜 및 링크가 확인되는 1학년 게시글을 찾지 못했습니다.")
         kept = {i["week"]:i for i in previous.get("items",[]) if isinstance(i,dict) and i.get("week")}
