@@ -232,7 +232,7 @@ async function auditTwoToSixTeamLayouts(browser) {
    await page.goto(SITE);
    await page.locator('.tab[data-v="multi"]').click();
    await page.locator('.grade').first().click();
-   await page.locator('#adQuickNameInput').fill(NAMES.join('\\n'));
+   await page.locator('#adQuickNameInput').fill(NAMES.join('\n'));
    await page.locator('.ad-quick-submit').click();
    await page.locator('.ad-team-actions button').filter({hasText:count+'팀'}).click();
    await page.locator('.ad-launch').click();
