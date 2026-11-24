@@ -15,7 +15,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Check homepage and dictation app scripts
@@ -26,6 +26,23 @@ jobs:
           node scripts/dictation_voice_lock.cjs
           node scripts/dictation_voice_lock38.cjs
           node scripts/dictation_voice_s1.cjs
+      # The classroom site must pass genuine button-click gameplay before
+      # publishing, so a CSS change cannot silently hide student answer tiles.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser testing tools (preinstalled Chrome)
+        run: |
+          npm install --prefix /tmp/dictation-e2e playwright@1.58.2
+          google-chrome --version
+      - name: Play all four-team modes and verify 140 sentences before publishing
+        env:
+          NODE_PATH: /tmp/dictation-e2e/node_modules
+        run: |
+          python3 -m http.server 8765 --directory dictation >/tmp/dictation-http.log 2>&1 &
+          sleep 2
+          curl --fail http://127.0.0.1:8765/ >/dev/null
+          node scripts/dictation_student_e2e.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
