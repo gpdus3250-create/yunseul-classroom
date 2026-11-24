@@ -6,6 +6,7 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 
 const SITE = process.env.DICTATION_E2E_URL || 'http://127.0.0.1:8765/';
+const EXPECTED_VERSION='41.0';
 const pause = ms => new Promise(r => setTimeout(r, ms));
 const log = (...msg) => console.log('[학생 플레이]', ...msg);
 const NAMES = ['테스트가람','테스트나래','테스트다온','테스트라온','테스트마루','테스트바다','테스트솔','테스트하늘'];
@@ -34,8 +35,8 @@ async function visibleAndClickable(locator, label) {
 
 async function setup(page, kind, questionsPerChild=1, people=8) {
   await page.goto(SITE,{waitUntil:'domcontentloaded',timeout:40000});
-  assert((await page.title()).includes('40.0'),'Website title must show version 40.0');
-  assert((await page.locator('.brand').innerText()).includes('40.0'),'Visible website header must show 40.0');
+  assert((await page.title()).includes(EXPECTED_VERSION),'Website title must show version '+EXPECTED_VERSION);
+  assert((await page.locator('.brand').innerText()).includes(EXPECTED_VERSION),'Visible website header must show '+EXPECTED_VERSION);
   await page.locator('.tab[data-v="multi"]').click();
   await page.locator('.grade').first().click();
   const count=await page.evaluate(()=>classNames().length);
@@ -136,6 +137,12 @@ async function play4Teams(browser,kind,questionsPerChild){
         if(k===0 && active.length>1){
           assert.equal(await page.evaluate(()=>phase),'play','answers revealed before all teams submitted');
           assert(await page.locator('#adlane-'+i+' .ad-submitted-card').isVisible(),'submitted student must have a visible waiting card');
+          if(kind==='boss'){
+            const hud=page.locator('.ad-boss-hud');
+            assert(await hud.isVisible(),'Boss HP must remain visible after partial submissions');
+            assert.equal(await hud.locator('.ad-boss-meter').getAttribute('aria-valuenow'),String(await page.evaluate(()=>adventure.bossHp)),'HP must remain consistent before all answers');
+            assert((await hud.locator('.ad-boss-need').innerText()).includes('정답'),'number of remaining correct answers must stay visible');
+          }
           sawWait=true;
         }
       }
@@ -161,10 +168,19 @@ async function play4Teams(browser,kind,questionsPerChild){
         assert(visibility.top>=0&&visibility.bottom<=visibility.laneBottom+3,
           'Result card is cut off: '+JSON.stringify(visibility));
       }
+      if(kind==='boss'){
+        const boss=await page.evaluate(()=>({hp:adventure.bossHp,max:adventure.bossMax,justWon:adventure.justWonBoss,lastMax:adventure.lastBossClearMax,correct:adventure.lanes.filter(x=>x.turnName&&x.correct).length}));
+        const hud=page.locator('.ad-boss-hud'),progress=hud.locator('.ad-boss-meter');
+        assert(await hud.isVisible(),'Boss HP must remain visible during answer reveal');
+        const expected=boss.justWon?0:Math.max(0,boss.hp);
+        assert.equal(Number(await progress.getAttribute('aria-valuenow')),expected,'Boss progress meter must reflect correct-answer damage');
+        if(boss.justWon)assert((await hud.innerText()).includes('해치웠'),'Defeated boss must be acknowledged before next boss HP resets');
+        else assert((await hud.locator('.ad-boss-need').innerText()).includes('정답 '+expected+'개'),'remaining needed correct answers must match HP');
+      }
       const wrong=await page.locator('.ad-reveal-result.bad').count();
       if(rounds===0)assert(wrong>=1,'wrong response was not marked');
       const version=await page.locator('.ad-version-mark').innerText();
-      assert(version.includes('40.0'),'game header must retain visible version identifier');
+      assert(version.includes(EXPECTED_VERSION),'game header must retain version '+EXPECTED_VERSION);
       await page.waitForFunction(()=>phase==='ready'||phase==='play'||phase==='boss-clear'||phase==='done',{timeout:16000});
       const next=await page.evaluate(()=>phase);
       if(next==='boss-clear'){
@@ -279,6 +295,11 @@ async function auditTouchBottomPlacement(browser) {
   const page=await browser.newPage({viewport:{width:1884,height}});
   try {
    await setup(page,'boss',1);
+   assert((await page.locator('.ad-boss-need').innerText()).includes('정답 9개'),'initial boss requires nine correct answers');
+   const bossHud=page.locator('.ad-boss-hud');
+   assert(await bossHud.isVisible(),'Boss HP bar missing on classroom screen');
+   const pos=await bossHud.evaluate(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:innerHeight,width:r.width}});
+   assert(pos.width>400&&pos.top>=0&&pos.bottom<240,'Boss HP not in upper visible smartboard area: '+JSON.stringify(pos));
    for(let i=0;i<4;i++){
      const ready=page.locator('#adlane-'+i+' .ad-ready');
      await visibleAndClickable(ready,'bottom touch ready '+i);
