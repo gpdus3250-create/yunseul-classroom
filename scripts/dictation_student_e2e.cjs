@@ -247,6 +247,50 @@ async function auditTwoToSixTeamLayouts(browser) {
  }
  return layouts;
 }
+// Smartboard ergonomics regression: each student's touch targets must live at
+// the bottom of the panel, not halfway up at the reach of an adult teacher.
+async function auditTouchBottomPlacement(browser) {
+ const results=[];
+ for (const height of [680, 850, 1080]) {
+  const page=await browser.newPage({viewport:{width:1884,height}});
+  try {
+   await setup(page,'boss',1);
+   for(let i=0;i<4;i++){
+     const ready=page.locator('#adlane-'+i+' .ad-ready');
+     await visibleAndClickable(ready,'bottom touch ready '+i);
+     const readyGap=await ready.evaluate(el=>el.closest('.ad-lane').getBoundingClientRect().bottom-el.getBoundingClientRect().bottom);
+     assert(readyGap<42, `Ready button is not near board bottom (height=${height}, lane=${i}, gap=${readyGap})`);
+     await ready.click();
+   }
+   await page.waitForFunction(()=>phase==='play',{timeout:16000});
+   const tasks=await page.evaluate(()=>adventure.lanes.map(p=>p.task.type));
+   assert(tasks.includes('repair') && tasks.includes('build'),'Boss mode should include both student mini-games');
+   for(let i=0;i<4;i++){
+     const lane=page.locator('#adlane-'+i);
+     const button=tasks[i]==='repair'?lane.locator('.ad-replace').last():lane.locator('.ad-send');
+     await visibleAndClickable(button,`bottom touch ${tasks[i]} lane ${i}, height ${height}`);
+     const details=await button.evaluate(el=>{
+       const a=el.getBoundingClientRect(),b=el.closest('.ad-lane').getBoundingClientRect();
+       return {gap:b.bottom-a.bottom,buttonBottom:a.bottom,laneBottom:b.bottom,
+         viewport:innerHeight,scrollParent:el.closest('.ad-lower')?.scrollHeight,
+         visibleHeight:el.closest('.ad-lower')?.clientHeight};
+     });
+     assert(details.gap>=0&&details.gap<45,
+       `Touch controls not attached to screen bottom: ${tasks[i]} lane ${i} ${height}px: ${JSON.stringify(details)}`);
+     // Unselected letters and wrong-spelling options must all still be visible.
+     const options=tasks[i]==='repair'?lane.locator('.ad-replace'):lane.locator('.ad-tile');
+     for(let k=0;k<await options.count();k++)
+       await visibleAndClickable(options.nth(k),`touch choice ${tasks[i]} ${i} ${k} at ${height}px`);
+     results.push({height,lane:i,type:tasks[i],bottomGap:Math.round(details.gap)});
+   }
+   log('합격: 전자칠판 하단 터치 버튼',height+'px',results.filter(x=>x.height===height));
+  }catch(e){
+   try{await page.screenshot({path:'/tmp/touch-'+height+'-failure.png',fullPage:true})}catch(_){}
+   throw e;
+  }finally{await page.close()}
+ }
+ return results;
+}
 (async()=>{
  browser=await chromium.launch({headless:true,channel:'chrome',args:['--no-sandbox']});
  const results=[];
@@ -257,6 +301,7 @@ async function auditTwoToSixTeamLayouts(browser) {
    await sharedChoice(browser);
    await auditAllGradeSentences(browser);
    await auditTwoToSixTeamLayouts(browser);
+   await auditTouchBottomPlacement(browser);
    log('전 과정 통과',JSON.stringify(results));
  }finally{await browser.close()}
 })().catch(e=>{console.error('[학생 플레이 테스트 실패]',e.stack||e.message);process.exitCode=1});
