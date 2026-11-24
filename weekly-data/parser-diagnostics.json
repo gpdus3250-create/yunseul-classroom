@@ -1,5 +1,51 @@
 {
-  "candidates": [],
-  "parsed_posts": [],
-  "total_linked_posts": 0
+  "candidates": [
+    {
+      "title": "1학년 11월 23일 - 11월 27일(15주)",
+      "href": "#contents",
+      "onclick": "javascript:goView('317890','317890','34360754', '0', 'null', 'W', '1', 'N', '')",
+      "row_onclick": ""
+    },
+    {
+      "title": "1학년 11월 16일 – 11월 20일(14주)",
+      "href": "#contents",
+      "onclick": "javascript:goView('317890','317890','34342332', '0', 'null', 'W', '1', 'N', '')",
+      "row_onclick": ""
+    },
+    {
+      "title": "1학년 11월 9일 – 11월 13일(13주)",
+      "href": "#contents",
+      "onclick": "javascript:goView('317890','317890','34317796', '0', 'null', 'W', '1', 'N', '')",
+      "row_onclick": ""
+    },
+    {
+      "title": "1학년 11월 2일 – 11월 6일(12주)",
+      "href": "#contents",
+      "onclick": "javascript:goView('317890','317890','34300050', '0', 'null', 'W', '1', 'N', '')",
+      "row_onclick": ""
+    }
+  ],
+  "parsed_posts": [
+    {
+      "week": "2026-11-23",
+      "title": "1학년 11월 23일 - 11월 27일(15주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34360754&lev=0&m=020901&viewBoardID=317890"
+    },
+    {
+      "week": "2026-11-16",
+      "title": "1학년 11월 16일 – 11월 20일(14주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34342332&lev=0&m=020901&viewBoardID=317890"
+    },
+    {
+      "week": "2026-11-09",
+      "title": "1학년 11월 9일 – 11월 13일(13주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34317796&lev=0&m=020901&viewBoardID=317890"
+    },
+    {
+      "week": "2026-11-02",
+      "title": "1학년 11월 2일 – 11월 6일(12주)",
+      "source_url": "https://yunseul.icees.kr/boardCnts/updateCnt.do?action=view&boardID=317890&boardSeq=34300050&lev=0&m=020901&viewBoardID=317890"
+    }
+  ],
+  "total_linked_posts": 10
 }

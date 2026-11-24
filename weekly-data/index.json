@@ -1,6 +1,6 @@
 {
-  "status": "error",
-  "checked_at": "2026-11-24T12:55:03.101367+00:00",
+  "status": "ok",
+  "checked_at": "2026-11-24T18:44:12.855273+00:00",
   "board_url": "https://yunseul.icees.kr/boardCnts/list.do?boardID=317890&m=020901&s=yunseul",
   "items": [
     {
@@ -76,5 +76,5 @@
       "note": null
     }
   ],
-  "message": "공개 게시판에서 날짜 및 링크가 확인되는 1학년 게시글을 찾지 못했습니다."
+  "message": null
 }
