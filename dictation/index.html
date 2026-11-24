@@ -499,6 +499,32 @@ body.multi-active .ad-countdown{color:#6953D8;text-shadow:0 5px 24px #FFFFFF}
 }
 
 
+/* 40.1 — 경기장 표시 오류 보정: 스크롤 위치/전자칠판 화면 크기에 관계없이
+   준비완료 버튼과 모든 학생 칸이 항상 화면 안에 표시되게 합니다. */
+body.multi-active{overflow:hidden!important}
+body.multi-active .ad-arena{
+ position:fixed!important;inset:0!important;z-index:300!important;
+ width:100vw!important;height:100dvh!important;max-height:100dvh!important;
+ display:flex!important;flex-direction:column!important;overflow:hidden!important;
+}
+body.multi-active .ad-arena .ad-top,
+body.multi-active .ad-arena .ad-topstatus,
+body.multi-active .ad-arena .ad-bottom{flex:0 0 auto!important}
+body.multi-active .ad-arena .ad-grid{
+ display:grid!important;flex:1 1 auto!important;
+ min-height:0!important;height:auto!important;overflow-y:auto!important;
+ grid-template-columns:repeat(var(--count),minmax(0,1fr))!important;
+ align-content:stretch!important;visibility:visible!important;opacity:1!important;
+}
+body.multi-active .ad-arena .ad-lane{
+ display:flex!important;flex-direction:column!important;
+ min-height:0!important;visibility:visible!important;opacity:1!important;
+}
+@media(max-width:800px){
+ body.multi-active .ad-arena .ad-grid{overflow-x:auto!important;
+ grid-template-columns:repeat(var(--count),minmax(165px,1fr))!important}
+}
+
 /* 31.0 · 보상 없는 협동 성취감: 보스를 물리쳤을 때 수업을 잠시 멈춰 함께 축하하기 */
 body.multi-active .boss-cleared-screen{width:100%;min-height:100dvh;display:flex;flex-direction:column;background:#F7F6FD;color:#344063;position:relative;overflow:hidden}
 .boss-cleared-top{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px clamp(16px,3vw,40px);background:#fff;border-bottom:1px solid #E6E2F4;font-size:clamp(13px,1.3vw,19px);font-weight:850;color:#656183}
@@ -1774,7 +1800,7 @@ function startAdventure(){
   solved:0,attempted:0,stars:0,bossHp:firstBossHp,bossMax:firstBossHp,bossLevel:0,defeats:0,clearedBosses:[],lastBossCleared:null,justWonBoss:false,
   lanes:Array.from({length:number},(_,i)=>({ready:false,done:false,q:null,task:null,focus:-1,picked:[],correct:false,points:0,wrong:0,lastQuestion:null,turnName:null})),
   rounds,game:kind};
- view='multi';phase='ready';adPrepare();render();
+ view='multi';phase='ready';adPrepare();window.scrollTo?.(0,0);render();
 }
 function adNextQuestions(){
  const ids=new Set();const active=adventure.lanes.map((_,i)=>adName(i));
@@ -2046,7 +2072,7 @@ function adNewGame(){
   phase==='countdown'?`⏳ ${countdownValue}초 뒤 시작!`:
   phase==='reveal'?`🎉 정답 공개! ${p.justWonBoss?'보스를 물리쳤어요! 🎊':'잠시 후 다음 문제로 이동해요.'}`:
   `🔒 먼저 끝난 친구의 정답은 비밀! (${active.filter(x=>x.done).length}/${active.length}명 제출)`;
- $('app').innerHTML=`<div class="ad-arena ${phase==='reveal'?'is-reveal':''}">${adHeader()}<div class="ad-topstatus">${hint}</div>${phase==='countdown'?`<div class="ad-countdown" aria-live="polite">${countdownValue}</div>`:''}<div class="ad-grid" style="--count:${number}">${adventure.lanes.map((_,i)=>adLaneHTML(i)).join('')}</div><div class="ad-bottom">${phase==='play'?'👆 자기 칸 아래에서 미션을 풀어 주세요!':phase==='reveal'?'정답을 확인한 뒤 자동으로 다음 문제로 넘어가요.':'🙋 한 학생이 '+questionsPerStudent+'문제를 모두 풀고 다음 선수에게 교대해요.'}</div></div>`
+ $('app').innerHTML=`<div class="ad-arena ${phase==='reveal'?'is-reveal':''}">${adHeader()}<div class="ad-topstatus">${hint}</div>${phase==='countdown'?`<div class="ad-countdown" aria-live="polite">${countdownValue}</div>`:''}<div class="ad-grid" id="adventurePlayerGrid" role="group" aria-label="학생 참여 게임 화면" style="--count:${number}">${adventure.lanes.map((_,i)=>adLaneHTML(i)).join('')}</div><div class="ad-bottom">${phase==='play'?'👆 자기 칸 아래에서 미션을 풀어 주세요!':phase==='reveal'?'정답을 확인한 뒤 자동으로 다음 문제로 넘어가요.':'🙋 한 학생이 '+questionsPerStudent+'문제를 모두 풀고 다음 선수에게 교대해요.'}</div></div>`
 }
 function adEnd(){
  const attend=adAttendance();const complete=adRosterComplete();
