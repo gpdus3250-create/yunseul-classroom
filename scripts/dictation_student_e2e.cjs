@@ -190,7 +190,7 @@ async function sharedChoice(browser){
   }finally{await page.close()}
 }
 (async()=>{
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,channel:'chrome',args:['--no-sandbox']});
  const results=[];
  try{
    results.push(await play4Teams(browser,'build',1));
