@@ -672,6 +672,45 @@ body.multi-active .ad-arena.is-reveal .ad-topstatus{font-weight:950}
 
 
 body.multi-active .ad-version-mark{font-size:clamp(11px,.9vw,14px);background:#ECE9FA;color:#6154A5;border:1px solid #DAD3F5;border-radius:7px;padding:3px 6px;white-space:nowrap;vertical-align:middle}
+/* 41.0 — 전자칠판에서 보스 체력과 남은 정답 수를 항상 보이게 유지.
+   기존 준비/정답 안내 한 줄 위에 보스 정보가 사라지지 않도록 함께 표시합니다. */
+body.multi-active .ad-topstatus-boss{
+ display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+ justify-content:center!important;gap:4px clamp(8px,1.1vw,22px)!important;
+ padding:6px 10px!important;min-height:55px!important;
+ background:#F3EFFF!important;border-bottom:2px solid #D5C7FA!important;
+ color:#50418E!important;
+}
+body.multi-active .ad-boss-hud{
+ display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+ gap:clamp(6px,.8vw,15px);flex:1 1 650px;min-width:0;
+}
+body.multi-active .ad-boss-title{
+ font-size:clamp(15px,1.34vw,22px);font-weight:1000;
+ color:#5C35AD;white-space:normal;line-height:1.25;
+}
+body.multi-active .ad-boss-meter{
+ height:21px;width:clamp(90px,11vw,220px);display:block;flex:0 1 auto;
+ border-radius:12px;overflow:hidden;border:2px solid #9D83E0;
+ background:#E8E3F6;box-shadow:inset 0 1px 3px #32265725;
+}
+body.multi-active .ad-boss-meter-fill{
+ height:100%;display:block;background:linear-gradient(90deg,#FDCA65,#F27891);
+ transition:width .25s ease;border-radius:9px;
+}
+body.multi-active .ad-boss-need{
+ font-size:clamp(14px,1.17vw,20px);font-weight:1000;
+ color:#593FB6;white-space:normal;line-height:1.25;
+}
+body.multi-active .ad-topstatus-boss .ad-status-message{
+ font-size:clamp(12px,1.06vw,17px);font-weight:850;
+ white-space:normal;color:#615887;line-height:1.35;
+}
+@media(max-height:740px){
+ body.multi-active .ad-topstatus-boss{padding:4px 8px!important;min-height:46px!important}
+ body.multi-active .ad-boss-meter{height:16px!important}
+}
+
 /* 40.0 — 18.9에서 사랑받던 크고 선명한 학생별 정오답 확인 화면을 복원.
    실제 스마트보드의 좁은 4분할에서도 결과가 보이도록 세로로 중앙 정렬합니다. */
 body.multi-active .ad-arena.is-reveal .ad-lane.ad-reveal-lane{
