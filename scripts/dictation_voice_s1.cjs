@@ -18,5 +18,6 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 for(const name of ['F1','M1','F2','M2','S1'])
  if(!html.includes('<option value="'+name+'">'))throw Error('Missing voice option '+name);
 if(!html.includes('onchange="setRecordedVoice(this.value)"')||!html.includes('function setRecordedVoice(name)')||!html.includes("'S1'"))throw Error('Cannot select Korean-native S1 voice');
-if(!html.includes('받아쓰기 왕국 39.0'))throw Error('39.0 build title missing');
+const visibleVersion=html.match(/<title>받아쓰기 왕국 (\d+\.\d+)/)?.[1];
+if(!visibleVersion || !html.includes('>'+visibleVersion+'</span>'))throw Error('Website title and visible version do not agree');
 console.log('Valid: all 172 S1 clips, five selectable voices, original 140 dictation sentences preserved.');
