@@ -1,0 +1,37 @@
+name: Simulate dictation student gameplay in real Chromium
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/dictation_student_e2e.cjs'
+      - '.github/workflows/dictation-student-e2e.yml'
+permissions:
+  contents: read
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runner
+        run: |
+          npm install --prefix /tmp/dictation-e2e playwright@1.58.2
+          /tmp/dictation-e2e/node_modules/.bin/playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python3 -m http.server 8765 --directory dictation > /tmp/dictation-http.log 2>&1 &
+          sleep 2
+          curl --fail http://127.0.0.1:8765/ > /dev/null
+      - name: Simulate four students solving all three game modes and a 3-choice game
+        env:
+          NODE_PATH: /tmp/dictation-e2e/node_modules
+        run: node scripts/dictation_student_e2e.cjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: student-gameplay-debug-screenshots
+          path: /tmp/*-failure.png
+          if-no-files-found: ignore
