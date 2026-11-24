@@ -525,6 +525,55 @@ body.multi-active .ad-arena .ad-lane{
  grid-template-columns:repeat(var(--count),minmax(165px,1fr))!important}
 }
 
+/* 40.3 — 전자칠판에서 글자 블록이 잘리는 근본 원인 수정:
+   하단 정렬(grid align-content:end) + margin-top:auto 때문에 클릭할 블록이
+   화면 밖으로 밀리거나 부모 overflow:hidden에 의해 사라졌습니다.
+   게임 조작부를 미션 바로 아래에 놓고, 창이 짧으면 조작부만 스크롤합니다. */
+body.multi-active .ad-arena .ad-lane:not(.ad-rest):not(.ad-submitted) .ad-lower{
+  display:flex!important;flex-direction:column!important;
+  flex:1 1 auto!important;margin-top:9px!important;
+  padding:4px 2px 12px!important;min-height:0!important;
+  align-content:flex-start!important;justify-content:flex-start!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain;scrollbar-width:auto;
+}
+body.multi-active .ad-arena .ad-lane .ad-lower>div{
+  flex:0 0 auto!important;min-height:min-content;
+}
+body.multi-active .ad-arena .ad-tiles{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;padding:10px!important;overflow:visible!important;
+  min-height:76px!important;background:#F4F0FF!important;
+  border:2px solid #B9AAEC!important;border-radius:14px!important;
+}
+body.multi-active .ad-arena .ad-tile,
+body.multi-active .ad-arena .ad-tile:not(.picked):not(:disabled){
+  display:block!important;min-height:58px!important;
+  padding:10px 3px!important;background:#FFFFFF!important;
+  color:#2F2B58!important;opacity:1!important;visibility:visible!important;
+  border:2px solid #9481DB!important;border-radius:10px!important;
+  font-size:clamp(21px,2vw,32px)!important;font-weight:950!important;
+}
+body.multi-active .ad-arena .ad-tile.picked,
+body.multi-active .ad-arena .ad-tile.picked:disabled{
+  background:#E0D7FF!important;color:#594C99!important;opacity:1!important;
+  border:2px dashed #B09ED8!important;
+}
+body.multi-active .ad-arena .ad-assemble-actions{
+  display:grid!important;grid-template-columns:1fr 1fr!important;
+  gap:7px!important;padding-bottom:7px!important;flex:0 0 auto!important;
+}
+body.multi-active .ad-arena .ad-tile-instruction{
+  display:block!important;flex:0 0 auto!important;
+  margin:2px 0 0!important;text-align:left;font-size:clamp(15px,1.3vw,19px);
+  font-weight:950;color:#55449D;
+}
+body.multi-active .ad-arena .ad-lane .ad-stage{flex:0 0 auto}
+@media(max-height:690px){
+ body.multi-active .ad-arena .ad-tiles{gap:5px!important;padding:5px!important}
+ body.multi-active .ad-arena .ad-tile{min-height:45px!important;padding:5px 2px!important}
+}
+
 /* 40.2 — 이미 제출한 학생과 선택한 블록을 투명하게 숨기지 않습니다. */
 body.multi-active .ad-arena .ad-submitted-card{
  margin:auto 4px;min-height:235px;padding:22px 12px;
@@ -2080,7 +2129,8 @@ function adLaneHTML(i){const p=adventure.lanes[i],name=p.turnName;
  }else{
    const filled=p.picked.map(j=>p.task.tiles[j].val).join('');
    controls=`<div class="ad-fault-sentence ad-blank">${esc(task.shown)}</div><div class="ad-build-line">${esc(filled)}<span>${'＿'.repeat(Math.max(0,[...task.target].length-p.picked.length))}</span></div>
-   <div class="ad-tiles">${task.tiles.map((t,j)=>`<button onclick="adPickTile(${i},${j})" class="ad-tile ${p.picked.includes(j)?'picked':''}" ${p.done||p.picked.includes(j)?'disabled':''}>${esc(t.val)}</button>`).join('')}</div>
+   <div class="ad-tile-instruction" role="heading" aria-level="3">👇 아래 글자를 눌러 빈칸을 채워요!</div>
+   <div class="ad-tiles" role="group" aria-label="선택할 글자">${task.tiles.map((t,j)=>`<button type="button" onclick="adPickTile(${i},${j})" class="ad-tile ${p.picked.includes(j)?'picked':''}" ${p.done||p.picked.includes(j)?'disabled':''} aria-label="${esc(t.val)} 글자 선택">${esc(t.val)}</button>`).join('')}</div>
    <div class="ad-assemble-actions"><button class="ad-undo" onclick="adUndo(${i})" ${p.done||!p.picked.length?'disabled':''}>↶ 하나 지우기</button><button class="ad-send" onclick="adConfirmBuild(${i})" ${p.done||p.picked.length!==[...task.target].length?'disabled':''}>✅ 완성!</button></div>`;
  }
  return `<article class="ad-lane ${reveal?(p.correct?'ad-win':'ad-try'):''}" id="adlane-${i}" style="--lane:${COLORS[i]}">${basic}${stage}${result}<div class="ad-lower ${p.done?'ad-finished':''}">${controls}</div></article>`;
