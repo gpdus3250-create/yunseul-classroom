@@ -34,6 +34,8 @@ async function visibleAndClickable(locator, label) {
 
 async function setup(page, kind, questionsPerChild=1, people=8) {
   await page.goto(SITE,{waitUntil:'domcontentloaded',timeout:40000});
+  assert((await page.title()).includes('40.0'),'Website title must show version 40.0');
+  assert((await page.locator('.brand').innerText()).includes('40.0'),'Visible website header must show 40.0');
   await page.locator('.tab[data-v="multi"]').click();
   await page.locator('.grade').first().click();
   const count=await page.evaluate(()=>classNames().length);
@@ -138,9 +140,31 @@ async function play4Teams(browser,kind,questionsPerChild){
         }
       }
       await page.waitForFunction(()=>phase==='reveal',{timeout:4000});
-      assert(await page.locator('#adlane-'+active[0]+' .ad-reveal-result').isVisible(),'reveal result missing');
+      assert(await page.locator('#adlane-'+active[0]+' .ad-reveal-result').isVisible(),'40.0 reveal card missing');
+      assert.equal(await page.locator('.ad-reveal-result').count(),active.length,'each student needs a 40.0 results card');
+      for(const i of active){
+        const panel=page.locator('#adlane-'+i);
+        const result=panel.locator('.ad-reveal-result');
+        const fullSentence=await page.evaluate(x=>adventure.lanes[x].q.text,i);
+        assert((await result.locator('.ad-reveal-correct').innerText()).includes(fullSentence),'original correct sentence must be displayed');
+        assert(await result.locator('.ad-reveal-verdict').isVisible(),'student cannot see a prominent success/failure verdict');
+        assert(await result.locator('.ad-reveal-choice').isVisible(),'student must see the answer they submitted');
+        assert.equal(await panel.locator('.ad-tile, .ad-replace').count(),0,'answer controls should not obscure the result');
+        const visibility=await result.evaluate(el=>{
+          const r=el.getBoundingClientRect(), lane=el.closest('.ad-lane').getBoundingClientRect();
+          const label=el.querySelector('.ad-reveal-verdict'), style=getComputedStyle(label);
+          return {height:r.height,top:r.top,bottom:r.bottom,laneBottom:lane.bottom,
+                  labelFont:parseFloat(style.fontSize),opacity:+getComputedStyle(el).opacity};
+        });
+        assert(visibility.height>=100&&visibility.labelFont>=20&&visibility.opacity>.9,
+          'Result is not readable on smartboard: '+JSON.stringify(visibility));
+        assert(visibility.top>=0&&visibility.bottom<=visibility.laneBottom+3,
+          'Result card is cut off: '+JSON.stringify(visibility));
+      }
       const wrong=await page.locator('.ad-reveal-result.bad').count();
       if(rounds===0)assert(wrong>=1,'wrong response was not marked');
+      const version=await page.locator('.ad-version-mark').innerText();
+      assert(version.includes('40.0'),'game header must retain visible version identifier');
       await page.waitForFunction(()=>phase==='ready'||phase==='play'||phase==='boss-clear'||phase==='done',{timeout:16000});
       const next=await page.evaluate(()=>phase);
       if(next==='boss-clear'){
