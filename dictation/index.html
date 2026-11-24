@@ -671,6 +671,7 @@ body.multi-active .ad-arena.is-reveal .ad-topstatus{font-weight:950}
 }
 
 
+body.multi-active .ad-version-mark{font-size:clamp(11px,.9vw,14px);background:#ECE9FA;color:#6154A5;border:1px solid #DAD3F5;border-radius:7px;padding:3px 6px;white-space:nowrap;vertical-align:middle}
 /* 40.0 — 18.9에서 사랑받던 크고 선명한 학생별 정오답 확인 화면을 복원.
    실제 스마트보드의 좁은 4분할에서도 결과가 보이도록 세로로 중앙 정렬합니다. */
 body.multi-active .ad-arena.is-reveal .ad-lane.ad-reveal-lane{
@@ -2161,7 +2162,7 @@ function adHome(){
 function adTeamMembersLabel(i,currentName){const members=(teamGroups[i]||[]).map(n=>n===currentName?`<b>${esc(n)}</b>`:esc(n));return members.join(' · ')}
 function adHeader(){const attend=adAttendance(),wave=adGetWave();
  const boss=kind==='boss'?`<span class="ad-boss">${AD_BOSSES[adventure.bossLevel%AD_BOSSES.length]} 보스 ${adventure.defeats+1} · 체력 <span class="ad-hp"><i style="width:${Math.max(0,100*adventure.bossHp/adventure.bossMax)}%"></i></span> ${Math.max(0,adventure.bossHp)}/${adventure.bossMax}</span>`:`<span class="ad-mission-name">${gameMeta[kind][0]} ${gameMeta[kind][1]}</span>`;
- return `<div class="ad-top"><strong>${boss}</strong><span>🙋 참여 완료 ${attend.done}/${attend.all}명 · ${wave+1}번째 선수 · ${adWithin()}/${questionsPerStudent}문제</span><button class="ad-quit" onclick="quit()">✕ 나가기</button></div>`
+ return `<div class="ad-top"><strong>${boss} <small class="ad-version-mark" aria-label="받아쓰기 왕국 버전">v40.0</small></strong><span>🙋 참여 완료 ${attend.done}/${attend.all}명 · ${wave+1}번째 선수 · ${adWithin()}/${questionsPerStudent}문제</span><button class="ad-quit" onclick="quit()">✕ 나가기</button></div>`
 }
 function adLaneHTML(i){const p=adventure.lanes[i],name=p.turnName;
  const inactive=!name,waiting=phase==='ready'||phase==='countdown',reveal=phase==='reveal';
