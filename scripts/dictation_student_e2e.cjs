@@ -189,6 +189,64 @@ async function sharedChoice(browser){
     log('합격: 3지선다 동일문장/동일보기에 따른 독립 선택');
   }finally{await page.close()}
 }
+async function auditAllGradeSentences(browser) {
+ const page=await browser.newPage();
+ try {
+  await page.goto(SITE);
+  const report=await page.evaluate(()=>{
+   const cases=[],errors=[];
+   for(let grade=1;grade<=14;grade++)for(let index=0;index<10;index++){
+     const text=levels[grade][index],q={grade,index,text,id:grade+':'+index};
+     try{
+       const opt=makeOptions(text);
+       if(opt.length!==3||new Set(opt).size!==3||opt.filter(x=>x===text).length!==1)
+         throw Error('3지선다 오답 생성 비정상');
+       const repair=adRepairTask(q);
+       if(repair.options.length!==3||new Set(repair.options).size!==3||repair.options.filter(x=>x===repair.good).length!==1)
+         throw Error('낱말 수리소 보기 생성 비정상');
+       const build=adBuildTask(q);
+       const counts=new Map();
+       for(const tile of build.tiles)counts.set(tile.val,(counts.get(tile.val)||0)+1);
+       for(const ch of build.target){
+         if(!(counts.get(ch)>0))throw Error('정답 글자 '+ch+' 누락');
+         counts.set(ch,counts.get(ch)-1);
+       }
+       if(build.tiles.length!==[...build.target].length+2)
+         throw Error('글자 블록 개수 이상');
+       cases.push(q.id);
+     }catch(e){errors.push({grade,index,text,error:e.message})}
+   }
+   return {checked:cases.length+errors.length,passed:cases.length,errors};
+  });
+  log('140문장 출제 전수 검사',JSON.stringify(report));
+  assert.equal(report.checked,140,'question bank size mismatch');
+  assert.deepEqual(report.errors,[],'Question generation failure(s)');
+  return report;
+ }finally{await page.close()}
+}
+async function auditTwoToSixTeamLayouts(browser) {
+ const layouts=[];
+ for(const count of [2,3,5,6]){
+  const page=await browser.newPage({viewport:{width:1800,height:850}});
+  try{
+   await page.goto(SITE);
+   await page.locator('.tab[data-v="multi"]').click();
+   await page.locator('.grade').first().click();
+   await page.locator('#adQuickNameInput').fill(NAMES.join('\\n'));
+   await page.locator('.ad-quick-submit').click();
+   await page.locator('.ad-team-actions button').filter({hasText:count+'팀'}).click();
+   await page.locator('.ad-launch').click();
+   const lanes=page.locator('.ad-lane');
+   assert.equal(await lanes.count(),count,'Incorrect lane count at '+count+' teams');
+   for(let i=0;i<count;i++){
+     await visibleAndClickable(page.locator('#adlane-'+i+' .ad-ready'),count+' teams ready '+i);
+   }
+   layouts.push(count);
+   log('합격',count+'팀', '전원 준비완료 버튼 실제 화면 표시 확인');
+  }finally{await page.close()}
+ }
+ return layouts;
+}
 (async()=>{
  browser=await chromium.launch({headless:true,channel:'chrome',args:['--no-sandbox']});
  const results=[];
@@ -197,6 +255,8 @@ async function sharedChoice(browser){
    results.push(await play4Teams(browser,'repair',1));
    results.push(await play4Teams(browser,'boss',2));
    await sharedChoice(browser);
+   await auditAllGradeSentences(browser);
+   await auditTwoToSixTeamLayouts(browser);
    log('전 과정 통과',JSON.stringify(results));
  }finally{await browser.close()}
 })().catch(e=>{console.error('[학생 플레이 테스트 실패]',e.stack||e.message);process.exitCode=1});
