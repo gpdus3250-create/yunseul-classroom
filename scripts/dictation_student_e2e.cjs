@@ -6,7 +6,9 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 
 const SITE = process.env.DICTATION_E2E_URL || 'http://127.0.0.1:8765/';
-const EXPECTED_VERSION='41.0';
+const sourceHtml=require('node:fs').readFileSync(require('node:path').join(__dirname,'..','dictation','index.html'),'utf8');
+const EXPECTED_VERSION=sourceHtml.match(/const APP_VERSION='(\d+\.\d+)'/)?.[1];
+assert(EXPECTED_VERSION,'APP_VERSION must be declared in app source');
 const pause = ms => new Promise(r => setTimeout(r, ms));
 const log = (...msg) => console.log('[학생 플레이]', ...msg);
 const NAMES = ['테스트가람','테스트나래','테스트다온','테스트라온','테스트마루','테스트바다','테스트솔','테스트하늘'];
