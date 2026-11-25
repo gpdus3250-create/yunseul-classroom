@@ -835,7 +835,7 @@ body.multi-active .ad-arena.is-reveal .ad-reveal-note{
 .ad-quick-note{font-size:13px;line-height:1.45;margin:9px 0 0;color:#817b9a}
 .ad-quick-status{font-size:14px;min-height:20px;color:#5f4aac;font-weight:800;margin:7px 0 0}
 @media(max-width:700px){.ad-quick-add{padding:13px}.ad-quick-form{flex-direction:column}.ad-quick-input{min-height:65px}.ad-quick-submit{min-height:52px}}
-</style></head><body><div class="shell"><header class="header"><div><div class="brand">🏰 받아쓰기 왕국 <span style="font-size:.48em" aria-label="현재 버전 41.0">41.0</span></div><div class="muted">1학년 2학기 · 1~14급 · 140문항 · 윤슬초등학교 학생만을 위한 학습사이트입니다.</div></div><div class="row"><button class="pill" onclick="showVoiceSettings()">✨ 목소리 미리 듣기</button><button class="pill" id="big" onclick="toggleBoard()">📺 전자칠판 크게</button><button class="pill" onclick="toggleFull()">⛶ 전체 화면</button></div></header><nav class="nav" id="tabs"><button class="tab active" data-v="practice">🐰 연습 게임</button><button class="tab" data-v="board">📺 함께 받아쓰기</button><button class="tab" data-v="multi">🎮 받아쓰기 게임</button><button class="tab" data-v="exam">🎤 복습시험 만들기</button><button class="tab" data-v="reading">📖 다 함께 읽기</button><button class="tab" data-v="teacher">⚙️ 선생님 관리</button></nav><main id="app"></main><div class="footer">학생 이름은 1~6반별로 이 브라우저에 보관됩니다. 개별 학생 점수·오답 기록은 누적 저장하지 않습니다. 공용 기기에서는 이름 관리에 주의하세요.</div></div>
+</style></head><body><div class="shell"><header class="header"><div><div class="brand">🏰 받아쓰기 왕국 <span style="font-size:.48em" aria-label="현재 버전 42.0">42.0</span></div><div class="muted">1학년 2학기 · 1~14급 · 140문항 · 윤슬초등학교 학생만을 위한 학습사이트입니다.</div></div><div class="row"><button class="pill" onclick="showVoiceSettings()">✨ 목소리 미리 듣기</button><button class="pill" id="big" onclick="toggleBoard()">📺 전자칠판 크게</button><button class="pill" onclick="toggleFull()">⛶ 전체 화면</button></div></header><nav class="nav" id="tabs"><button class="tab active" data-v="practice">🐰 연습 게임</button><button class="tab" data-v="board">📺 함께 받아쓰기</button><button class="tab" data-v="multi">🎮 받아쓰기 게임</button><button class="tab" data-v="exam">🎤 복습시험 만들기</button><button class="tab" data-v="reading">📖 다 함께 읽기</button><button class="tab" data-v="teacher">⚙️ 선생님 관리</button></nav><main id="app"></main><div class="footer">학생 이름은 1~6반별로 이 브라우저에 보관됩니다. 개별 학생 점수·오답 기록은 누적 저장하지 않습니다. 공용 기기에서는 이름 관리에 주의하세요.</div></div>
 
 <div class="voice-modal" id="voiceModal" role="dialog" aria-modal="true" aria-label="받아쓰기 음성 설정">
  <div class="voice-dialog">
@@ -913,7 +913,54 @@ try{
 let readyCountdown=null, countdownValue=3, revealTimer=null;
 let rosterText='',teamGroups=[],roundQuestions=[],questionPool=[],lastRoundIds=new Set(),turnsPerChild=1,questionsPerStudent=5; // 한 학생 1회 출전, 문제 수는 선생님 설정
 // 학급 명단은 반별로만 기기에 저장합니다. 게임 기록은 저장하지 않습니다.
+// 42.0: Never version or reset the roster storage keys when deploying updates.
+// Roster data stays on the teacher's device; no names are embedded in public source.
 const CLASS_STORE='dictation_kingdom_class_rosters_v1';
+const CLASS_BACKUP_DB='dictation_kingdom_roster_backup';
+let rosterRevision=0;
+function openRosterBackup(){
+ return new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(new Error('IndexedDB unavailable'));return}
+  const req=indexedDB.open(CLASS_BACKUP_DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('rosters'))req.result.createObjectStore('rosters')};
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error);
+  req.onblocked=()=>reject(new Error('Roster backup blocked'));
+ });
+}
+let rosterBackupQueue=Promise.resolve();
+function backupRosters(){
+ const snapshot=JSON.parse(JSON.stringify(classRosters));
+ rosterBackupQueue=rosterBackupQueue.catch(()=>{}).then(async()=>{
+  const db=await openRosterBackup();
+  try{await new Promise((resolve,reject)=>{
+   const tx=db.transaction('rosters','readwrite');
+   tx.objectStore('rosters').put(snapshot,'classes');
+   tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  })}finally{db.close()}
+ }).catch(()=>{});
+}
+async function restoreRosterBackup(){
+ const revision=rosterRevision;
+ try{
+  const existing=JSON.parse(localStorage.getItem(CLASS_STORE)||'null');
+  if(existing&&[1,2,3,4,5,6].every(c=>Array.isArray(existing[c]))){backupRosters();return}
+ }catch(e){}
+ try{
+  const db=await openRosterBackup();
+  let saved;
+  try{saved=await new Promise((resolve,reject)=>{
+   const req=db.transaction('rosters','readonly').objectStore('rosters').get('classes');
+   req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  })}finally{db.close()}
+  if(rosterRevision!==revision||!saved||![1,2,3,4,5,6].every(c=>Array.isArray(saved[c])))return;
+  for(let c=1;c<=6;c++)classRosters[c]=parseNames(saved[c].filter(n=>typeof n==='string').join('\n'));
+  try{localStorage.setItem(CLASS_STORE,JSON.stringify(classRosters))}catch(e){}
+  if(classRosters[6].length&&![1,2,3,4,5].some(c=>classRosters[c].length))activeClass=6;
+  rosterText=classNames().join('\n');
+  if(phase==='idle'){teamGroups=[];render()}
+ }catch(e){}
+}
 let classRosters=Object.fromEntries(Array.from({length:6},(_,i)=>[i+1,[]]));
 const ACTIVE_CLASS_STORE='dictation_kingdom_active_class_v1';
 let activeClass=1;
@@ -967,7 +1014,7 @@ function renderAbsentPanel(){
  ${names.length?`<div class="ad-absence-grid">${names.map((n,i)=>`<label class="ad-attendance-person ${absence.has(n)?'absent':''}"><input type="checkbox" ${absence.has(n)?'checked':''} onchange="toggleAbsent(${activeClass},${i})" aria-label="${esc(n)} 결석"><span class="ad-attendance-name">${esc(n)}</span></label>`).join('')}</div><button type="button" class="ad-absence-reset" onclick="resetAbsent()">↩ 모두 출석으로 되돌리기</button>`:'<div class="ad-absence-empty">아직 명단이 없어요. 바로 위 입력칸에서 학생 이름을 추가해 주세요.</div>'}
  </section>`;
 }
-function persistClasses(){try{localStorage.setItem(CLASS_STORE,JSON.stringify(classRosters));return true}catch(e){alert('이 브라우저에서 명단을 저장할 수 없어요. 명단 백업 기능을 사용하거나 브라우저의 저장 허용 설정을 확인해 주세요.');return false}}
+function persistClasses(){try{localStorage.setItem(CLASS_STORE,JSON.stringify(classRosters));rosterRevision++;backupRosters();try{navigator.storage?.persist?.().catch(()=>{})}catch(e){}return true}catch(e){alert('이 브라우저에서 명단을 저장할 수 없어요. 명단 백업 기능을 사용하거나 브라우저의 저장 허용 설정을 확인해 주세요.');return false}}
 function classNames(c=activeClass){return classRosters[c]||[]}
 function selectClass(c){activeClass=Math.max(1,Math.min(6,Number(c)||1));try{localStorage.setItem(ACTIVE_CLASS_STORE,String(activeClass))}catch(e){}rosterText=classNames().join('\n');teamGroups=[];render()}
 function classTabs(){return `<div class="class-tabs" role="group" aria-label="1학년 반 선택">${Array.from({length:6},(_,i)=>i+1).map(c=>`<button class="class-tab ${activeClass===c?'active':''}" aria-pressed="${activeClass===c}" onclick="selectClass(${c})">${c}반<small>${classNames(c).length}명</small></button>`).join('')}</div>`}
@@ -993,7 +1040,7 @@ function importSixthClassFile(event){
   }catch(e){alert('6반 명단 등록 파일(JSON)을 확인해 주세요.')}};
  reader.readAsText(file);
 }
-function teacherRosterHTML(){return `<div class="roster-editor"><h2>👩‍🏫 1학년 반별 학생 이름 관리</h2><p class="muted">1~6반의 이름을 각각 한 줄씩 붙여 넣고 <b>저장</b>하세요. 게임에서는 선택한 반 명단만 가져와 자동으로 팀을 섞어요.</p>${classTabs()}<div class="class-summary"><b>${activeClass}반</b> · 현재 ${classNames().length}명 저장</div><label for="classRosterInput"><b>${activeClass}반 학생 이름</b> (한 줄에 한 명)</label><textarea id="classRosterInput" spellcheck="false" placeholder="여기에 실제 ${activeClass}반 학생 이름을 한 줄씩 넣어 주세요">${esc(classNames().join('\n'))}</textarea><div class="row"><button class="btn green" onclick="saveClassRoster()">💾 ${activeClass}반 명단 저장</button><button class="btn gray" onclick="clearClassRoster()">🗑️ ${activeClass}반 명단 비우기</button></div><div class="row" style="margin-top:14px"><label class="btn sub small" style="cursor:pointer">📥 6반 명단 한 번에 등록<input type="file" accept=".json,application/json" hidden onchange="importSixthClassFile(event);this.value='' "></label></div><div class="row" style="margin-top:14px"><button class="btn sub small" onclick="downloadRosters()">⬇ 1~6반 명단 백업</button><label class="btn gray small" style="cursor:pointer">⬆ 명단 백업 불러오기<input type="file" accept=".json,application/json" hidden onchange="importRosters(event)"></label></div><p class="muted" style="margin-top:13px;font-size:14px">이름은 이 컴퓨터의 현재 브라우저에만 저장돼요. HTML 파일을 다른 컴퓨터로 옮기거나 새 버전을 열 때 이름이 자동 이전되지 않을 수 있으므로 명단 백업 파일을 이용해 주세요. 공용 PC에서는 개인정보 관리에 주의하세요. 개별 성적·오답은 저장하지 않아요.</p></div>`}
+function teacherRosterHTML(){return `<div class="roster-editor"><h2>👩‍🏫 1학년 반별 학생 이름 관리</h2><p class="muted">1~6반의 이름을 각각 한 줄씩 붙여 넣고 <b>저장</b>하세요. 게임에서는 선택한 반 명단만 가져와 자동으로 팀을 섞어요.</p>${classTabs()}<div class="class-summary"><b>${activeClass}반</b> · 현재 ${classNames().length}명 저장</div><label for="classRosterInput"><b>${activeClass}반 학생 이름</b> (한 줄에 한 명)</label><textarea id="classRosterInput" spellcheck="false" placeholder="여기에 실제 ${activeClass}반 학생 이름을 한 줄씩 넣어 주세요">${esc(classNames().join('\n'))}</textarea><div class="row"><button class="btn green" onclick="saveClassRoster()">💾 ${activeClass}반 명단 저장</button><button class="btn gray" onclick="clearClassRoster()">🗑️ ${activeClass}반 명단 비우기</button></div><div class="row" style="margin-top:14px"><label class="btn sub small" style="cursor:pointer">📥 6반 명단 한 번에 등록<input type="file" accept=".json,application/json" hidden onchange="importSixthClassFile(event);this.value='' "></label></div><div class="row" style="margin-top:14px"><button class="btn sub small" onclick="downloadRosters()">⬇ 1~6반 명단 백업</button><label class="btn gray small" style="cursor:pointer">⬆ 명단 백업 불러오기<input type="file" accept=".json,application/json" hidden onchange="importRosters(event)"></label></div><p class="muted" style="margin-top:13px;font-size:14px">명단은 같은 사이트 주소와 브라우저에서 업데이트해도 유지되며, 기기 내 이중 저장으로 복구를 지원해요. 브라우저 데이터 전체 삭제, 시크릿 모드, 다른 기기에서는 명단 백업 파일이 필요해요. 공용 PC에서는 개인정보 관리에 주의하세요. 개별 성적·오답은 저장하지 않아요.</p></div>`}
 
 const mascotNames=['토끼 탐험대','곰돌이 기사단','강아지 특공대','고양이 마법단','여우 별빛단','판다 우주단'];
 let view='practice',selected=new Set(),kind='race',number=4,rounds=5,round=0,phase='idle',deck=[],retries=[],missed=new Map(),score=0,answered=0,players=[],feedbackChoice=null,choiceOptions=[],chosenText=null,revealFlag=false,editGrade=1,reviewAppended=false;
@@ -1926,7 +1973,7 @@ Object.assign(gameMeta,{
 });
 kind='boss';
 let adventure=null;
-const APP_VERSION='41.0';
+const APP_VERSION='42.0';
 const AD_BOSSES=['👾','🐲','👻','🤖','🦖','🛸'];
 const AD_WORD_CHOICES=['무릅','널따','함니다','갇이','만이','괜차늘'];
 function adGetWave(){return Math.floor(round/questionsPerStudent)}
@@ -2542,6 +2589,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.v))
 $('voiceModal').addEventListener('click',e=>{if(e.target.id==='voiceModal')closeVoiceSettings()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeVoiceSettings();closeReadingBoard();closeReadingSingle()}else if($('readSingleOverlay')?.classList.contains('open')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){if(e.key==='ArrowLeft'){e.preventDefault();nextReadingSingle(-1)}else if(e.key==='ArrowRight'){e.preventDefault();nextReadingSingle(1)}}});
 render();
+restoreRosterBackup();
 </script>
 <div id="readOverlay" class="read-overlay" role="dialog" aria-modal="true" aria-label="급수별 함께 읽기 큰 화면">
   <div class="read-overlay-head"><div id="readTitle" class="read-overlay-title">📖 1급 · 다 함께 읽어요!</div><div class="read-toolbar"><button class="btn small sub" onclick="changeReadingSize(-3)">가−</button><button class="btn small sub" onclick="changeReadingSize(3)">가+</button><button class="btn small gray" onclick="closeReadingBoard()">✕ 닫기</button></div></div>
