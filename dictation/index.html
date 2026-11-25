@@ -835,7 +835,7 @@ body.multi-active .ad-arena.is-reveal .ad-reveal-note{
 .ad-quick-note{font-size:13px;line-height:1.45;margin:9px 0 0;color:#817b9a}
 .ad-quick-status{font-size:14px;min-height:20px;color:#5f4aac;font-weight:800;margin:7px 0 0}
 @media(max-width:700px){.ad-quick-add{padding:13px}.ad-quick-form{flex-direction:column}.ad-quick-input{min-height:65px}.ad-quick-submit{min-height:52px}}
-</style></head><body><div class="shell"><header class="header"><div><div class="brand">🏰 받아쓰기 왕국 <span style="font-size:.48em" aria-label="현재 버전 42.0">42.0</span></div><div class="muted">1학년 2학기 · 1~14급 · 140문항 · 윤슬초등학교 학생만을 위한 학습사이트입니다.</div></div><div class="row"><button class="pill" onclick="showVoiceSettings()">✨ 목소리 미리 듣기</button><button class="pill" id="big" onclick="toggleBoard()">📺 전자칠판 크게</button><button class="pill" onclick="toggleFull()">⛶ 전체 화면</button></div></header><nav class="nav" id="tabs"><button class="tab active" data-v="practice">🐰 연습 게임</button><button class="tab" data-v="board">📺 함께 받아쓰기</button><button class="tab" data-v="multi">🎮 받아쓰기 게임</button><button class="tab" data-v="exam">🎤 복습시험 만들기</button><button class="tab" data-v="reading">📖 다 함께 읽기</button><button class="tab" data-v="teacher">⚙️ 선생님 관리</button></nav><main id="app"></main><div class="footer">학생 이름은 1~6반별로 이 브라우저에 보관됩니다. 개별 학생 점수·오답 기록은 누적 저장하지 않습니다. 공용 기기에서는 이름 관리에 주의하세요.</div></div>
+</style></head><body><div class="shell"><header class="header"><div><div class="brand">🏰 받아쓰기 왕국 <span style="font-size:.48em" aria-label="현재 버전 43.0">43.0</span></div><div class="muted">1학년 2학기 · 1~14급 · 140문항 · 윤슬초등학교 학생만을 위한 학습사이트입니다.</div></div><div class="row"><button class="pill" onclick="showVoiceSettings()">✨ 목소리 미리 듣기</button><button class="pill" id="big" onclick="toggleBoard()">📺 전자칠판 크게</button><button class="pill" onclick="toggleFull()">⛶ 전체 화면</button></div></header><nav class="nav" id="tabs"><button class="tab active" data-v="practice">🐰 연습 게임</button><button class="tab" data-v="board">📺 함께 받아쓰기</button><button class="tab" data-v="multi">🎮 받아쓰기 게임</button><button class="tab" data-v="exam">🎤 복습시험 만들기</button><button class="tab" data-v="reading">📖 다 함께 읽기</button><button class="tab" data-v="teacher">⚙️ 선생님 관리</button></nav><main id="app"></main><div class="footer">학생 이름은 1~6반별로 이 브라우저에 보관됩니다. 개별 학생 점수·오답 기록은 누적 저장하지 않습니다. 공용 기기에서는 이름 관리에 주의하세요.</div></div>
 
 <div class="voice-modal" id="voiceModal" role="dialog" aria-modal="true" aria-label="받아쓰기 음성 설정">
  <div class="voice-dialog">
@@ -913,7 +913,7 @@ try{
 let readyCountdown=null, countdownValue=3, revealTimer=null;
 let rosterText='',teamGroups=[],roundQuestions=[],questionPool=[],lastRoundIds=new Set(),turnsPerChild=1,questionsPerStudent=5; // 한 학생 1회 출전, 문제 수는 선생님 설정
 // 학급 명단은 반별로만 기기에 저장합니다. 게임 기록은 저장하지 않습니다.
-// 42.0: Never version or reset the roster storage keys when deploying updates.
+// 43.0: Never version or reset the roster storage keys when deploying updates.
 // Roster data stays on the teacher's device; no names are embedded in public source.
 const CLASS_STORE='dictation_kingdom_class_rosters_v1';
 const CLASS_BACKUP_DB='dictation_kingdom_roster_backup';
@@ -1973,7 +1973,7 @@ Object.assign(gameMeta,{
 });
 kind='boss';
 let adventure=null;
-const APP_VERSION='42.0';
+const APP_VERSION='43.0';
 const AD_BOSSES=['👾','🐲','👻','🤖','🦖','🛸'];
 const AD_WORD_CHOICES=['무릅','널따','함니다','갇이','만이','괜차늘'];
 function adGetWave(){return Math.floor(round/questionsPerStudent)}
@@ -2588,8 +2588,28 @@ function studioDownloadPdf(){
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.v));
 $('voiceModal').addEventListener('click',e=>{if(e.target.id==='voiceModal')closeVoiceSettings()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeVoiceSettings();closeReadingBoard();closeReadingSingle()}else if($('readSingleOverlay')?.classList.contains('open')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){if(e.key==='ArrowLeft'){e.preventDefault();nextReadingSingle(-1)}else if(e.key==='ArrowRight'){e.preventDefault();nextReadingSingle(1)}}});
+// 43.0: teacher-only roster initialization via URL fragment (never sent to server).
+function applyPrivateRosterLink(){
+ const params=new URLSearchParams(location.hash.slice(1));
+ if(!params.has('roster6'))return false;
+ const names=parseNames(params.get('roster6')||'');
+ if(!names.length)return false;
+ const previous=classRosters[6];
+ classRosters[6]=names;
+ if(!persistClasses()){classRosters[6]=previous;return false}
+ activeClass=6;
+ try{localStorage.setItem(ACTIVE_CLASS_STORE,'6')}catch(e){}
+ absentByClass[6]=new Set([...absentByClass[6]].filter(n=>names.includes(n)));
+ saveAttendance();
+ rosterText=names.join('\n');teamGroups=[];
+ try{params.delete('roster6');history.replaceState(null,'',location.pathname+location.search+(params.toString()?'#'+params.toString():''))}catch(e){}
+ render();return true;
+}
 render();
-restoreRosterBackup();
+if(new URLSearchParams(location.hash.slice(1)).has('roster6')){
+ restoreRosterBackup().finally(applyPrivateRosterLink);
+}else{restoreRosterBackup();}
+
 </script>
 <div id="readOverlay" class="read-overlay" role="dialog" aria-modal="true" aria-label="급수별 함께 읽기 큰 화면">
   <div class="read-overlay-head"><div id="readTitle" class="read-overlay-title">📖 1급 · 다 함께 읽어요!</div><div class="read-toolbar"><button class="btn small sub" onclick="changeReadingSize(-3)">가−</button><button class="btn small sub" onclick="changeReadingSize(3)">가+</button><button class="btn small gray" onclick="closeReadingBoard()">✕ 닫기</button></div></div>
