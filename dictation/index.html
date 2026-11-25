@@ -2259,7 +2259,7 @@ function adBossProgress(){
  const {bossMax:max,bossHp:hp,solved}=adventure;
  const remaining=Math.max(0,max-solved);
  const hits=phase==='reveal'?adActiveLanes().filter(lane=>lane.correct).length:0;
- const message=remaining===0?'마지막 방어막! 모두 차례를 마치면 열려요.':`정답 ${remaining}개 더 모으면 돼요!`;
+ const message=remaining===0?'남은 정답 0개! 모두 차례를 마치면 마지막 방어막이 열려요.':`정답 ${remaining}개 더 모으면 돼요!`;
  return `<section class="ad-boss-hud ${hits?'boss-hit':''}" aria-label="보스와의 전투">
    <span class="boss-portrait" aria-hidden="true">${AD_BOSSES[0]}</span>
    <strong class="boss-health-label">보스 1 <small>남은 체력 ${hp} / ${max}</small></strong>
