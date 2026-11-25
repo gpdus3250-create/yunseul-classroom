@@ -171,13 +171,15 @@ async function play4Teams(browser,kind,questionsPerChild){
           'Result card is cut off: '+JSON.stringify(visibility));
       }
       if(kind==='boss'){
-        const boss=await page.evaluate(()=>({hp:adventure.bossHp,max:adventure.bossMax,justWon:adventure.justWonBoss,lastMax:adventure.lastBossClearMax,correct:adventure.lanes.filter(x=>x.turnName&&x.correct).length}));
+        const boss=await page.evaluate(()=>({hp:adventure.bossHp,max:adventure.bossMax,justWon:adventure.justWonBoss,solved:adventure.solved,points:adventure.lanes.reduce((n,l)=>n+l.points,0)}));
         const hud=page.locator('.ad-boss-hud'),progress=hud.locator('.ad-boss-meter');
         assert(await hud.isVisible(),'Boss HP must remain visible during answer reveal');
-        const expected=boss.justWon?0:Math.max(0,boss.hp);
-        assert.equal(Number(await progress.getAttribute('aria-valuenow')),expected,'Boss progress meter must reflect correct-answer damage');
-        if(boss.justWon)assert((await hud.innerText()).includes('해치웠'),'Defeated boss must be acknowledged before next boss HP resets');
-        else assert((await hud.locator('.ad-boss-need').innerText()).includes('정답 '+expected+'개'),'remaining needed correct answers must match HP');
+        const remaining=Math.max(0,boss.max-boss.solved);
+        assert.equal(boss.hp,Math.max(1,remaining),'final shield must remain until the last turn finishes');
+        assert.equal(boss.justWon,false,'early victory');
+        assert.equal(boss.points,boss.solved,'sum of team points must equal shared damage');
+        assert.equal(Number(await progress.getAttribute('aria-valuenow')),boss.hp,'Boss progress meter must reflect shield and damage');
+        assert((await hud.locator('.ad-boss-need').innerText()).includes('정답 '+remaining+'개'),'remaining needed correct answers must match target');
       }
       const wrong=await page.locator('.ad-reveal-result.bad').count();
       if(rounds===0)assert(wrong>=1,'wrong response was not marked');
@@ -187,7 +189,9 @@ async function play4Teams(browser,kind,questionsPerChild){
       const next=await page.evaluate(()=>phase);
       if(next==='boss-clear'){
         bossCleared=true;
-        assert(await page.locator('.boss-cleared-next').isVisible(),'boss defeat should show continue');
+        assert(await page.evaluate(()=>adRosterComplete()),'no victory screen before every student participates');
+        assert.equal(await page.evaluate(()=>adventure.bossHp),0,'final attack must remove final shield');
+        assert(await page.locator('.boss-cleared-next').isVisible(),'boss defeat should show results button');
         await visibleAndClickable(page.locator('.boss-cleared-next'),'boss next');
         await page.locator('.boss-cleared-next').click();
       }
@@ -297,7 +301,7 @@ async function auditTouchBottomPlacement(browser) {
   const page=await browser.newPage({viewport:{width:1884,height}});
   try {
    await setup(page,'boss',1);
-   assert((await page.locator('.ad-boss-need').innerText()).includes('정답 9개'),'initial boss requires nine correct answers');
+   assert((await page.locator('.ad-boss-need').innerText()).includes('정답 6개'),'8 students x 1 question requires 6 correct answers');
    const bossHud=page.locator('.ad-boss-hud');
    assert(await bossHud.isVisible(),'Boss HP bar missing on classroom screen');
    const pos=await bossHud.evaluate(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:innerHeight,width:r.width}});
@@ -338,6 +342,47 @@ async function auditTouchBottomPlacement(browser) {
  }
  return results;
 }
+// Fast state regression for an uneven real-size roster; the original browser
+// tests above still click every answer and verify smartboard controls.
+async function auditClassRaid(browser){
+ for(const success of [true,false]){
+  const page=await browser.newPage({viewport:{width:1800,height:850}});
+  try{
+   await page.goto(SITE);
+   await page.locator('.tab[data-v="multi"]').click();
+   await page.locator('.grade').first().click();
+   await page.locator('#adQuickNameInput').fill(Array.from({length:21},(_,i)=>'테스트학생'+(i+1)).join('\n'));
+   await page.locator('.ad-quick-submit').click();
+   await page.locator('.ad-modecard').filter({hasText:'받아쓰기 보스전'}).click();
+   await page.locator('.ad-count-custom select').selectOption('2');
+   await page.locator('.ad-launch').click();
+   const report=await page.evaluate(success=>{
+    const target=adventure.bossMax;let early=false,scoreMismatch=false,shieldReached=false,steps=0;
+    while(phase!=='done'&&phase!=='boss-clear'&&steps++<50){
+     phase='play';
+     const active=adventure.lanes.map((l,i)=>l.turnName===null?-1:i).filter(i=>i>=0);
+     if(!active.length)throw Error('no active players');
+     for(const i of active){adventure.lanes[i].correct=success;adSubmit(i)}
+     clearTimeout(revealTimer);
+     if(adventure.defeats||adventure.bossHp<1||adventure.justWonBoss)early=true;
+     if(adventure.solved>=target&&adventure.bossHp===1)shieldReached=true;
+     if(adventure.lanes.reduce((n,l)=>n+l.points,0)!==adventure.solved)scoreMismatch=true;
+     adNext();
+    }
+    return {target,early,scoreMismatch,shieldReached,phase,attendance:adAttendance(),attempted:adventure.attempted,solved:adventure.solved,hp:adventure.bossHp,defeats:adventure.defeats,points:adventure.lanes.map(l=>l.points)};
+   },success);
+   assert.equal(report.target,32);assert.equal(report.attempted,42);assert.deepEqual(report.attendance,{all:21,done:21});
+   assert.equal(report.early,false);assert.equal(report.scoreMismatch,false);
+   assert.equal(report.phase,success?'boss-clear':'done');assert.equal(report.defeats,success?1:0);
+   assert.equal(report.solved,success?42:0);assert.equal(report.hp,success?0:32);
+   if(success){assert(report.shieldReached);await page.locator('.boss-cleared-next').click()}
+   assert(await page.locator('.ad-raid-result').isVisible());
+   assert((await page.locator('.ad-raid-result').innerText()).includes(success?'성공':'못 미쳤'));
+   assert.equal(await page.locator('.ad-endteam').count(),4);
+   log('21명 협동 보스전',success?'성공':'실패',JSON.stringify(report));
+  }finally{await page.close()}
+ }
+}
 (async()=>{
  browser=await chromium.launch({headless:true,channel:'chrome',args:['--no-sandbox']});
  const results=[];
@@ -345,6 +390,7 @@ async function auditTouchBottomPlacement(browser) {
    results.push(await play4Teams(browser,'build',1));
    results.push(await play4Teams(browser,'repair',1));
    results.push(await play4Teams(browser,'boss',2));
+   await auditClassRaid(browser);
    await sharedChoice(browser);
    await auditAllGradeSentences(browser);
    await auditTwoToSixTeamLayouts(browser);
