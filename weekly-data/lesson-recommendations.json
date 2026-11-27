@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-26T18:42:59.495028+00:00",
+  "generated_at": "2026-11-27T00:50:14.875897+00:00",
   "method": "literal_pdf_text_matching",
   "description": "학습안내의 표현을 확인한 뒤 기존 활동으로 연결하는 규칙 기반 추천. 교과서 원문 또는 성취기준 검증이 아닙니다.",
   "weeks": {
